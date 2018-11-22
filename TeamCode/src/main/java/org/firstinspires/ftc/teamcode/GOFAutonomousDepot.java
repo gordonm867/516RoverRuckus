@@ -26,7 +26,6 @@ import java.util.Scanner;
 public class GOFAutonomousDepot extends LinearOpMode implements Runnable {
 
     /* Declare OpMode members */
-
     private BNO055IMU gyro0;
     private BNO055IMU gyro1;
     private GOFHardware robot = GOFHardware.getInstance(); // Use the GOFHardware class
