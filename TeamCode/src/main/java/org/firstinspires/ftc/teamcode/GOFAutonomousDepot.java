@@ -58,6 +58,8 @@ public class GOFAutonomousDepot extends LinearOpMode implements Runnable {
         vuforiaInit();
         detectInit();
 
+        GOFAutoTransitioner.transitionOnStop(this, "GOFTeleOp");
+
         while(opModeIsActive() && vuforiaThread.isAlive() && !vuforiaThread.isInterrupted()) {}
 
         if (!(detector == null)) {
@@ -146,7 +148,7 @@ public class GOFAutonomousDepot extends LinearOpMode implements Runnable {
         robot.hangOne.setPower(-1);
     }
 
-    public void descend() {
+    private void descend() {
         resetEncoders();
         robot.hangOne.setTargetPosition(-8558);
         while (opModeIsActive() && robot.hangOne.getCurrentPosition() > -8558) {
@@ -159,7 +161,7 @@ public class GOFAutonomousDepot extends LinearOpMode implements Runnable {
         resetEncoders();
     }
 
-    public int detectGold() {
+    private int detectGold() {
         while (!isStopRequested() && !isStarted()) {
             if (detector != null) { // The detector will be null if it's not supported on the device, which shouldn't be a concern, but this helps guarantee no crashes
                 List<Recognition> updatedRecognitions = detector.getUpdatedRecognitions(); // ArrayList of detected objects
@@ -171,10 +173,10 @@ public class GOFAutonomousDepot extends LinearOpMode implements Runnable {
                         telemetry.addData("Status", "Filtering out double-detections....");
                         telemetry.update();
                         Recognition recognition = updatedRecognitionsItr.next();
-                        if (updatedRecognitions.size() > 2) {
-                            for (Recognition recognitionNested : updatedRecognitions) {
-                                if ((recognitionNested.getLeft() + 10 > recognition.getLeft()) && (recognitionNested.getLeft() - 10 < recognition.getLeft()) && (recognitionNested.getTop() + 10 > recognition.getTop() && recognitionNested.getTop() - 10 < recognition.getTop())) {
-                                    if (recognitionNested != recognition) {
+                        if(updatedRecognitions.size() > 2) {
+                            for(Recognition recognitionNested : updatedRecognitions) {
+                                if((recognitionNested.getLeft() + 10 > recognition.getLeft()) && (recognitionNested.getLeft() - 10 < recognition.getLeft()) && (recognitionNested.getTop() + 10 > recognition.getTop() && recognitionNested.getTop() - 10 < recognition.getTop())) {
+                                    if(recognitionNested != recognition) {
                                         remove = true;
                                     }
                                 }
@@ -186,22 +188,26 @@ public class GOFAutonomousDepot extends LinearOpMode implements Runnable {
                             if(updatedRecognitions.size() > 2) {
                                 telemetry.addData("Status", "Filtering out crater....");
                                 telemetry.update();
-                                Recognition max = null;
-                                double maxRecY = 0;
-                                double average = 0;
-                                for (Recognition maxFind : updatedRecognitions) {
-                                    average += maxFind.getLeft();
-                                    if (maxFind.getLeft() > maxRecY) {
-                                        maxRecY = maxFind.getLeft();
-                                        max = maxFind;
+                                Recognition min1 = null;
+                                Recognition min2 = null;
+                                double minRecY = Double.MAX_VALUE;
+                                for(Recognition minFind : updatedRecognitions) {
+                                    if(minFind.getLeft() < minRecY) {
+                                        minRecY = minFind.getLeft();
+                                        min1 = minFind;
                                     }
                                 }
-                                average = average / updatedRecognitions.size();
+                                minRecY = Double.MAX_VALUE;
+                                for(Recognition minFind : updatedRecognitions) {
+                                    if(minFind.getLeft() < minRecY && minFind != min1) {
+                                        minRecY = minFind.getLeft();
+                                        min2 = minFind;
+                                    }
+                                }
                                 updatedRecognitionsItr = updatedRecognitions.iterator();
-                                int size = updatedRecognitions.size();
                                 while (updatedRecognitionsItr.hasNext()) {
                                     recognition = updatedRecognitionsItr.next();
-                                    if (recognition == max && !((average + 100 > recognition.getLeft()) && size == 3)) {
+                                    if(recognition != min1 && recognition != min2) {
                                         updatedRecognitionsItr.remove();
                                     }
                                 }
@@ -287,7 +293,7 @@ public class GOFAutonomousDepot extends LinearOpMode implements Runnable {
         return goldPos;
     }
 
-    public void encoderMovePreciseTimed(int rr, int rf, int lr, int lf, double speed, double timeLimit) { // Move encoders towards target position until the position is reached, or the time limit expires
+    private void encoderMovePreciseTimed(int rr, int rf, int lr, int lf, double speed, double timeLimit) { // Move encoders towards target position until the position is reached, or the time limit expires
         if (opModeIsActive() && robot.rrWheel != null && robot.rfWheel != null && robot.lrWheel != null && robot.lfWheel != null && robot.hangOne != null) {
             robot.rrWheel.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             robot.rfWheel.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -322,7 +328,7 @@ public class GOFAutonomousDepot extends LinearOpMode implements Runnable {
     }
 
     /* Reset encoders and set modes to "Run to position" */
-    public void resetEncoders() { // Reset encoder values and set encoders to "run to position" mode
+    private void resetEncoders() { // Reset encoder values and set encoders to "run to position" mode
         robot.rrWheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         robot.rfWheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         robot.lfWheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);

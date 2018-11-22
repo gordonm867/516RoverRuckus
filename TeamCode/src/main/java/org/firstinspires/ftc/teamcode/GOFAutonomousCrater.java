@@ -23,6 +23,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
+import org.firstinspires.ftc.robotcore.internal.opmode.OpModeManagerImpl;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -41,6 +42,7 @@ public class GOFAutonomousCrater extends LinearOpMode implements Runnable {
     private BNO055IMU gyro1;
     private GOFHardware robot = GOFHardware.getInstance(); // Use the GOFHardware class
     private ElapsedTime elapsedTime = new ElapsedTime(); // Measure timing
+    private OpModeManagerImpl manager = (OpModeManagerImpl)internalOpModeServices;
     private Thread vuforiaThread;
 
     private static final String TFOD_MODEL_ASSET = "RoverRuckus.tflite";
@@ -67,6 +69,8 @@ public class GOFAutonomousCrater extends LinearOpMode implements Runnable {
 
         vuforiaInit();
         detectInit();
+
+        GOFAutoTransitioner.transitionOnStop(this, "GOFTeleOp");
 
         while(!isStopRequested() && vuforiaThread.isAlive() && !vuforiaThread.isInterrupted()) {}
 
@@ -111,6 +115,7 @@ public class GOFAutonomousCrater extends LinearOpMode implements Runnable {
             telemetry.addData("Note", "Angle could not be saved; please manually initialize gyro in TeleOp");
             telemetry.update();
         }
+        manager.initActiveOpMode("GOFTeleOp");
     }
 
     private void centerCraterAuto() {
@@ -170,74 +175,15 @@ public class GOFAutonomousCrater extends LinearOpMode implements Runnable {
         if (opModeIsActive()) {
             robot.setKickPower(kickReadyPos); // Move kicker out of the way
         }
-        /* encoderMovePreciseTimed(555, -780, -674, 877, 0.8, 2);
+        encoderMovePreciseTimed(555, -780, -674, 877, 0.8, 2);
         robot.setInPower(0.5);
         encoderMovePreciseTimed(34, 61, -58, -79, 0.8, 1);
         encoderMovePreciseTimed(-512, -591, -525, -601, 0.8, 2);
         robot.setInPower(0);
-        encoderMovePreciseTimed(-139, -179, -138, -151, 0.8, 2); */
-        final List<DcMotor> motors = Arrays.asList(robot.lfWheel, robot.lrWheel, robot.rrWheel, robot.rfWheel);
-        for(DcMotor motor : motors) {
-            motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        }
-        MecanumDrive drive = new MecanumDrive(18, 4) {
-            @Override
-            public void setMotorPowers(double v, double v1, double v2, double v3) {
-                robot.lfWheel.setPower(v);
-                robot.lrWheel.setPower(v1);
-                robot.rrWheel.setPower(v2);
-                robot.rfWheel.setPower(v3);
-            }
-
-            @NotNull
-            @Override
-            public List<Double> getWheelPositions() {
-                List<Double> wheelPositions = new ArrayList<>();
-                for (DcMotor motor : motors) {
-                    wheelPositions.add(motor.getCurrentPosition() * 4.0 * Math.PI / -1120);
-                }
-                return wheelPositions;
-            }
-
-            @Override
-            public double getExternalHeading() {
-                Orientation g0angles = null;
-                Orientation g1angles = null;
-                if (robot.gyro0 != null) {
-                    g0angles = robot.gyro0.getAngularOrientation(); // Get z axis angle from first gyro (in radians so that a conversion is unnecessary for proper employment of Java's Math class)
-                }
-                if (robot.gyro1 != null) {
-                    g1angles = robot.gyro1.getAngularOrientation(); // Get z axis angle from second gyro (in radians so that a conversion is unnecessary for proper employment of Java's Math class)
-                }
-                double robotAngle;
-                if (g0angles != null && g1angles != null) {
-                    robotAngle = ((g0angles.firstAngle + g1angles.firstAngle) / 2); // Average angle measures to determine actual robot angle
-                } else if (g0angles != null) {
-                    robotAngle = g0angles.firstAngle;
-                } else if (g1angles != null) {
-                    robotAngle = g1angles.firstAngle;
-                } else {
-                    robotAngle = 0;
-                }
-                return robotAngle;
-            }
-        };
-        PIDCoefficients translations = new PIDCoefficients();
-        PIDCoefficients headingCoeffs = new PIDCoefficients();
-        DriveConstraints constraints = new DriveConstraints(25, 30, 180, 360);
-        Trajectory trajectory = new TrajectoryBuilder(new Pose2d(9, 10), constraints)
-                .splineTo(new Pose2d(25, 25))
-                .splineTo(new Pose2d(28, 47))
-                .splineTo(new Pose2d(-46, 27))
-                .splineTo(new Pose2d(-62, 57))
-                .splineTo(new Pose2d(30, 57))
-                .build();
-        MecanumPIDVAFollower follower = new MecanumPIDVAFollower(drive, translations, headingCoeffs, 0, 0, 0);
-        follower.followTrajectory(trajectory);
-        while(opModeIsActive() && follower.isFollowing()) {}
+        encoderMovePreciseTimed(-139, -179, -138, -151, 0.8, 2);
     }
 
-    public void descend() {
+    private void descend() {
         resetEncoders();
         robot.hangOne.setTargetPosition(-8263);
         while (opModeIsActive() && robot.hangOne.getCurrentPosition() > -8263) {
@@ -252,7 +198,7 @@ public class GOFAutonomousCrater extends LinearOpMode implements Runnable {
         robot.hangOne.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     }
 
-    public int detectGold() {
+    private int detectGold() {
         while (!isStopRequested() && !isStarted()) {
             if (detector != null) { // The detector will be null if it's not supported on the device, which shouldn't be a concern, but this helps guarantee no crashes
                 List<Recognition> updatedRecognitions = detector.getUpdatedRecognitions(); // ArrayList of detected objects
@@ -264,10 +210,10 @@ public class GOFAutonomousCrater extends LinearOpMode implements Runnable {
                         telemetry.addData("Status", "Filtering out double-detections....");
                         telemetry.update();
                         Recognition recognition = updatedRecognitionsItr.next();
-                        if (updatedRecognitions.size() > 2) {
-                            for (Recognition recognitionNested : updatedRecognitions) {
-                                if ((recognitionNested.getLeft() + 10 > recognition.getLeft()) && (recognitionNested.getLeft() - 10 < recognition.getLeft()) && (recognitionNested.getTop() + 10 > recognition.getTop() && recognitionNested.getTop() - 10 < recognition.getTop())) {
-                                    if (recognitionNested != recognition) {
+                        if(updatedRecognitions.size() > 2) {
+                            for(Recognition recognitionNested : updatedRecognitions) {
+                                if((recognitionNested.getLeft() + 10 > recognition.getLeft()) && (recognitionNested.getLeft() - 10 < recognition.getLeft()) && (recognitionNested.getTop() + 10 > recognition.getTop() && recognitionNested.getTop() - 10 < recognition.getTop())) {
+                                    if(recognitionNested != recognition) {
                                         remove = true;
                                     }
                                 }
@@ -279,22 +225,26 @@ public class GOFAutonomousCrater extends LinearOpMode implements Runnable {
                             if(updatedRecognitions.size() > 2) {
                                 telemetry.addData("Status", "Filtering out crater....");
                                 telemetry.update();
-                                Recognition max = null;
-                                double maxRecY = 0;
-                                double average = 0;
-                                for (Recognition maxFind : updatedRecognitions) {
-                                    average += maxFind.getLeft();
-                                    if (maxFind.getLeft() > maxRecY) {
-                                        maxRecY = maxFind.getLeft();
-                                        max = maxFind;
+                                Recognition min1 = null;
+                                Recognition min2 = null;
+                                double minRecY = Double.MAX_VALUE;
+                                for(Recognition minFind : updatedRecognitions) {
+                                    if(minFind.getLeft() < minRecY) {
+                                        minRecY = minFind.getLeft();
+                                        min1 = minFind;
                                     }
                                 }
-                                average = average / updatedRecognitions.size();
+                                minRecY = Double.MAX_VALUE;
+                                for(Recognition minFind : updatedRecognitions) {
+                                    if(minFind.getLeft() < minRecY && minFind != min1) {
+                                        minRecY = minFind.getLeft();
+                                        min2 = minFind;
+                                    }
+                                }
                                 updatedRecognitionsItr = updatedRecognitions.iterator();
-                                int size = updatedRecognitions.size();
                                 while (updatedRecognitionsItr.hasNext()) {
                                     recognition = updatedRecognitionsItr.next();
-                                    if (recognition == max && !((average + 100 > recognition.getLeft()) && size == 3)) {
+                                    if(recognition != min1 && recognition != min2) {
                                         updatedRecognitionsItr.remove();
                                     }
                                 }
@@ -380,7 +330,7 @@ public class GOFAutonomousCrater extends LinearOpMode implements Runnable {
         return goldPos;
     }
 
-    public void encoderMovePreciseTimed(int rr, int rf, int lr, int lf, double speed, double timeLimit) { // Move encoders towards target position until the position is reached, or the time limit expires
+    private void encoderMovePreciseTimed(int rr, int rf, int lr, int lf, double speed, double timeLimit) { // Move encoders towards target position until the position is reached, or the time limit expires
         if (opModeIsActive() && robot.rrWheel != null && robot.rfWheel != null && robot.lrWheel != null && robot.lfWheel != null && robot.hangOne != null) {
             robot.rrWheel.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             robot.rfWheel.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -409,7 +359,7 @@ public class GOFAutonomousCrater extends LinearOpMode implements Runnable {
     }
 
     /* Reset encoders and set modes to "Run to position" */
-    public void resetEncoders() { // Reset encoder values and set encoders to "run to position" mode
+    private void resetEncoders() { // Reset encoder values and set encoders to "run to position" mode
         robot.rrWheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         robot.rfWheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         robot.lfWheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -639,7 +589,7 @@ public class GOFAutonomousCrater extends LinearOpMode implements Runnable {
         resetEncoders();
     }
 
-    public void vuforiaInit() { // Initialize Vuforia
+    private void vuforiaInit() { // Initialize Vuforia
         VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
 
         parameters.vuforiaLicenseKey = VUFORIA_KEY;
@@ -648,7 +598,7 @@ public class GOFAutonomousCrater extends LinearOpMode implements Runnable {
         vuforia = ClassFactory.getInstance().createVuforia(parameters);
     }
 
-    public void detectInit() { // Initialize TensorFlow detector
+    private void detectInit() { // Initialize TensorFlow detector
         int tfodMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(
                 "tfodMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
@@ -660,7 +610,7 @@ public class GOFAutonomousCrater extends LinearOpMode implements Runnable {
     }
 
     /* Update telemetry with autonomous encoder positions */
-    public void updateTelemetry() { // Update telemetry on autonomous statuses
+    private void updateTelemetry() { // Update telemetry on autonomous statuses
         telemetry.addData("Remaining Distances", "");
         telemetry.addData("  rr: ", robot.rrWheel.getTargetPosition() - robot.rrWheel.getCurrentPosition());
         telemetry.addData("  rf: ", robot.rfWheel.getTargetPosition() - robot.rfWheel.getCurrentPosition());
@@ -712,7 +662,7 @@ public class GOFAutonomousCrater extends LinearOpMode implements Runnable {
         Thread.currentThread().interrupt();
     }
 
-    public void storeAngle() throws IOException {
+    private void storeAngle() throws IOException {
         Orientation g0angles = null;
         Orientation g1angles = null;
         if (robot.gyro0 != null) {
