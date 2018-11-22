@@ -1,0 +1,3 @@
+# Referenced at /Users/mgordon/ftc_app/TeamCode/build/intermediates/manifests/full/debug/AndroidManifest.xml:83
+-keep class org.firstinspires.ftc.robotcore.internal.system.RobotApplication { <init>(...); }
+
