@@ -91,7 +91,7 @@ public class GOFAutonomousCrater extends LinearOpMode implements Runnable {
         }
 
         /* Descend */
-       // descend();
+       descend();
 
         /* Move to gold */
         if (robot.rrWheel != null && robot.rfWheel != null && robot.lfWheel != null && robot.lrWheel != null && opModeIsActive()) {
@@ -130,14 +130,14 @@ public class GOFAutonomousCrater extends LinearOpMode implements Runnable {
     private void rightCraterAuto() {
         encoderMovePreciseTimed(235, -278, -264, 285, 1, 1); // side to side
         encoderMovePreciseTimed(-525, -542, -516, -534, 0.5, 1);
-       // robot.hangOne.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-       // robot.hangOne.setTargetPosition(8263);
-       // robot.setHangPower(-1);
+        robot.hangOne.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        robot.hangOne.setTargetPosition(8263);
+        robot.setHangPower(-1);
         if (opModeIsActive()) {
             robot.setKickPower(kickReadyPos); // Move kicker out of the way
         }
         encoderMovePreciseTimed(-979, 1009, 928, -961, 0.8, 2);
-       // while(opModeIsActive() && !robot.bottomSensor.isPressed()) {}
+        while(opModeIsActive() && !robot.bottomSensor.isPressed() && robot.hangOne.isBusy()) {}
         robot.setHangPower(0);
         robot.setInPower(0.5);
         encoderMovePreciseTimed(-546, -609, -491, -595, 0.5, 2);
@@ -157,8 +157,8 @@ public class GOFAutonomousCrater extends LinearOpMode implements Runnable {
         encoderMovePreciseTimed(731, 672, 690, 695, -1, 2);
         encoderMovePreciseTimed(-494, 1951, 1753, -418, 1, 2);
         encoderMovePreciseTimed(711, 698, 706, 696, -1, 2);
-        // robot.hangOne.setTargetPosition(-8263);
-        // robot.setHangPower(1);
+        robot.hangOne.setTargetPosition(-8263);
+        robot.setHangPower(1);
     }
 
     private void leftCraterAuto() {
