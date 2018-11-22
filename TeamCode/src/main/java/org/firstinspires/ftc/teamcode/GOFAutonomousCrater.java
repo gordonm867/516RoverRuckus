@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
+import android.os.Environment;
 import android.util.Log;
 
 import com.acmerobotics.roadrunner.Pose2d;
@@ -27,6 +28,7 @@ import org.firstinspires.ftc.robotcore.internal.opmode.OpModeManagerImpl;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -127,6 +129,14 @@ public class GOFAutonomousCrater extends LinearOpMode implements Runnable {
             robot.setKickPower(kickReadyPos); // Move kicker out of the way
         }
         encoderMovePreciseTimed(43, 65, -41, -54, 0.8, 2);
+        while(opModeIsActive() && !robot.bottomSensor.isPressed() && robot.hangOne.isBusy()) {
+            double oldPos = robot.hangOne.getCurrentPosition();
+            sleep(100);
+            double newPos = robot.hangOne.getCurrentPosition();
+            if(oldPos == newPos) {
+                break;
+            }
+        }
         robot.setInPower(0.5);
         encoderMovePreciseTimed(-458, -510, -502, -539, 0.8, 2);
         encoderMovePreciseTimed(-176, -205, -185, -216, 0.8, 2);
@@ -142,7 +152,14 @@ public class GOFAutonomousCrater extends LinearOpMode implements Runnable {
             robot.setKickPower(kickReadyPos); // Move kicker out of the way
         }
         encoderMovePreciseTimed(-979, 1009, 928, -961, 0.8, 2);
-        while(opModeIsActive() && !robot.bottomSensor.isPressed() && robot.hangOne.isBusy()) {}
+        while(opModeIsActive() && !robot.bottomSensor.isPressed() && robot.hangOne.isBusy()) {
+            double oldPos = robot.hangOne.getCurrentPosition();
+            sleep(100);
+            double newPos = robot.hangOne.getCurrentPosition();
+            if(oldPos == newPos) {
+                break;
+            }
+        }
         robot.setHangPower(0);
         robot.setInPower(0.5);
         encoderMovePreciseTimed(-546, -609, -491, -595, 0.5, 2);
@@ -176,6 +193,14 @@ public class GOFAutonomousCrater extends LinearOpMode implements Runnable {
             robot.setKickPower(kickReadyPos); // Move kicker out of the way
         }
         encoderMovePreciseTimed(555, -780, -674, 877, 0.8, 2);
+        while(opModeIsActive() && !robot.bottomSensor.isPressed() && robot.hangOne.isBusy()) {
+            double oldPos = robot.hangOne.getCurrentPosition();
+            sleep(100);
+            double newPos = robot.hangOne.getCurrentPosition();
+            if(oldPos == newPos) {
+                break;
+            }
+        }
         robot.setInPower(0.5);
         encoderMovePreciseTimed(34, 61, -58, -79, 0.8, 1);
         encoderMovePreciseTimed(-512, -591, -525, -601, 0.8, 2);
@@ -841,13 +866,18 @@ public class GOFAutonomousCrater extends LinearOpMode implements Runnable {
         } else {
             robotAngle = 0;
         }
-        File file = new File("gof.txt");
-        if(!file.createNewFile()) {
-            Log.e("File note", "File not created");
+        File fileDir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator);
+        File file = new File(fileDir, "gof.txt");
+        boolean created = file.exists();
+        if (!created) {
+            created = file.mkdirs();
         }
-        PrintWriter outFile = new PrintWriter(file);
-        outFile.print(robotAngle);
-        outFile.close();
+        if(created) {
+            File txtfile = new File(file, "gof.txt");
+            FileWriter writer = new FileWriter(txtfile);
+            writer.append(Double.toString(robotAngle));
+            writer.close();
+        }
     }
 
 

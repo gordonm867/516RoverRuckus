@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
+import android.os.Environment;
+
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -47,7 +49,7 @@ public class GOFTeleOp extends OpMode {
 
         msStuckDetectInit = 10000; // Allow gyros to calibrate
         robot.init(hardwareMap);
-        File fileName = new File("gof.txt");
+        File fileName = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "gof.txt");
         try {
             Scanner inFile = new Scanner(fileName);
             firstAngleOffset = inFile.nextDouble();

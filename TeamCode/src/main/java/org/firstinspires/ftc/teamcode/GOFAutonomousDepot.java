@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
+import android.os.Environment;
+
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -16,6 +18,7 @@ import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Iterator;
@@ -682,13 +685,36 @@ public class GOFAutonomousDepot extends LinearOpMode implements Runnable {
         Thread.currentThread().interrupt();
     }
 
-    public void storeAngle() throws IOException {
-        Orientation g0angles = gyro0.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
-        Orientation g1angles = gyro1.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
-        double robotAngle = ((g0angles.firstAngle + g1angles.firstAngle) / 2);
-        PrintWriter outFile = new PrintWriter("gof.txt");
-        outFile.print(robotAngle);
-        outFile.close();
+    private void storeAngle() throws IOException {
+        Orientation g0angles = null;
+        Orientation g1angles = null;
+        if (robot.gyro0 != null) {
+            g0angles = robot.gyro0.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.RADIANS); // Get z axis angle from first gyro (in radians so that a conversion is unnecessary for proper employment of Java's Math class)
+        }
+        if (robot.gyro1 != null) {
+            g1angles = robot.gyro1.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.RADIANS); // Get z axis angle from second gyro (in radians so that a conversion is unnecessary for proper employment of Java's Math class)
+        }
+        double robotAngle;
+        if (g0angles != null && g1angles != null) {
+            robotAngle = ((g0angles.firstAngle + g1angles.firstAngle) / 2); // Average angle measures to determine actual robot angle
+        } else if (g0angles != null) {
+            robotAngle = g0angles.firstAngle;
+        } else if (g1angles != null) {
+            robotAngle = g1angles.firstAngle;
+        } else {
+            robotAngle = 0;
+        }
+        File file = new File(Environment.getExternalStorageDirectory(), "GOFData");
+        boolean created = file.exists();
+        if (!created) {
+            created = file.mkdirs();
+        }
+        if(created) {
+            File txtfile = new File(file, "gof.txt");
+            FileWriter writer = new FileWriter(txtfile);
+            writer.append(Double.toString(robotAngle));
+            writer.close();
+        }
     }
 
 
