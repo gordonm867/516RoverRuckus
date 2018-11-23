@@ -41,7 +41,7 @@ public class GOFAutoTransitioner extends Thread {
             }
             else {
                 if(manager.getActiveOpModeName().equals(nextOpMode)) {
-                    Log.e(TAG, "Automatic transitioner successfully initialized TeleOp"); // Note success for debugging
+                    Log.e(TAG, "Automatic transitioner successfully initialized " + nextOpMode); // Note success for debugging
                 }
                 else {
                     Log.e(TAG, "Automatic transitioner failed with exception", p_exception); // Add data to logcat for debugging

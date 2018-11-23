@@ -9,6 +9,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
+import org.firstinspires.ftc.robotcore.external.navigation.Acceleration;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
@@ -778,12 +779,29 @@ public class GOFAutonomousDepot extends LinearOpMode implements Runnable {
         robot.rfWheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         robot.lrWheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         robot.lfWheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        robot.setDrivePower(-0.25, 0.25, 0.25, -0.25);
         ElapsedTime time = new ElapsedTime();
-        double xAccel = ((robot.gyro0.getAcceleration().xAccel + robot.gyro1.getAcceleration().xAccel) / 2);
         double distance = 0;
-        while (distance < meters || !opModeIsActive()) {
-            distance = ((0.5) * xAccel * Math.pow(time.time(), 2));
+        while (distance < meters && opModeIsActive()) {
+            robot.setDrivePower(-0.25, 0.25, 0.25, -0.25);
+            Acceleration g0accel = null;
+            Acceleration g1accel = null;
+            double robotAccel;
+            if (robot.gyro0 != null) {
+                g0accel = robot.gyro0.getAcceleration();
+            }
+            if (robot.gyro1 != null) {
+                g1accel = robot.gyro1.getAcceleration();
+            }
+            if (g0accel != null && g1accel != null) {
+                robotAccel = ((g0accel.xAccel + g1accel.xAccel) / 2);
+            } else if (g0accel != null) {
+                robotAccel = g0accel.xAccel;
+            } else if (g1accel != null) {
+                robotAccel = g1accel.xAccel;
+            } else {
+                robotAccel = 0;
+            }
+            distance = ((0.5) * robotAccel * Math.pow(time.time(), 2));
             telemetry.addData("Distance Moved", "" + distance);
             telemetry.addData("Distance Remaining", "" + (meters - distance));
             telemetry.addData("Intended Total Distance", "" + meters);
@@ -799,12 +817,29 @@ public class GOFAutonomousDepot extends LinearOpMode implements Runnable {
         robot.rfWheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         robot.lrWheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         robot.lfWheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        robot.setDrivePower(0.25, -0.25, -0.25, 0.25);
         ElapsedTime time = new ElapsedTime();
-        double xAccel = ((robot.gyro0.getAcceleration().xAccel + robot.gyro1.getAcceleration().xAccel) / 2);
         double distance = 0;
-        while (distance < meters || !opModeIsActive()) {
-            distance = ((0.5) * xAccel * Math.pow(time.time(), 2));
+        while (distance < meters && opModeIsActive()) {
+            robot.setDrivePower(0.25, -0.25, -0.25, 0.25);
+            Acceleration g0accel = null;
+            Acceleration g1accel = null;
+            double robotAccel;
+            if (robot.gyro0 != null) {
+                g0accel = robot.gyro0.getAcceleration();
+            }
+            if (robot.gyro1 != null) {
+                g1accel = robot.gyro1.getAcceleration();
+            }
+            if (g0accel != null && g1accel != null) {
+                robotAccel = ((g0accel.xAccel + g1accel.xAccel) / 2);
+            } else if (g0accel != null) {
+                robotAccel = g0accel.xAccel;
+            } else if (g1accel != null) {
+                robotAccel = g1accel.xAccel;
+            } else {
+                robotAccel = 0;
+            }
+            distance = ((0.5) * robotAccel * Math.pow(time.time(), 2));
             telemetry.addData("Distance Moved", "" + distance);
             telemetry.addData("Distance Remaining", "" + (meters - distance));
             telemetry.addData("Intended Total Distance", "" + meters);
@@ -820,12 +855,29 @@ public class GOFAutonomousDepot extends LinearOpMode implements Runnable {
         robot.rfWheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         robot.lrWheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         robot.lfWheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        robot.setDrivePower(0.25, 0.25, 0.25, 0.25);
         ElapsedTime time = new ElapsedTime();
-        double xAccel = ((robot.gyro0.getAcceleration().xAccel + robot.gyro1.getAcceleration().xAccel) / 2);
         double distance = 0;
-        while (distance < meters || !opModeIsActive()) {
-            distance = ((0.5) * xAccel * Math.pow(time.time(), 2));
+        while (distance < meters && opModeIsActive()) {
+            robot.setDrivePower(0.25, 0.25, 0.25, 0.25);
+            Acceleration g0accel = null;
+            Acceleration g1accel = null;
+            double robotAccel;
+            if (robot.gyro0 != null) {
+                g0accel = robot.gyro0.getAcceleration();
+            }
+            if (robot.gyro1 != null) {
+                g1accel = robot.gyro1.getAcceleration();
+            }
+            if (g0accel != null && g1accel != null) {
+                robotAccel = ((g0accel.zAccel + g1accel.zAccel) / 2);
+            } else if (g0accel != null) {
+                robotAccel = g0accel.zAccel;
+            } else if (g1accel != null) {
+                robotAccel = g1accel.zAccel;
+            } else {
+                robotAccel = 0;
+            }
+            distance = ((0.5) * robotAccel * Math.pow(time.time(), 2));
             telemetry.addData("Distance Moved", "" + distance);
             telemetry.addData("Distance Remaining", "" + (meters - distance));
             telemetry.addData("Intended Total Distance", "" + meters);
@@ -841,12 +893,29 @@ public class GOFAutonomousDepot extends LinearOpMode implements Runnable {
         robot.rfWheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         robot.lrWheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         robot.lfWheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        robot.setDrivePower(-0.25, -0.25, -0.25, -0.25);
         ElapsedTime time = new ElapsedTime();
-        double xAccel = ((robot.gyro0.getAcceleration().xAccel + robot.gyro1.getAcceleration().xAccel) / 2);
         double distance = 0;
-        while (distance < meters || !opModeIsActive()) {
-            distance = ((0.5) * xAccel * Math.pow(time.time(), 2));
+        while (distance > meters && opModeIsActive()) {
+            robot.setDrivePower(-0.25, -0.25, -0.25, -0.25);
+            Acceleration g0accel = null;
+            Acceleration g1accel = null;
+            double robotAccel;
+            if (robot.gyro0 != null) {
+                g0accel = robot.gyro0.getAcceleration();
+            }
+            if (robot.gyro1 != null) {
+                g1accel = robot.gyro1.getAcceleration();
+            }
+            if (g0accel != null && g1accel != null) {
+                robotAccel = ((g0accel.zAccel + g1accel.zAccel) / 2);
+            } else if (g0accel != null) {
+                robotAccel = g0accel.zAccel;
+            } else if (g1accel != null) {
+                robotAccel = g1accel.zAccel;
+            } else {
+                robotAccel = 0;
+            }
+            distance = ((0.5) * robotAccel * Math.pow(time.time(), 2));
             telemetry.addData("Distance Moved", "" + distance);
             telemetry.addData("Distance Remaining", "" + (meters - distance));
             telemetry.addData("Intended Total Distance", "" + meters);
