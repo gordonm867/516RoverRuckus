@@ -624,10 +624,10 @@ public class GOFAutonomousCrater extends LinearOpMode implements Runnable {
         while(angle > 180) {
             angle -= 360;
         }
-        robot.rrWheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        robot.rfWheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        robot.lfWheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        robot.lrWheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        robot.rrWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.rfWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.lfWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.lrWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         Orientation g0angles = null;
         Orientation g1angles = null;
         double robotAngle;
@@ -704,10 +704,10 @@ public class GOFAutonomousCrater extends LinearOpMode implements Runnable {
         while(angle > 180) {
             angle -= 360;
         }
-        robot.rrWheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        robot.rfWheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        robot.lfWheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        robot.lrWheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        robot.rrWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.rfWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.lfWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.lrWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         Orientation g0angles = null;
         Orientation g1angles = null;
         double robotAngle;
