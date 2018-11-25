@@ -5,7 +5,7 @@ Device Directory:
 
 Motor Controller 0 Port 0 rrWheel           (rr)
 Motor Controller 0 Port 1 rfWheel           (rf)
-Motor Controller 0 Port 2 hangOne           (h1)
+Motor Controller 1 Port 0 hangOne           (h1)
 Motor Controller 1 Port 1 intake            (inw)
 Motor Controller 1 Port 2 lfWheel           (lf)
 Motor Controller 1 Port 3 lrWheel           (lr)

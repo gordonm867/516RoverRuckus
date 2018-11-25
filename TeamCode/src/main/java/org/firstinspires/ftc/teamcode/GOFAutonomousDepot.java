@@ -41,7 +41,7 @@ public class GOFAutonomousDepot extends LinearOpMode implements Runnable {
     private static final String LABEL_SILVER_MINERAL = "Silver Mineral";
     private static final String VUFORIA_KEY = "AWVhzQD/////AAABmWz790KTAURpmjOzox2azmML6FgjPO5DBf5SHQLIKvCsslmH9wp8b5zkCGfES8tt+8xslwaK7sd2h5H1jwmix26x+Eg5j60l00SlNiJMDAp5IOMWvhdJGZ8jJ8wFHCNkwERQG57JnrOXVSFDlc1sfum3oH68fEd8RrA570Y+WQda1fP8hYdZtbgG+ZDVG+9XyoDrToYU3FYl3WM1iUphAbHJz1BMFFnWJdbZzOicvqah/RwXqtxRDNlem3JdT4W95kCY5bckg92oaFIBk9n01Gzg8w5mFTReYMVI3Fne72/KpPRPJwblO0W9OI3o7djg+iPjxkKOeHUWW+tmi6r3LRaKTrIUfLfazRu0QwLA8Bgw";
 
-    private VuforiaLocalizer vuforia;
+    private GOFVuforiaLocalizer vuforia;
     private TFObjectDetector detector;
 
     private boolean remove;
@@ -90,6 +90,7 @@ public class GOFAutonomousDepot extends LinearOpMode implements Runnable {
         waitForStart(); // Wait for user to press "PLAY"
 
         detector.shutdown();
+        vuforia.close();
 
         robot.playSound(goldPos);
         if (robot.soundError) {
@@ -505,7 +506,7 @@ public class GOFAutonomousDepot extends LinearOpMode implements Runnable {
         double angleIntended = robotAngle + angle;
         if (angleIntended < robotAngle) { // left turn
             while(angleIntended < robotAngle) {
-                robot.setDrivePower(0.25, 0.25, -0.25, -0.25);
+                robot.setDrivePower(0.05 * Math.abs(angleIntended - robotAngle), 0.05 * Math.abs(angleIntended - robotAngle), -0.05 * Math.abs(angleIntended - robotAngle), -0.05 * Math.abs(angleIntended - robotAngle));
                 g0angles = null;
                 g1angles = null;
                 if (robot.gyro0 != null) {
@@ -528,7 +529,7 @@ public class GOFAutonomousDepot extends LinearOpMode implements Runnable {
         }
         else if (angleIntended > robotAngle) {
             while (angleIntended > robotAngle) {
-                robot.setDrivePower(-0.25, -0.25, 0.25, 0.25);
+                robot.setDrivePower(-0.05 * Math.abs(angleIntended - robotAngle), -0.05 * Math.abs(angleIntended - robotAngle), 0.05 * Math.abs(angleIntended - robotAngle), 0.05 * Math.abs(angleIntended - robotAngle));
                 g0angles = null;
                 g1angles = null;
                 if (robot.gyro0 != null) {
@@ -585,7 +586,7 @@ public class GOFAutonomousDepot extends LinearOpMode implements Runnable {
         double angleIntended = robotAngle + angle;
         if (angleIntended < robotAngle) { // Left turn
             while(opModeIsActive() && angleIntended < robotAngle && turnTime.time() < time) {
-                robot.setDrivePower(-0.25, -0.25, 0.25, 0.25);
+                robot.setDrivePower(-0.05 * Math.abs(angleIntended - robotAngle), -0.05 * Math.abs(angleIntended - robotAngle), 0.05 * Math.abs(angleIntended - robotAngle), 0.05 * Math.abs(angleIntended - robotAngle));
                 g0angles = null;
                 g1angles = null;
                 if (robot.gyro0 != null) {
@@ -608,7 +609,7 @@ public class GOFAutonomousDepot extends LinearOpMode implements Runnable {
         }
         else if(opModeIsActive() && angleIntended > robotAngle && turnTime.time() < time) { // Right turn
             while(opModeIsActive() && angleIntended > robotAngle && turnTime.time() < time) {
-                robot.setDrivePower(0.25, 0.25, -0.25, -0.25);
+                robot.setDrivePower(0.05 * Math.abs(angleIntended - robotAngle), 0.05 * Math.abs(angleIntended - robotAngle), -0.05 * Math.abs(angleIntended - robotAngle), -0.05 * Math.abs(angleIntended - robotAngle));
                 g0angles = null;
                 g1angles = null;
                 if (robot.gyro0 != null) {
@@ -638,7 +639,7 @@ public class GOFAutonomousDepot extends LinearOpMode implements Runnable {
         parameters.vuforiaLicenseKey = VUFORIA_KEY;
         parameters.cameraDirection = VuforiaLocalizer.CameraDirection.BACK;
         // parameters.cameraName = hardwareMap.get(WebcamName.class, "WC1"); // Use external camera
-        vuforia = ClassFactory.getInstance().createVuforia(parameters);
+        vuforia = new GOFVuforiaLocalizer(parameters);
     }
 
     public void detectInit() { // Initialize TensorFlow detector
