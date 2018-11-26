@@ -42,27 +42,27 @@ import java.util.List;
 public class GOFAutonomousCrater extends LinearOpMode implements Runnable {
 
     /* Declare OpMode members */
-    private BNO055IMU gyro0;
-    private BNO055IMU gyro1;
-    private GOFHardware robot = GOFHardware.getInstance(); // Use the GOFHardware class
-    private ElapsedTime elapsedTime = new ElapsedTime(); // Measure timing
-    private OpModeManagerImpl manager = (OpModeManagerImpl)internalOpModeServices;
-    private Thread vuforiaThread;
+    private                 BNO055IMU           gyro0;
+    private                 BNO055IMU           gyro1;
+    private                 GOFHardware         robot                   = GOFHardware.getInstance(); // Use the GOFHardware class
+    private                 ElapsedTime         elapsedTime             = new ElapsedTime(); // Measure timing
+    private                 OpModeManagerImpl   manager                 = (OpModeManagerImpl)internalOpModeServices;
+    private                 Thread              vuforiaThread;
 
-    private static final String TFOD_MODEL_ASSET = "RoverRuckus.tflite";
-    private static final String LABEL_GOLD_MINERAL = "Gold Mineral";
-    private static final String LABEL_SILVER_MINERAL = "Silver Mineral";
-    private static final String VUFORIA_KEY = "AWVhzQD/////AAABmWz790KTAURpmjOzox2azmML6FgjPO5DBf5SHQLIKvCsslmH9wp8b5zkCGfES8tt+8xslwaK7sd2h5H1jwmix26x+Eg5j60l00SlNiJMDAp5IOMWvhdJGZ8jJ8wFHCNkwERQG57JnrOXVSFDlc1sfum3oH68fEd8RrA570Y+WQda1fP8hYdZtbgG+ZDVG+9XyoDrToYU3FYl3WM1iUphAbHJz1BMFFnWJdbZzOicvqah/RwXqtxRDNlem3JdT4W95kCY5bckg92oaFIBk9n01Gzg8w5mFTReYMVI3Fne72/KpPRPJwblO0W9OI3o7djg+iPjxkKOeHUWW+tmi6r3LRaKTrIUfLfazRu0QwLA8Bgw";
+    private static final    String              TFOD_MODEL_ASSET        = "RoverRuckus.tflite";
+    private static final    String              LABEL_GOLD_MINERAL      = "Gold Mineral";
+    private static final    String              LABEL_SILVER_MINERAL    = "Silver Mineral";
+    private static final    String              VUFORIA_KEY             = "AWVhzQD/////AAABmWz790KTAURpmjOzox2azmML6FgjPO5DBf5SHQLIKvCsslmH9wp8b5zkCGfES8tt+8xslwaK7sd2h5H1jwmix26x+Eg5j60l00SlNiJMDAp5IOMWvhdJGZ8jJ8wFHCNkwERQG57JnrOXVSFDlc1sfum3oH68fEd8RrA570Y+WQda1fP8hYdZtbgG+ZDVG+9XyoDrToYU3FYl3WM1iUphAbHJz1BMFFnWJdbZzOicvqah/RwXqtxRDNlem3JdT4W95kCY5bckg92oaFIBk9n01Gzg8w5mFTReYMVI3Fne72/KpPRPJwblO0W9OI3o7djg+iPjxkKOeHUWW+tmi6r3LRaKTrIUfLfazRu0QwLA8Bgw";
 
-    private GOFVuforiaLocalizer vuforia;
-    private TFObjectDetector detector;
+    private                 GOFVuforiaLocalizer vuforia;
+    private                 TFObjectDetector    detector;
 
-    private boolean remove;
-    private double angleOffset = 0.25;
-    private double kickOutPos = 0.35;
-    private double kickReadyPos = 0.2;
-    private double startTime = elapsedTime.time();
-    private int goldPos = -2;
+    private                 boolean             remove;
+    private                 double              angleOffset             = 0.25;
+    private                 double              kickOutPos              = 0.35;
+    private                 double              kickReadyPos            = 0.2;
+    private                 double              startTime               = elapsedTime.time();
+    private                 int                 goldPos                 = -2;
 
     @Override
     public void runOpMode() {
