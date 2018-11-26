@@ -136,6 +136,9 @@ public class GOFTeleOp extends OpMode {
         }
 
         if(driverMode == 1) {
+            drive = adjust(drive);
+            turn = adjust(turn);
+            angle = adjust(angle);
             robot.setDrivePower(drive + turn - angle, drive + turn + angle, drive - turn + angle, drive - turn - angle); // Set motors to values based on gamepad
         }
         else {
@@ -386,6 +389,16 @@ public class GOFTeleOp extends OpMode {
         catch(Exception p_exception) {
             robot.setDrivePower(turn, turn, -turn, -turn);
         }
+    }
+
+    private double adjust(double varToAdjust) {
+        if(varToAdjust < 0) {
+            varToAdjust = -Math.sqrt(-varToAdjust);
+        }
+        else {
+            varToAdjust = Math.sqrt(varToAdjust);
+        }
+        return varToAdjust;
     }
 
 } // End of class
