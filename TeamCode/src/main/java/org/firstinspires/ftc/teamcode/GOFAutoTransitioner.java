@@ -57,6 +57,6 @@ public class GOFAutoTransitioner extends Thread {
     private synchronized void newStop(OpMode currentOpMode, String nextOpMode) {
         this.opMode = currentOpMode; // Store OpMode of initial class
         this.nextOpMode = nextOpMode; // Store the name of the next intended OpMode
-        this.manager = (OpModeManagerImpl) currentOpMode.internalOpModeServices; // Store the OpMode manager
+        this.manager = (OpModeManagerImpl)currentOpMode.internalOpModeServices; // Store the OpMode manager
     }
 }

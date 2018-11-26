@@ -1,15 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
 import android.os.Environment;
-import android.util.Log;
 
-import com.acmerobotics.roadrunner.Pose2d;
-import com.acmerobotics.roadrunner.control.PIDCoefficients;
-import com.acmerobotics.roadrunner.drive.MecanumDrive;
-import com.acmerobotics.roadrunner.followers.MecanumPIDVAFollower;
-import com.acmerobotics.roadrunner.trajectory.Trajectory;
-import com.acmerobotics.roadrunner.trajectory.TrajectoryBuilder;
-import com.acmerobotics.roadrunner.trajectory.constraints.DriveConstraints;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -26,15 +18,10 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 import org.firstinspires.ftc.robotcore.internal.opmode.OpModeManagerImpl;
-import org.firstinspires.ftc.robotcore.internal.vuforia.VuforiaLocalizerImpl;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
@@ -46,7 +33,6 @@ public class GOFAutonomousCrater extends LinearOpMode implements Runnable {
     private                 BNO055IMU           gyro1;
     private                 GOFHardware         robot                   = GOFHardware.getInstance(); // Use the GOFHardware class
     private                 ElapsedTime         elapsedTime             = new ElapsedTime(); // Measure timing
-    private                 OpModeManagerImpl   manager                 = (OpModeManagerImpl)internalOpModeServices;
     private                 Thread              vuforiaThread;
 
     private static final    String              TFOD_MODEL_ASSET        = "RoverRuckus.tflite";
@@ -119,7 +105,6 @@ public class GOFAutonomousCrater extends LinearOpMode implements Runnable {
             telemetry.addData("Note", "Angle could not be saved; please manually initialize gyro in TeleOp");
             telemetry.update();
         }
-        manager.initActiveOpMode("GOFTeleOp");
     }
 
     private void centerCraterAuto() {

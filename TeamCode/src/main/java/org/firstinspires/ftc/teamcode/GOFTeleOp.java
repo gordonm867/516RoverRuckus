@@ -23,7 +23,7 @@ public class GOFTeleOp extends OpMode {
 
     /* Declare OpMode members */
     private boolean apressedtwo = false;
-    private boolean autoIntake = true;
+    private boolean autoIntake = false;
     private boolean bpressed = false;
     private boolean bpressedtwo = false;
     private boolean forcedOn = false;
@@ -75,8 +75,8 @@ public class GOFTeleOp extends OpMode {
     public void loop() {
 
         double drive = gamepad1.left_stick_y;
-        double hangDrive = gamepad2.left_stick_y;
-        double turn = -gamepad1.right_stick_x;
+        double hangDrive = gamepad2.right_stick_y;
+        double turn = gamepad1.right_stick_x;
         double angle = -gamepad1.left_stick_x;
         double gearRatio = 1;
         Orientation g0angles = null;
@@ -145,8 +145,8 @@ public class GOFTeleOp extends OpMode {
             driveByField(drive, angle, turn);
         }
 
-        if ((gamepad1.right_trigger - gamepad1.left_trigger) != 0) {
-            robot.setInPower(gamepad1.right_trigger - gamepad1.left_trigger); // Set intake power based on the gamepad trigger values
+        if ((gamepad2.right_trigger - gamepad2.left_trigger) != 0) {
+            robot.setInPower(gamepad2.right_trigger - gamepad2.left_trigger); // Set intake power based on the gamepad trigger values
         } else {
             try {
                 if (robot.intake.getCurrentPosition() % 1120 != 0 && !(robot.intake.isBusy()) && autoIntake) {
@@ -177,11 +177,11 @@ public class GOFTeleOp extends OpMode {
         }
         */
 
-        if (gamepad2.dpad_left) {
+        if (gamepad2.right_bumper) {
             robot.setKickPower(kickReadyPos); // Ready
         }
 
-        if (gamepad2.dpad_right) {
+        if (gamepad2.left_bumper) {
             robot.setKickPower(kickOutPos); // Eject
         }
 
@@ -246,11 +246,11 @@ public class GOFTeleOp extends OpMode {
         }
 
         /* Toggle intake auto-straighten */
-        if (gamepad1.b && !gamepad1.a) {
+        if (gamepad2.b && !gamepad2.a) {
             bpressed = true;
         }
 
-        if (bpressed && !gamepad1.b) {
+        if (bpressed && !gamepad2.b) {
             autoIntake = !autoIntake;
             bpressed = false;
         }
@@ -303,7 +303,7 @@ public class GOFTeleOp extends OpMode {
             }
         }
 
-        robot.setHangPower(hangDrive); // Move container based on gamepad positions
+        robot.setHangPower(hangDrive + 0.25 * gamepad2.left_stick_y); // Move container based on gamepad positions
 
         /* Update phones */
         try {
