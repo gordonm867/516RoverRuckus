@@ -385,10 +385,10 @@ public class GOFAutonomousCrater extends LinearOpMode implements Runnable {
 
     /* Straighten robot to nearest 45º angle */
     private void adjustAngle() {
-        robot.rrWheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        robot.rfWheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        robot.lrWheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        robot.lfWheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        robot.rrWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.rfWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.lrWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.lfWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         Orientation g0angles = null;
         Orientation g1angles = null;
         if (robot.gyro0 != null) {
@@ -426,14 +426,14 @@ public class GOFAutonomousCrater extends LinearOpMode implements Runnable {
                 robotAngle = 0;
             }
             if (robotAngle % 45 > 22.5) {
-                robot.setDrivePower(0.1, 0.1, -0.1, -0.1);
+                robot.setDrivePower(0.1 * (45 - (robotAngle % 45)), 0.1 * (45 - (robotAngle % 45)), -0.1 * (45 - (robotAngle % 45)), -0.1 * (45 - (robotAngle % 45)));
                 if (Math.abs(robotAngle) % 45 < angleOffset) {
                     robot.setDrivePower(0, 0, 0, 0);
                     break;
                 }
             }
             else {
-                robot.setDrivePower(-0.1, -0.1, 0.1, 0.1);
+                robot.setDrivePower(-0.1 * (robotAngle % 45), -0.1 * (robotAngle % 45), 0.1 * (robotAngle % 45), 0.1 * (robotAngle % 45));
                 if (Math.abs(robotAngle) % 45 < angleOffset) {
                     robot.setDrivePower(0, 0, 0, 0);
                     break;
@@ -444,19 +444,19 @@ public class GOFAutonomousCrater extends LinearOpMode implements Runnable {
     }
 
     private void adjustAngle(double time) {
-        robot.rrWheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        robot.rfWheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        robot.lrWheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        robot.lfWheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        robot.rrWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.rfWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.lrWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.lfWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         Orientation g0angles = null;
         Orientation g1angles = null;
-        double robotAngle;
         if (robot.gyro0 != null) {
             g0angles = robot.gyro0.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.RADIANS); // Get z axis angle from first gyro (in radians so that a conversion is unnecessary for proper employment of Java's Math class)
         }
         if (robot.gyro1 != null) {
             g1angles = robot.gyro1.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.RADIANS); // Get z axis angle from second gyro (in radians so that a conversion is unnecessary for proper employment of Java's Math class)
         }
+        double robotAngle;
         if (g0angles != null && g1angles != null) {
             robotAngle = ((g0angles.firstAngle + g1angles.firstAngle) / 2); // Average angle measures to determine actual robot angle
         } else if (g0angles != null) {
@@ -486,7 +486,7 @@ public class GOFAutonomousCrater extends LinearOpMode implements Runnable {
                 robotAngle = 0;
             }
             if (robotAngle % 45 > 22.5) {
-                robot.setDrivePower(0.1, 0.1, -0.1, -0.1);
+                robot.setDrivePower(0.1 * (45 - (robotAngle % 45)), 0.1 * (45 - (robotAngle % 45)), -0.1 * (45 - (robotAngle % 45)), -0.1 * (45 - (robotAngle % 45)));
                 g0angles = null;
                 g1angles = null;
                 if (robot.gyro0 != null) {
@@ -510,7 +510,7 @@ public class GOFAutonomousCrater extends LinearOpMode implements Runnable {
                 }
             }
             else {
-                robot.setDrivePower(-0.1, -0.1, 0.1, 0.1);
+                robot.setDrivePower(-0.1 * (robotAngle % 45), -0.1 * (robotAngle % 45), 0.1 * (robotAngle % 45), 0.1 * (robotAngle % 45));
                 g0angles = null;
                 g1angles = null;
                 if (robot.gyro0 != null) {
@@ -538,28 +538,63 @@ public class GOFAutonomousCrater extends LinearOpMode implements Runnable {
     }
 
     private void adjustAngle(double time, double straight) {
-        robot.rrWheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        robot.rfWheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        robot.lrWheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        robot.lfWheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        Orientation g0angles = gyro0.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
-        Orientation g1angles = gyro1.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+        robot.rrWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.rfWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.lrWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.lfWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        Orientation g0angles = null;
+        Orientation g1angles = null;
+        if(robot.gyro0 != null) {
+            g0angles = robot.gyro0.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.RADIANS); // Get z axis angle from first gyro (in radians so that a conversion is unnecessary for proper employment of Java's Math class)
+        }
+        if(robot.gyro1 != null) {
+            g1angles = robot.gyro1.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.RADIANS); // Get z axis angle from second gyro (in radians so that a conversion is unnecessary for proper employment of Java's Math class)
+        }
+        double robotAngle;
+        if (g0angles != null && g1angles != null) {
+            robotAngle = ((g0angles.firstAngle + g1angles.firstAngle) / 2); // Average angle measures to determine actual robot angle
+        } else if (g0angles != null) {
+            robotAngle = g0angles.firstAngle;
+        } else if (g1angles != null) {
+            robotAngle = g1angles.firstAngle;
+        } else {
+            robotAngle = 0;
+        }
         ElapsedTime turnTime = new ElapsedTime();
-        while (opModeIsActive() && turnTime.time() < time && Math.abs((g0angles.firstAngle + g1angles.firstAngle) / 2.0) % straight > angleOffset) {
-            g0angles = gyro0.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
-            g1angles = gyro1.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
-            double robotAngle = ((g0angles.firstAngle + g1angles.firstAngle) / 2);
+        while (opModeIsActive() && turnTime.time() < time && Math.abs(robotAngle) % straight > angleOffset) {
+            if(robot.gyro0 != null) {
+                g0angles = robot.gyro0.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.RADIANS); // Get z axis angle from first gyro (in radians so that a conversion is unnecessary for proper employment of Java's Math class)
+            }
+            if(robot.gyro1 != null) {
+                g1angles = robot.gyro1.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.RADIANS); // Get z axis angle from second gyro (in radians so that a conversion is unnecessary for proper employment of Java's Math class)
+            }
             if (robotAngle % straight > straight / 2) {
-                robot.setDrivePower(0.1, 0.1, -0.1, -0.1);
-                robotAngle = ((g0angles.firstAngle + g1angles.firstAngle) / 2);
+                robot.setDrivePower(0.1 * (straight - (robotAngle % straight)), 0.1 * (straight - (robotAngle % straight)), -0.1 * (straight - (robotAngle % straight)), -0.1 * (straight - (robotAngle % straight)));
+                if (g0angles != null && g1angles != null) {
+                    robotAngle = ((g0angles.firstAngle + g1angles.firstAngle) / 2); // Average angle measures to determine actual robot angle
+                } else if (g0angles != null) {
+                    robotAngle = g0angles.firstAngle;
+                } else if (g1angles != null) {
+                    robotAngle = g1angles.firstAngle;
+                } else {
+                    robotAngle = 0;
+                }
                 if (((Math.abs(robotAngle) % straight) < angleOffset) || turnTime.time() > time) {
                     robot.setDrivePower(0, 0, 0, 0);
                     break;
                 }
             }
             else {
-                robot.setDrivePower(-0.1, -0.1, 0.1, 0.1);
-                robotAngle = ((g0angles.firstAngle + g1angles.firstAngle) / 2);
+                robot.setDrivePower(-0.1 * (robotAngle % straight), -0.1 * (robotAngle % straight), 0.1 * (robotAngle % straight), 0.1 * (robotAngle % straight));
+                if (g0angles != null && g1angles != null) {
+                    robotAngle = ((g0angles.firstAngle + g1angles.firstAngle) / 2); // Average angle measures to determine actual robot angle
+                } else if (g0angles != null) {
+                    robotAngle = g0angles.firstAngle;
+                } else if (g1angles != null) {
+                    robotAngle = g1angles.firstAngle;
+                } else {
+                    robotAngle = 0;
+                }
                 if (((Math.abs(robotAngle) % straight) < angleOffset) || turnTime.time() > time) {
                     robot.setDrivePower(0, 0, 0, 0);
                     break;
@@ -570,28 +605,63 @@ public class GOFAutonomousCrater extends LinearOpMode implements Runnable {
     }
 
     private void adjustAngle(double time, double straight, double precision) {
-        robot.rrWheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        robot.rfWheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        robot.lrWheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        robot.lfWheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        Orientation g0angles = gyro0.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
-        Orientation g1angles = gyro1.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+        robot.rrWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.rfWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.lrWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.lfWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        Orientation g0angles = null;
+        Orientation g1angles = null;
+        if (robot.gyro0 != null) {
+            g0angles = robot.gyro0.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.RADIANS); // Get z axis angle from first gyro (in radians so that a conversion is unnecessary for proper employment of Java's Math class)
+        }
+        if (robot.gyro1 != null) {
+            g1angles = robot.gyro1.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.RADIANS); // Get z axis angle from second gyro (in radians so that a conversion is unnecessary for proper employment of Java's Math class)
+        }
+        double robotAngle;
+        if (g0angles != null && g1angles != null) {
+            robotAngle = ((g0angles.firstAngle + g1angles.firstAngle) / 2); // Average angle measures to determine actual robot angle
+        } else if (g0angles != null) {
+            robotAngle = g0angles.firstAngle;
+        } else if (g1angles != null) {
+            robotAngle = g1angles.firstAngle;
+        } else {
+            robotAngle = 0;
+        }
         ElapsedTime turnTime = new ElapsedTime();
-        while (opModeIsActive() && turnTime.time() < time && Math.abs((g0angles.firstAngle + g1angles.firstAngle) / 2.0) % 45 > precision) {
-            g0angles = gyro0.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
-            g1angles = gyro1.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
-            double robotAngle = ((g0angles.firstAngle + g1angles.firstAngle) / 2);
+        while (opModeIsActive() && turnTime.time() < time && Math.abs(robotAngle) % 45 > precision) {
+            if (robot.gyro0 != null) {
+                g0angles = robot.gyro0.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.RADIANS); // Get z axis angle from first gyro (in radians so that a conversion is unnecessary for proper employment of Java's Math class)
+            }
+            if (robot.gyro1 != null) {
+                g1angles = robot.gyro1.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.RADIANS); // Get z axis angle from second gyro (in radians so that a conversion is unnecessary for proper employment of Java's Math class)
+            }
             if (robotAngle % straight > straight / 2) {
-                robot.setDrivePower(0.1, 0.1, -0.1, -0.1);
-                robotAngle = ((g0angles.firstAngle + g1angles.firstAngle) / 2);
+                robot.setDrivePower(0.1 * (straight - (robotAngle % straight)), 0.1 * (straight - (robotAngle % straight)), -0.1 * (straight - (robotAngle % straight)), -0.1 * (straight - (robotAngle % straight)));
+                if (g0angles != null && g1angles != null) {
+                    robotAngle = ((g0angles.firstAngle + g1angles.firstAngle) / 2); // Average angle measures to determine actual robot angle
+                } else if (g0angles != null) {
+                    robotAngle = g0angles.firstAngle;
+                } else if (g1angles != null) {
+                    robotAngle = g1angles.firstAngle;
+                } else {
+                    robotAngle = 0;
+                }
                 if (((Math.abs(robotAngle) % straight) < precision) || turnTime.time() > time) {
                     robot.setDrivePower(0, 0, 0, 0);
                     break;
                 }
             }
             else {
-                robot.setDrivePower(-0.1, -0.1, 0.1, 0.1);
-                robotAngle = ((g0angles.firstAngle + g1angles.firstAngle) / 2);
+                robot.setDrivePower(-0.1 * (robotAngle % straight), -0.1 * (robotAngle % straight), 0.1 * (robotAngle % straight), 0.1 * (robotAngle % straight));
+                if (g0angles != null && g1angles != null) {
+                    robotAngle = ((g0angles.firstAngle + g1angles.firstAngle) / 2); // Average angle measures to determine actual robot angle
+                } else if (g0angles != null) {
+                    robotAngle = g0angles.firstAngle;
+                } else if (g1angles != null) {
+                    robotAngle = g1angles.firstAngle;
+                } else {
+                    robotAngle = 0;
+                }
                 if (((Math.abs(robotAngle) % straight) < precision) || turnTime.time() > time) {
                     robot.setDrivePower(0, 0, 0, 0);
                     break;

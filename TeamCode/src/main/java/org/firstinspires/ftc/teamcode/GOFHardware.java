@@ -35,45 +35,46 @@ import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
 public class GOFHardware {
 
-    public BNO055IMU        gyro0;
-    public BNO055IMU        gyro1;
+    public          BNO055IMU        gyro0;
+    public          BNO055IMU        gyro1;
 
-    public boolean          leftFound;
-    public boolean          centerFound;
-    public boolean          rightFound;
-    public boolean          soundError;
+    public          boolean          leftFound;
+    public          boolean          centerFound;
+    public          boolean          rightFound;
+    public          boolean          soundError;
 
-    public ColorSensor      frontColorSensor;
-    public ColorSensor      backColorSensor;
+    public          ColorSensor      frontColorSensor;
+    public          ColorSensor      backColorSensor;
 
-    public DcMotor          lfWheel;
-    public DcMotor          rfWheel;
-    public DcMotor          lrWheel;
-    public DcMotor          rrWheel;
-    public DcMotor          intake;
-    public DcMotor          hangOne;
+    public          DcMotor          lfWheel;
+    public          DcMotor          rfWheel;
+    public          DcMotor          lrWheel;
+    public          DcMotor          rrWheel;
+    public          DcMotor          intake;
+    public          DcMotor          hangOne;
 
-    public DistanceSensor   frontDistanceSensor;
-    public DistanceSensor   backDistanceSensor;
+    public          DistanceSensor   frontDistanceSensor;
+    public          DistanceSensor   backDistanceSensor;
 
-    public double           maxDriveSpeed = 0.7;
+    public          double           maxDriveSpeed           = 0.7;
 
-    public HardwareMap      hwMap;
+    private static  GOFHardware     robot                    = null;
 
-    public Orientation      g0angles;
-    public Orientation      g1angles;
+    public HardwareMap              hwMap;
 
-    public Integer          rightId;
-    public Integer          centerId;
-    public Integer          leftId;
+    public Orientation              g0angles;
+    public Orientation              g1angles;
 
-    public RevTouchSensor   topSensor;
-    public RevTouchSensor   bottomSensor;
+    public Integer                  rightId;
+    public Integer                  centerId;
+    public Integer                  leftId;
+
+    public RevTouchSensor           topSensor;
+    public RevTouchSensor           bottomSensor;
 
     public Servo            kicker;
 
     /* Constructor */
-    private static GOFHardware robot = null;
     public static GOFHardware getInstance() {
         if(robot == null) {
             robot = new GOFHardware();
@@ -91,7 +92,7 @@ public class GOFHardware {
          ---------------------------------------
     */
 
-        try {
+        try { // Left rear wheel
             lrWheel = hwMap.get(DcMotor.class, "lr");
             lrWheel.setDirection(DcMotor.Direction.REVERSE);
             lrWheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -102,7 +103,7 @@ public class GOFHardware {
             lrWheel = null;
         }
 
-        try {
+        try { // Left front wheel
             lfWheel = hwMap.get(DcMotor.class, "lf");
             lfWheel.setDirection(DcMotor.Direction.REVERSE);
             lfWheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -113,7 +114,7 @@ public class GOFHardware {
             lfWheel = null;
         }
 
-        try {
+        try { // Right rear wheel
             rrWheel = hwMap.get(DcMotor.class, "rr");
             rrWheel.setDirection(DcMotor.Direction.FORWARD);
             rrWheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -124,7 +125,7 @@ public class GOFHardware {
             rrWheel = null;
         }
 
-        try {
+        try { // Right front wheel
             rfWheel = hwMap.get(DcMotor.class, "rf");
             rfWheel.setDirection(DcMotor.Direction.FORWARD);
             rfWheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -135,7 +136,7 @@ public class GOFHardware {
             rfWheel = null;
         }
 
-        try {
+        try { // Intake
             intake = hwMap.get(DcMotor.class, "in");
             intake.setDirection(DcMotor.Direction.FORWARD);
             intake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -147,7 +148,7 @@ public class GOFHardware {
         }
 
 
-        try {
+        try { // Hang
             hangOne = hwMap.get(DcMotor.class, "h1");
             hangOne.setDirection(DcMotor.Direction.FORWARD);
             hangOne.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -164,7 +165,7 @@ public class GOFHardware {
          ---------------------------------------
     */
 
-        try {
+        try { // Container kicker servo
             kicker = hwMap.get(Servo.class, "s0");
         }
         catch (Exception p_exception) {
@@ -177,26 +178,28 @@ public class GOFHardware {
          ---------------------------------------
     */
 
-        try {
+        try { // Front container color sensor
             frontColorSensor = hwMap.get(ColorSensor.class, "cd0");
         }
         catch (Exception p_exception) {
             frontColorSensor = null;
         }
 
-        try {
+        try { // Rear container color sensor
             backColorSensor = hwMap.get(ColorSensor.class, "cd1");
         }
         catch (Exception p_exception) {
             backColorSensor = null;
         }
-        try {
+
+        try { // Front container distance sensor
             frontDistanceSensor = hwMap.get(DistanceSensor.class, "cd0");
         }
         catch (Exception p_exception) {
             frontDistanceSensor = null;
         }
-        try {
+
+        try { // Sound files
             rightId = hwMap.appContext.getResources().getIdentifier("right", "raw", hwMap.appContext.getPackageName());
             leftId = hwMap.appContext.getResources().getIdentifier("left", "raw", hwMap.appContext.getPackageName());
             centerId = hwMap.appContext.getResources().getIdentifier("center", "raw", hwMap.appContext.getPackageName());
@@ -216,14 +219,14 @@ public class GOFHardware {
             centerId = null;
         }
 
-        try {
+        try { // Rear container distance sensor
             backDistanceSensor = hwMap.get(DistanceSensor.class, "cd1");
         }
         catch (Exception p_exception) {
             backDistanceSensor = null;
         }
 
-        try {
+        try { // Gyro 0
             BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
             parameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
             parameters.accelUnit           = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
@@ -237,7 +240,7 @@ public class GOFHardware {
             gyro0 = null;
         }
 
-        try {
+        try { // Gyro 1
             BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
             parameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
             parameters.accelUnit           = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
@@ -251,14 +254,14 @@ public class GOFHardware {
             gyro1 = null;
         }
 
-        try {
+        try { // Upper limit switch
             topSensor = hwMap.get(RevTouchSensor.class, "tl");
         }
         catch (Exception p_exception) {
             topSensor = null;
         }
 
-        try {
+        try { // Lower limit switch
             bottomSensor = hwMap.get(RevTouchSensor.class, "tb");
         }
         catch (Exception p_exception) {
@@ -281,7 +284,7 @@ public class GOFHardware {
          ----------------------
     */
 
-    public void setDrivePower(double leftBackDrivePower, double leftFrontDrivePower, double rightBackDrivePower, double rightFrontDrivePower) {
+    public void setDrivePower(double leftBackDrivePower, double leftFrontDrivePower, double rightBackDrivePower, double rightFrontDrivePower) { // Send power to wheels
         if (lrWheel != null) {
             leftBackDrivePower = Range.clip(leftBackDrivePower, -maxDriveSpeed, maxDriveSpeed);
             lrWheel.setPower(leftBackDrivePower);
@@ -340,7 +343,7 @@ public class GOFHardware {
         }
     }
 
-    public void playSound(double goldPos) {
+    public void playSound(double goldPos) { // Play sound
         soundError = false;
         try {
             if (goldPos == -1) {
@@ -358,15 +361,15 @@ public class GOFHardware {
         }
     }
 
-    public void wheelBrake() {
+    public void wheelBrake() { // Stop driving
         setDrivePower(0,0,0,0);
     }
 
-    public void hangBrake() {
+    public void hangBrake() { // Stop hang movement
         setHangPower(0);
     }
 
-    public void gyroInit() {
+    public void gyroInit() { // Re-initialize gyros
         try {
             BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
             parameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;

@@ -10,11 +10,11 @@ import static org.firstinspires.ftc.robotcontroller.internal.FtcRobotControllerA
 
 public class GOFAutoTransitioner extends Thread {
 
-    private static final GOFAutoTransitioner INSTANCE = new GOFAutoTransitioner();
+    private static final    GOFAutoTransitioner     INSTANCE    = new GOFAutoTransitioner();
 
-    private OpMode opMode;
-    private OpModeManagerImpl manager;
-    private String nextOpMode;
+    private                 OpMode                  opMode;
+    private                 OpModeManagerImpl       manager;
+    private                 String                  nextOpMode;
 
     private GOFAutoTransitioner() {
         this.start(); // Start monitoring active opMode

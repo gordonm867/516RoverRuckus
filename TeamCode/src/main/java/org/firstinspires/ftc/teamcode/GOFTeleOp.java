@@ -22,27 +22,27 @@ import java.util.Scanner;
 public class GOFTeleOp extends OpMode {
 
     /* Declare OpMode members */
-    private boolean apressedtwo = false;
-    private boolean autoIntake = false;
-    private boolean bpressed = false;
-    private boolean bpressedtwo = false;
-    private boolean forcedOn = false;
-    private boolean ypressed = false;
+    private     boolean         apressedtwo         = false;
+    private     boolean         autoIntake          = false;
+    private     boolean         bpressed            = false;
+    private     boolean         bpressedtwo         = false;
+    private     boolean         forcedOn            = false;
+    private     boolean         ypressed            = false;
 
-    private double firstAngleOffset;
-    private double kickOutPos = 0.35;
-    private double kickReadyPos = 0.2;
+    private     double          firstAngleOffset;
+    private     double          kickOutPos          = 0.35;
+    private     double          kickReadyPos        = 0.2;
 
-    private ElapsedTime elapsedTime = new ElapsedTime();
+    private     ElapsedTime     elapsedTime         = new ElapsedTime();
 
-    private GOFHardware robot = GOFHardware.getInstance(); // Use the GOFHardware class
+    private     GOFHardware     robot               = GOFHardware.getInstance(); // Use the GOFHardware class
 
-    private int inReady = 0;
-    private int inRatioOne;
-    private int inRatioTwo;
-    private int frontCube = 0;
-    private int backCube = 0;
-    private int driverMode = 1;
+    private     int             inReady             = 0;
+    private     int             inRatioOne;
+    private     int             inRatioTwo;
+    private     int             frontCube           = 0;
+    private     int             backCube            = 0;
+    private     int             driverMode          = 1;
 
     @Override
     public void init() {
@@ -167,15 +167,6 @@ public class GOFTeleOp extends OpMode {
                 telemetry.addData("Note: ", "Intake null, good luck");
             }
         }
-
-        /*
-        if (gamepad1.left_bumper) { // Left pivot
-            robot.setDrivePower(-1, -1, 0, 0);
-        }
-        if (gamepad1.right_bumper) { // Right pivot
-            robot.setDrivePower(0, 0, -1, -1);
-        }
-        */
 
         if (gamepad2.right_bumper) {
             robot.setKickPower(kickReadyPos); // Ready
@@ -391,7 +382,7 @@ public class GOFTeleOp extends OpMode {
         }
     }
 
-    private double adjust(double varToAdjust) {
+    private double adjust(double varToAdjust) { // Square-root driving
         if(varToAdjust < 0) {
             varToAdjust = -Math.sqrt(-varToAdjust);
         }
