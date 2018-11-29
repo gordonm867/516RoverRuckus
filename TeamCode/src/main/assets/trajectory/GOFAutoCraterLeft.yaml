@@ -5,10 +5,10 @@ poses:
   heading: 0.0
 - x: 25.0
   y: 25.0
-  heading: 0.0
+  heading: 1.5707963267948966
 - x: 28.0
   y: 47.0
-  heading: 0.0
+  heading: 0.2617993877991494
 - x: -46.0
   y: 27.0
   heading: 0.0
