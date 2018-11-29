@@ -45,6 +45,7 @@ public class GOFAutonomousDepot extends LinearOpMode implements Runnable {
     private                 TFObjectDetector    detector;
 
     private                 boolean             remove;
+    private                 boolean             doubleSample            = false;
     private                 double              angleOffset             = 0.25;
     private                 double              kickOutPos              = 0.35;
     private                 double              kickReadyPos            = 0.2;
@@ -99,10 +100,10 @@ public class GOFAutonomousDepot extends LinearOpMode implements Runnable {
 
         descend();
 
-        encoderMovePreciseTimed(174, -297, -223, 193, 0.5, 1);
-        encoderMovePreciseTimed(-425, -410, -440, -494, 0.25, 1);
-        encoderMovePreciseTimed(-135, 186, 79, -109, 0.25, 1);
-        adjustAngle();
+        encoderMovePreciseTimed(258, -392, -422, 358, 1, 1);
+        robot.hangOne.setTargetPosition(8058);
+        robot.hangOne.setPower(-1);
+        encoderMovePreciseTimed(-514, -676, -567, -791, 1, 1);
 
 
         robot.setKickPower(kickReadyPos); // Move kicker out of the way
@@ -138,24 +139,31 @@ public class GOFAutonomousDepot extends LinearOpMode implements Runnable {
     */
 
     private void centerDepotAuto() { // Run if gold is at center
-        robot.hangOne.setTargetPosition(8558);
-        robot.hangOne.setPower(-1);
     }
 
     private void rightDepotAuto() { // Run if gold is at right
-        robot.hangOne.setTargetPosition(8558);
-        robot.hangOne.setPower(-1);
+        encoderMovePreciseTimed(-1053, 1140, 989, -1007, 1, 1);
+        encoderMovePreciseTimed(-958, -1140, -951, -1093, 1, 1);
+        adjustAngle(0.5);
+        turn(50, 0.5);
+        encoderMovePreciseTimed(-1273, -1297, -1306, -1360, 1, 1);
+        // DROP
+        turn(90, 0.5);
+        encoderMovePreciseTimed(-400, 400, 400, -400, 0.5, 1);
+        robot.gyroInit();
+        if(!doubleSample) {
+            encoderMovePreciseTimed(-3000, -3000, -3000, -3000, 1, 1);
+        }
     }
 
     private void leftDepotAuto() { // Run if gold is at left
-        robot.hangOne.setTargetPosition(8558);
-        robot.hangOne.setPower(-1);
+
     }
 
     private void descend() {
         resetEncoders();
-        robot.hangOne.setTargetPosition(-8558);
-        while (opModeIsActive() && robot.hangOne.getCurrentPosition() > -8558) {
+        robot.hangOne.setTargetPosition(-8058);
+        while (opModeIsActive() && robot.hangOne.getCurrentPosition() > -8058) {
             telemetry.addData("h1: ", "" + robot.hangOne.getCurrentPosition());
             telemetry.update();
             robot.setHangPower(-1);

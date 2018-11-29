@@ -1,11 +1,11 @@
 -- Merging decision tree log ---
 manifest
-ADDED from /Users/mgordon/516-Gears-Of-Fire/TeamCode/src/main/AndroidManifest.xml:8:1-12:12
-INJECTED from /Users/mgordon/516-Gears-Of-Fire/TeamCode/src/main/AndroidManifest.xml:8:1-12:12
-INJECTED from /Users/mgordon/516-Gears-Of-Fire/TeamCode/src/main/AndroidManifest.xml:8:1-12:12
-INJECTED from /Users/mgordon/516-Gears-Of-Fire/TeamCode/src/main/AndroidManifest.xml:8:1-12:12
+ADDED from /Users/mgordon/516-Gears-Of-Fire/TeamCode/src/main/AndroidManifest.xml:8:1-13:12
+INJECTED from /Users/mgordon/516-Gears-Of-Fire/TeamCode/src/main/AndroidManifest.xml:8:1-13:12
+INJECTED from /Users/mgordon/516-Gears-Of-Fire/TeamCode/src/main/AndroidManifest.xml:8:1-13:12
+INJECTED from /Users/mgordon/516-Gears-Of-Fire/TeamCode/src/main/AndroidManifest.xml:8:1-13:12
 MERGED from [com.android.support:multidex:1.0.2] /Users/mgordon/.gradle/caches/transforms-1/files-1.1/multidex-1.0.2.aar/b85c3fcba003d9b2ec897a4996bae77f/AndroidManifest.xml:17:1-22:12
-MERGED from [:FtcRobotController] /Users/mgordon/516-Gears-Of-Fire/FtcRobotController/build/intermediates/manifests/full/debug/AndroidManifest.xml:2:1-51:12
+MERGED from [:FtcRobotController] /Users/mgordon/516-Gears-Of-Fire/FtcRobotController/build/intermediates/manifests/full/debug/AndroidManifest.xml:2:1-52:12
 MERGED from [:RobotCore-release:] /Users/mgordon/.gradle/caches/transforms-1/files-1.1/RobotCore-release.aar/f39dd0d894e63b27a846d9f0397374a8/AndroidManifest.xml:2:1-99:12
 MERGED from [:Hardware-release:] /Users/mgordon/.gradle/caches/transforms-1/files-1.1/Hardware-release.aar/bfc614ea8ec774239d594bde9500a68e/AndroidManifest.xml:2:1-11:12
 MERGED from [:FtcCommon-release:] /Users/mgordon/.gradle/caches/transforms-1/files-1.1/FtcCommon-release.aar/393df16c09896ec3f70ac368b103c825/AndroidManifest.xml:3:1-235:12
@@ -16,27 +16,41 @@ MERGED from [com.acmerobotics.dashboard:dashboard:0.2.0] /Users/mgordon/.gradle/
 MERGED from [org.openftc:rev-extensions-2:1.0] /Users/mgordon/.gradle/caches/transforms-1/files-1.1/rev-extensions-2-1.0.aar/6560cf2a19bc216c3b94de46e876dfa0/AndroidManifest.xml:2:1-12:12
 MERGED from [:Inspection-release:] /Users/mgordon/.gradle/caches/transforms-1/files-1.1/Inspection-release.aar/76ddb38a7569b295d4b851e4674b10fa/AndroidManifest.xml:2:1-32:12
 MERGED from [:Blocks-release:] /Users/mgordon/.gradle/caches/transforms-1/files-1.1/Blocks-release.aar/045a8a31b425b6d08dae4e8778998efc/AndroidManifest.xml:2:1-41:12
-INJECTED from /Users/mgordon/516-Gears-Of-Fire/TeamCode/src/main/AndroidManifest.xml:8:1-12:12
-INJECTED from /Users/mgordon/516-Gears-Of-Fire/TeamCode/src/main/AndroidManifest.xml:8:1-12:12
-INJECTED from /Users/mgordon/516-Gears-Of-Fire/TeamCode/src/main/AndroidManifest.xml:8:1-12:12
+INJECTED from /Users/mgordon/516-Gears-Of-Fire/TeamCode/src/main/AndroidManifest.xml:8:1-13:12
+INJECTED from /Users/mgordon/516-Gears-Of-Fire/TeamCode/src/main/AndroidManifest.xml:8:1-13:12
+INJECTED from /Users/mgordon/516-Gears-Of-Fire/TeamCode/src/main/AndroidManifest.xml:8:1-13:12
 	package
 		ADDED from /Users/mgordon/516-Gears-Of-Fire/TeamCode/src/main/AndroidManifest.xml:9:5-45
 		INJECTED from /Users/mgordon/516-Gears-Of-Fire/TeamCode/src/main/AndroidManifest.xml
 		INJECTED from /Users/mgordon/516-Gears-Of-Fire/TeamCode/src/main/AndroidManifest.xml
 	android:versionName
 		INJECTED from /Users/mgordon/516-Gears-Of-Fire/TeamCode/src/main/AndroidManifest.xml
-		ADDED from /Users/mgordon/516-Gears-Of-Fire/TeamCode/src/main/AndroidManifest.xml:8:1-12:12
+		ADDED from /Users/mgordon/516-Gears-Of-Fire/TeamCode/src/main/AndroidManifest.xml:8:1-13:12
 		INJECTED from /Users/mgordon/516-Gears-Of-Fire/TeamCode/src/main/AndroidManifest.xml
 	android:versionCode
 		INJECTED from /Users/mgordon/516-Gears-Of-Fire/TeamCode/src/main/AndroidManifest.xml
-		ADDED from /Users/mgordon/516-Gears-Of-Fire/TeamCode/src/main/AndroidManifest.xml:8:1-12:12
+		ADDED from /Users/mgordon/516-Gears-Of-Fire/TeamCode/src/main/AndroidManifest.xml:8:1-13:12
 		INJECTED from /Users/mgordon/516-Gears-Of-Fire/TeamCode/src/main/AndroidManifest.xml
 	xmlns:android
 		ADDED from /Users/mgordon/516-Gears-Of-Fire/TeamCode/src/main/AndroidManifest.xml:10:5-63
+uses-permission#android.permission.WRITE_EXTERNAL_STORAGE
+ADDED from /Users/mgordon/516-Gears-Of-Fire/TeamCode/src/main/AndroidManifest.xml:11:5-81
+MERGED from [:FtcRobotController] /Users/mgordon/516-Gears-Of-Fire/FtcRobotController/build/intermediates/manifests/full/debug/AndroidManifest.xml:13:5-81
+MERGED from [:FtcRobotController] /Users/mgordon/516-Gears-Of-Fire/FtcRobotController/build/intermediates/manifests/full/debug/AndroidManifest.xml:13:5-81
+MERGED from [:RobotCore-release:] /Users/mgordon/.gradle/caches/transforms-1/files-1.1/RobotCore-release.aar/f39dd0d894e63b27a846d9f0397374a8/AndroidManifest.xml:27:5-29:35
+MERGED from [:RobotCore-release:] /Users/mgordon/.gradle/caches/transforms-1/files-1.1/RobotCore-release.aar/f39dd0d894e63b27a846d9f0397374a8/AndroidManifest.xml:27:5-29:35
+MERGED from [:FtcCommon-release:] /Users/mgordon/.gradle/caches/transforms-1/files-1.1/FtcCommon-release.aar/393df16c09896ec3f70ac368b103c825/AndroidManifest.xml:13:5-15:35
+MERGED from [:FtcCommon-release:] /Users/mgordon/.gradle/caches/transforms-1/files-1.1/FtcCommon-release.aar/393df16c09896ec3f70ac368b103c825/AndroidManifest.xml:13:5-15:35
+MERGED from [:Blocks-release:] /Users/mgordon/.gradle/caches/transforms-1/files-1.1/Blocks-release.aar/045a8a31b425b6d08dae4e8778998efc/AndroidManifest.xml:11:5-13:35
+MERGED from [:Blocks-release:] /Users/mgordon/.gradle/caches/transforms-1/files-1.1/Blocks-release.aar/045a8a31b425b6d08dae4e8778998efc/AndroidManifest.xml:11:5-13:35
+	android:required
+		ADDED from [:RobotCore-release:] /Users/mgordon/.gradle/caches/transforms-1/files-1.1/RobotCore-release.aar/f39dd0d894e63b27a846d9f0397374a8/AndroidManifest.xml:29:9-32
+	android:name
+		ADDED from /Users/mgordon/516-Gears-Of-Fire/TeamCode/src/main/AndroidManifest.xml:11:22-78
 application
-ADDED from /Users/mgordon/516-Gears-Of-Fire/TeamCode/src/main/AndroidManifest.xml:11:5-19
-MERGED from [:FtcRobotController] /Users/mgordon/516-Gears-Of-Fire/FtcRobotController/build/intermediates/manifests/full/debug/AndroidManifest.xml:14:5-49:19
-MERGED from [:FtcRobotController] /Users/mgordon/516-Gears-Of-Fire/FtcRobotController/build/intermediates/manifests/full/debug/AndroidManifest.xml:14:5-49:19
+ADDED from /Users/mgordon/516-Gears-Of-Fire/TeamCode/src/main/AndroidManifest.xml:12:5-19
+MERGED from [:FtcRobotController] /Users/mgordon/516-Gears-Of-Fire/FtcRobotController/build/intermediates/manifests/full/debug/AndroidManifest.xml:15:5-50:19
+MERGED from [:FtcRobotController] /Users/mgordon/516-Gears-Of-Fire/FtcRobotController/build/intermediates/manifests/full/debug/AndroidManifest.xml:15:5-50:19
 MERGED from [:RobotCore-release:] /Users/mgordon/.gradle/caches/transforms-1/files-1.1/RobotCore-release.aar/f39dd0d894e63b27a846d9f0397374a8/AndroidManifest.xml:78:5-97:19
 MERGED from [:RobotCore-release:] /Users/mgordon/.gradle/caches/transforms-1/files-1.1/RobotCore-release.aar/f39dd0d894e63b27a846d9f0397374a8/AndroidManifest.xml:78:5-97:19
 MERGED from [:FtcCommon-release:] /Users/mgordon/.gradle/caches/transforms-1/files-1.1/FtcCommon-release.aar/393df16c09896ec3f70ac368b103c825/AndroidManifest.xml:23:5-233:19
@@ -48,15 +62,15 @@ MERGED from [:Inspection-release:] /Users/mgordon/.gradle/caches/transforms-1/fi
 MERGED from [:Blocks-release:] /Users/mgordon/.gradle/caches/transforms-1/files-1.1/Blocks-release.aar/045a8a31b425b6d08dae4e8778998efc/AndroidManifest.xml:18:5-39:19
 MERGED from [:Blocks-release:] /Users/mgordon/.gradle/caches/transforms-1/files-1.1/Blocks-release.aar/045a8a31b425b6d08dae4e8778998efc/AndroidManifest.xml:18:5-39:19
 	android:label
-		ADDED from [:FtcRobotController] /Users/mgordon/516-Gears-Of-Fire/FtcRobotController/build/intermediates/manifests/full/debug/AndroidManifest.xml:17:9-41
+		ADDED from [:FtcRobotController] /Users/mgordon/516-Gears-Of-Fire/FtcRobotController/build/intermediates/manifests/full/debug/AndroidManifest.xml:18:9-41
 	android:largeHeap
-		ADDED from [:FtcRobotController] /Users/mgordon/516-Gears-Of-Fire/FtcRobotController/build/intermediates/manifests/full/debug/AndroidManifest.xml:18:9-33
+		ADDED from [:FtcRobotController] /Users/mgordon/516-Gears-Of-Fire/FtcRobotController/build/intermediates/manifests/full/debug/AndroidManifest.xml:19:9-33
 	android:icon
-		ADDED from [:FtcRobotController] /Users/mgordon/516-Gears-Of-Fire/FtcRobotController/build/intermediates/manifests/full/debug/AndroidManifest.xml:16:9-45
+		ADDED from [:FtcRobotController] /Users/mgordon/516-Gears-Of-Fire/FtcRobotController/build/intermediates/manifests/full/debug/AndroidManifest.xml:17:9-45
 	android:allowBackup
-		ADDED from [:FtcRobotController] /Users/mgordon/516-Gears-Of-Fire/FtcRobotController/build/intermediates/manifests/full/debug/AndroidManifest.xml:15:9-35
+		ADDED from [:FtcRobotController] /Users/mgordon/516-Gears-Of-Fire/FtcRobotController/build/intermediates/manifests/full/debug/AndroidManifest.xml:16:9-35
 	android:theme
-		ADDED from [:FtcRobotController] /Users/mgordon/516-Gears-Of-Fire/FtcRobotController/build/intermediates/manifests/full/debug/AndroidManifest.xml:19:9-45
+		ADDED from [:FtcRobotController] /Users/mgordon/516-Gears-Of-Fire/FtcRobotController/build/intermediates/manifests/full/debug/AndroidManifest.xml:20:9-45
 	android:name
 		ADDED from [:RobotCore-release:] /Users/mgordon/.gradle/caches/transforms-1/files-1.1/RobotCore-release.aar/f39dd0d894e63b27a846d9f0397374a8/AndroidManifest.xml:78:18-97
 uses-sdk
@@ -100,51 +114,51 @@ ADDED from [:FtcRobotController] /Users/mgordon/516-Gears-Of-Fire/FtcRobotContro
 	android:name
 		ADDED from [:FtcRobotController] /Users/mgordon/516-Gears-Of-Fire/FtcRobotController/build/intermediates/manifests/full/debug/AndroidManifest.xml:12:22-78
 activity#org.firstinspires.ftc.robotcontroller.internal.FtcRobotControllerActivity
-ADDED from [:FtcRobotController] /Users/mgordon/516-Gears-Of-Fire/FtcRobotController/build/intermediates/manifests/full/debug/AndroidManifest.xml:22:9-43:20
+ADDED from [:FtcRobotController] /Users/mgordon/516-Gears-Of-Fire/FtcRobotController/build/intermediates/manifests/full/debug/AndroidManifest.xml:23:9-44:20
 	android:screenOrientation
-		ADDED from [:FtcRobotController] /Users/mgordon/516-Gears-Of-Fire/FtcRobotController/build/intermediates/manifests/full/debug/AndroidManifest.xml:27:13-49
+		ADDED from [:FtcRobotController] /Users/mgordon/516-Gears-Of-Fire/FtcRobotController/build/intermediates/manifests/full/debug/AndroidManifest.xml:28:13-49
 	android:label
-		ADDED from [:FtcRobotController] /Users/mgordon/516-Gears-Of-Fire/FtcRobotController/build/intermediates/manifests/full/debug/AndroidManifest.xml:25:13-45
+		ADDED from [:FtcRobotController] /Users/mgordon/516-Gears-Of-Fire/FtcRobotController/build/intermediates/manifests/full/debug/AndroidManifest.xml:26:13-45
 	android:launchMode
-		ADDED from [:FtcRobotController] /Users/mgordon/516-Gears-Of-Fire/FtcRobotController/build/intermediates/manifests/full/debug/AndroidManifest.xml:26:13-44
+		ADDED from [:FtcRobotController] /Users/mgordon/516-Gears-Of-Fire/FtcRobotController/build/intermediates/manifests/full/debug/AndroidManifest.xml:27:13-44
 	android:configChanges
-		ADDED from [:FtcRobotController] /Users/mgordon/516-Gears-Of-Fire/FtcRobotController/build/intermediates/manifests/full/debug/AndroidManifest.xml:24:13-59
+		ADDED from [:FtcRobotController] /Users/mgordon/516-Gears-Of-Fire/FtcRobotController/build/intermediates/manifests/full/debug/AndroidManifest.xml:25:13-59
 	android:name
-		ADDED from [:FtcRobotController] /Users/mgordon/516-Gears-Of-Fire/FtcRobotController/build/intermediates/manifests/full/debug/AndroidManifest.xml:23:13-101
+		ADDED from [:FtcRobotController] /Users/mgordon/516-Gears-Of-Fire/FtcRobotController/build/intermediates/manifests/full/debug/AndroidManifest.xml:24:13-101
 intent-filter#action:name:android.intent.action.MAIN+category:name:android.intent.category.LAUNCHER
-ADDED from [:FtcRobotController] /Users/mgordon/516-Gears-Of-Fire/FtcRobotController/build/intermediates/manifests/full/debug/AndroidManifest.xml:28:13-32:29
+ADDED from [:FtcRobotController] /Users/mgordon/516-Gears-Of-Fire/FtcRobotController/build/intermediates/manifests/full/debug/AndroidManifest.xml:29:13-33:29
 category#android.intent.category.LAUNCHER
-ADDED from [:FtcRobotController] /Users/mgordon/516-Gears-Of-Fire/FtcRobotController/build/intermediates/manifests/full/debug/AndroidManifest.xml:29:17-77
+ADDED from [:FtcRobotController] /Users/mgordon/516-Gears-Of-Fire/FtcRobotController/build/intermediates/manifests/full/debug/AndroidManifest.xml:30:17-77
 	android:name
-		ADDED from [:FtcRobotController] /Users/mgordon/516-Gears-Of-Fire/FtcRobotController/build/intermediates/manifests/full/debug/AndroidManifest.xml:29:27-74
+		ADDED from [:FtcRobotController] /Users/mgordon/516-Gears-Of-Fire/FtcRobotController/build/intermediates/manifests/full/debug/AndroidManifest.xml:30:27-74
 action#android.intent.action.MAIN
-ADDED from [:FtcRobotController] /Users/mgordon/516-Gears-Of-Fire/FtcRobotController/build/intermediates/manifests/full/debug/AndroidManifest.xml:31:17-69
+ADDED from [:FtcRobotController] /Users/mgordon/516-Gears-Of-Fire/FtcRobotController/build/intermediates/manifests/full/debug/AndroidManifest.xml:32:17-69
 	android:name
-		ADDED from [:FtcRobotController] /Users/mgordon/516-Gears-Of-Fire/FtcRobotController/build/intermediates/manifests/full/debug/AndroidManifest.xml:31:25-66
+		ADDED from [:FtcRobotController] /Users/mgordon/516-Gears-Of-Fire/FtcRobotController/build/intermediates/manifests/full/debug/AndroidManifest.xml:32:25-66
 intent-filter#action:name:android.hardware.usb.action.USB_DEVICE_ATTACHED
-ADDED from [:FtcRobotController] /Users/mgordon/516-Gears-Of-Fire/FtcRobotController/build/intermediates/manifests/full/debug/AndroidManifest.xml:33:13-35:29
+ADDED from [:FtcRobotController] /Users/mgordon/516-Gears-Of-Fire/FtcRobotController/build/intermediates/manifests/full/debug/AndroidManifest.xml:34:13-36:29
 action#android.hardware.usb.action.USB_DEVICE_ATTACHED
-ADDED from [:FtcRobotController] /Users/mgordon/516-Gears-Of-Fire/FtcRobotController/build/intermediates/manifests/full/debug/AndroidManifest.xml:34:17-90
+ADDED from [:FtcRobotController] /Users/mgordon/516-Gears-Of-Fire/FtcRobotController/build/intermediates/manifests/full/debug/AndroidManifest.xml:35:17-90
 	android:name
-		ADDED from [:FtcRobotController] /Users/mgordon/516-Gears-Of-Fire/FtcRobotController/build/intermediates/manifests/full/debug/AndroidManifest.xml:34:25-87
+		ADDED from [:FtcRobotController] /Users/mgordon/516-Gears-Of-Fire/FtcRobotController/build/intermediates/manifests/full/debug/AndroidManifest.xml:35:25-87
 meta-data#android.hardware.usb.action.USB_DEVICE_ATTACHED
-ADDED from [:FtcRobotController] /Users/mgordon/516-Gears-Of-Fire/FtcRobotController/build/intermediates/manifests/full/debug/AndroidManifest.xml:37:13-39:57
+ADDED from [:FtcRobotController] /Users/mgordon/516-Gears-Of-Fire/FtcRobotController/build/intermediates/manifests/full/debug/AndroidManifest.xml:38:13-40:57
 	android:resource
-		ADDED from [:FtcRobotController] /Users/mgordon/516-Gears-Of-Fire/FtcRobotController/build/intermediates/manifests/full/debug/AndroidManifest.xml:39:17-54
+		ADDED from [:FtcRobotController] /Users/mgordon/516-Gears-Of-Fire/FtcRobotController/build/intermediates/manifests/full/debug/AndroidManifest.xml:40:17-54
 	android:name
-		ADDED from [:FtcRobotController] /Users/mgordon/516-Gears-Of-Fire/FtcRobotController/build/intermediates/manifests/full/debug/AndroidManifest.xml:38:17-79
+		ADDED from [:FtcRobotController] /Users/mgordon/516-Gears-Of-Fire/FtcRobotController/build/intermediates/manifests/full/debug/AndroidManifest.xml:39:17-79
 meta-data#org.firstinspires.main.entry
-ADDED from [:FtcRobotController] /Users/mgordon/516-Gears-Of-Fire/FtcRobotController/build/intermediates/manifests/full/debug/AndroidManifest.xml:40:13-42:40
+ADDED from [:FtcRobotController] /Users/mgordon/516-Gears-Of-Fire/FtcRobotController/build/intermediates/manifests/full/debug/AndroidManifest.xml:41:13-43:40
 	android:value
-		ADDED from [:FtcRobotController] /Users/mgordon/516-Gears-Of-Fire/FtcRobotController/build/intermediates/manifests/full/debug/AndroidManifest.xml:42:17-37
+		ADDED from [:FtcRobotController] /Users/mgordon/516-Gears-Of-Fire/FtcRobotController/build/intermediates/manifests/full/debug/AndroidManifest.xml:43:17-37
 	android:name
-		ADDED from [:FtcRobotController] /Users/mgordon/516-Gears-Of-Fire/FtcRobotController/build/intermediates/manifests/full/debug/AndroidManifest.xml:41:17-60
+		ADDED from [:FtcRobotController] /Users/mgordon/516-Gears-Of-Fire/FtcRobotController/build/intermediates/manifests/full/debug/AndroidManifest.xml:42:17-60
 service#com.qualcomm.ftccommon.FtcRobotControllerService
-ADDED from [:FtcRobotController] /Users/mgordon/516-Gears-Of-Fire/FtcRobotController/build/intermediates/manifests/full/debug/AndroidManifest.xml:46:9-48:38
+ADDED from [:FtcRobotController] /Users/mgordon/516-Gears-Of-Fire/FtcRobotController/build/intermediates/manifests/full/debug/AndroidManifest.xml:47:9-49:38
 	android:enabled
-		ADDED from [:FtcRobotController] /Users/mgordon/516-Gears-Of-Fire/FtcRobotController/build/intermediates/manifests/full/debug/AndroidManifest.xml:48:13-35
+		ADDED from [:FtcRobotController] /Users/mgordon/516-Gears-Of-Fire/FtcRobotController/build/intermediates/manifests/full/debug/AndroidManifest.xml:49:13-35
 	android:name
-		ADDED from [:FtcRobotController] /Users/mgordon/516-Gears-Of-Fire/FtcRobotController/build/intermediates/manifests/full/debug/AndroidManifest.xml:47:13-76
+		ADDED from [:FtcRobotController] /Users/mgordon/516-Gears-Of-Fire/FtcRobotController/build/intermediates/manifests/full/debug/AndroidManifest.xml:48:13-76
 uses-permission#android.permission.ACCESS_WIFI_STATE
 ADDED from [:RobotCore-release:] /Users/mgordon/.gradle/caches/transforms-1/files-1.1/RobotCore-release.aar/f39dd0d894e63b27a846d9f0397374a8/AndroidManifest.xml:11:5-13:35
 MERGED from [:FtcCommon-release:] /Users/mgordon/.gradle/caches/transforms-1/files-1.1/FtcCommon-release.aar/393df16c09896ec3f70ac368b103c825/AndroidManifest.xml:12:5-76
@@ -195,16 +209,6 @@ MERGED from [:Inspection-release:] /Users/mgordon/.gradle/caches/transforms-1/fi
 		ADDED from [:RobotCore-release:] /Users/mgordon/.gradle/caches/transforms-1/files-1.1/RobotCore-release.aar/f39dd0d894e63b27a846d9f0397374a8/AndroidManifest.xml:26:9-32
 	android:name
 		ADDED from [:RobotCore-release:] /Users/mgordon/.gradle/caches/transforms-1/files-1.1/RobotCore-release.aar/f39dd0d894e63b27a846d9f0397374a8/AndroidManifest.xml:25:9-51
-uses-permission#android.permission.WRITE_EXTERNAL_STORAGE
-ADDED from [:RobotCore-release:] /Users/mgordon/.gradle/caches/transforms-1/files-1.1/RobotCore-release.aar/f39dd0d894e63b27a846d9f0397374a8/AndroidManifest.xml:27:5-29:35
-MERGED from [:FtcCommon-release:] /Users/mgordon/.gradle/caches/transforms-1/files-1.1/FtcCommon-release.aar/393df16c09896ec3f70ac368b103c825/AndroidManifest.xml:13:5-15:35
-MERGED from [:FtcCommon-release:] /Users/mgordon/.gradle/caches/transforms-1/files-1.1/FtcCommon-release.aar/393df16c09896ec3f70ac368b103c825/AndroidManifest.xml:13:5-15:35
-MERGED from [:Blocks-release:] /Users/mgordon/.gradle/caches/transforms-1/files-1.1/Blocks-release.aar/045a8a31b425b6d08dae4e8778998efc/AndroidManifest.xml:11:5-13:35
-MERGED from [:Blocks-release:] /Users/mgordon/.gradle/caches/transforms-1/files-1.1/Blocks-release.aar/045a8a31b425b6d08dae4e8778998efc/AndroidManifest.xml:11:5-13:35
-	android:required
-		ADDED from [:RobotCore-release:] /Users/mgordon/.gradle/caches/transforms-1/files-1.1/RobotCore-release.aar/f39dd0d894e63b27a846d9f0397374a8/AndroidManifest.xml:29:9-32
-	android:name
-		ADDED from [:RobotCore-release:] /Users/mgordon/.gradle/caches/transforms-1/files-1.1/RobotCore-release.aar/f39dd0d894e63b27a846d9f0397374a8/AndroidManifest.xml:28:9-65
 uses-permission#android.permission.READ_EXTERNAL_STORAGE
 ADDED from [:RobotCore-release:] /Users/mgordon/.gradle/caches/transforms-1/files-1.1/RobotCore-release.aar/f39dd0d894e63b27a846d9f0397374a8/AndroidManifest.xml:30:5-32:35
 MERGED from [:FtcCommon-release:] /Users/mgordon/.gradle/caches/transforms-1/files-1.1/FtcCommon-release.aar/393df16c09896ec3f70ac368b103c825/AndroidManifest.xml:16:5-18:35
@@ -626,7 +630,7 @@ ADDED from [:FtcCommon-release:] /Users/mgordon/.gradle/caches/transforms-1/file
 	android:name
 		ADDED from [:FtcCommon-release:] /Users/mgordon/.gradle/caches/transforms-1/files-1.1/FtcCommon-release.aar/393df16c09896ec3f70ac368b103c825/AndroidManifest.xml:231:13-102
 uses-permission#android.permission.READ_PHONE_STATE
-IMPLIED from /Users/mgordon/516-Gears-Of-Fire/TeamCode/src/main/AndroidManifest.xml:8:1-12:12 reason: org.tensorflow.lite has a targetSdkVersion < 4
+IMPLIED from /Users/mgordon/516-Gears-Of-Fire/TeamCode/src/main/AndroidManifest.xml:8:1-13:12 reason: org.tensorflow.lite has a targetSdkVersion < 4
 uses-permission#android.permission.BLUETOOTH_ADMIN
 ADDED from [:Inspection-release:] /Users/mgordon/.gradle/caches/transforms-1/files-1.1/Inspection-release.aar/76ddb38a7569b295d4b851e4674b10fa/AndroidManifest.xml:12:5-74
 	android:name

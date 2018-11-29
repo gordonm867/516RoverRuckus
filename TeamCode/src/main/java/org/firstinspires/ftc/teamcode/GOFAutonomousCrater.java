@@ -2,10 +2,23 @@ package org.firstinspires.ftc.teamcode;
 
 import android.os.Environment;
 
+import com.acmerobotics.roadrunner.control.PIDCoefficients;
+import com.acmerobotics.roadrunner.drive.MecanumDrive;
+import com.acmerobotics.roadrunner.followers.MecanumPIDVAFollower;
+import com.acmerobotics.roadrunner.trajectory.Trajectory;
+import com.acmerobotics.roadrunner.trajectory.TrajectoryBuilder;
+import com.acmerobotics.roadrunner.trajectory.TrajectoryConfig;
+import com.acmerobotics.roadrunner.trajectory.TrajectoryLoader;
+import com.acmerobotics.roadrunner.trajectory.constraints.DriveConstraints;
+import com.acmerobotics.roadrunner.trajectory.constraints.MecanumConstraints;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
@@ -18,10 +31,16 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 import org.firstinspires.ftc.robotcore.internal.opmode.OpModeManagerImpl;
+import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
@@ -57,10 +76,20 @@ public class GOFAutonomousCrater extends LinearOpMode implements Runnable {
         vuforiaThread = new Thread(new GOFAutonomousCrater());
         vuforiaThread.start();
 
-        vuforiaInit();
-        detectInit();
+        /* Reset encoders */
+        if (robot.rrWheel != null && robot.rfWheel != null && robot.lfWheel != null && robot.lrWheel != null) {
+            robot.rrWheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            robot.rfWheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            robot.lfWheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            robot.lrWheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            robot.intake.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            robot.hangOne.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        }
 
-        GOFAutoTransitioner.transitionOnStop(this, "GOFTeleOp");
+        vuforiaInit(); // Initialize Vuforia
+        detectInit(); // Initialize TensorFlwo
+
+        GOFAutoTransitioner.transitionOnStop(this, "GOFTeleOp"); // Start TeleOp after autonomous ends (doesn't work right now)
 
         while(!isStopRequested() && vuforiaThread.isAlive() && !vuforiaThread.isInterrupted()) {}
 
@@ -76,6 +105,7 @@ public class GOFAutonomousCrater extends LinearOpMode implements Runnable {
 
         waitForStart(); // Wait for user to press "PLAY"
 
+        elapsedTime.reset();
         detector.shutdown();
         vuforia.close();
 
@@ -110,7 +140,7 @@ public class GOFAutonomousCrater extends LinearOpMode implements Runnable {
     private void centerCraterAuto() {
         encoderMovePreciseTimed(235, -278, -264, 285, 1, 1); // side to side
         encoderMovePreciseTimed(-525, -542, -516, -534, 0.5, 1);
-        robot.hangOne.setTargetPosition(8263);
+        robot.hangOne.setTargetPosition(8058);
         robot.setHangPower(-1);
         if (opModeIsActive()) {
             robot.setKickPower(kickReadyPos); // Move kicker out of the way
@@ -127,13 +157,14 @@ public class GOFAutonomousCrater extends LinearOpMode implements Runnable {
         robot.setInPower(0.5);
         encoderMovePreciseTimed(-458, -510, -502, -539, 0.8, 2);
         encoderMovePreciseTimed(-176, -205, -185, -216, 0.8, 2);
+        while(elapsedTime.time() < 30 && opModeIsActive() && robot.hangOne.isBusy()) {}
     }
 
     private void rightCraterAuto() {
         encoderMovePreciseTimed(235, -278, -264, 285, 1, 1); // side to side
         encoderMovePreciseTimed(-525, -542, -516, -534, 0.5, 1);
         robot.hangOne.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        robot.hangOne.setTargetPosition(8263);
+        robot.hangOne.setTargetPosition(8058);
         robot.setHangPower(-1);
         if (opModeIsActive()) {
             robot.setKickPower(kickReadyPos); // Move kicker out of the way
@@ -166,19 +197,22 @@ public class GOFAutonomousCrater extends LinearOpMode implements Runnable {
         encoderMovePreciseTimed(731, 672, 690, 695, -1, 2);
         encoderMovePreciseTimed(-494, 1951, 1753, -418, 1, 2);
         encoderMovePreciseTimed(711, 698, 706, 696, -1, 2);
-        robot.hangOne.setTargetPosition(-8263);
+        robot.hangOne.setTargetPosition(0);
         robot.setHangPower(1);
+        while(elapsedTime.time() < 30 && opModeIsActive() && robot.hangOne.isBusy()) {}
     }
 
     private void leftCraterAuto() {
         encoderMovePreciseTimed(235, -278, -264, 285, 1, 1); // side to side
         encoderMovePreciseTimed(-525, -542, -516, -534, 0.5, 1);
         robot.hangOne.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        robot.hangOne.setTargetPosition(8263);
+        robot.hangOne.setTargetPosition(8058);
         robot.setHangPower(-1);
         if (opModeIsActive()) {
             robot.setKickPower(kickReadyPos); // Move kicker out of the way
         }
+        followTrajectory("Left");
+        /*
         encoderMovePreciseTimed(555, -780, -674, 877, 0.8, 2);
         while(opModeIsActive() && !robot.bottomSensor.isPressed() && robot.hangOne.isBusy()) {
             double oldPos = robot.hangOne.getCurrentPosition();
@@ -193,21 +227,92 @@ public class GOFAutonomousCrater extends LinearOpMode implements Runnable {
         encoderMovePreciseTimed(-512, -591, -525, -601, 0.8, 2);
         robot.setInPower(0);
         encoderMovePreciseTimed(-139, -179, -138, -151, 0.8, 2);
+        */
+        while(elapsedTime.time() < 30 && opModeIsActive() && robot.hangOne.isBusy()) {}
     }
 
     private void descend() {
         resetEncoders();
-        robot.hangOne.setTargetPosition(-8263);
-        while (opModeIsActive() && robot.hangOne.getCurrentPosition() > -8263) {
+        robot.hangOne.setTargetPosition(-8058);
+        while (opModeIsActive() && robot.hangOne.getCurrentPosition() > -8058) {
             telemetry.addData("h1: ", "" + robot.hangOne.getCurrentPosition());
             telemetry.update();
             robot.setHangPower(-1);
         }
-        robot.hangOne.setTargetPosition(robot.hangOne.getCurrentPosition());
-        robot.setHangPower(0);
+        robot.hangOne.setTargetPosition(robot.hangOne.getCurrentPosition()); // Set the target position to its current position to stop movement
+        robot.setHangPower(0); // Stop sending power just in case
         resetEncoders();
-        robot.hangOne.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        robot.hangOne.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        robot.hangOne.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER); // Reset hang encoder
+        robot.hangOne.setMode(DcMotor.RunMode.RUN_TO_POSITION); // Set hang wheel back to run to position mode
+    }
+
+    private void followTrajectory(String position) {
+        MecanumDrive drive = new MecanumDrive(18, 4) {
+            @Override
+            public void setMotorPowers(double v, double v1, double v2, double v3) {
+                robot.lfWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                robot.lrWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                robot.rrWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                robot.rfWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                robot.setDrivePower(v1, v, v2, v3);
+            }
+
+            @NotNull
+            @Override
+            public List<Double> getWheelPositions() {
+                List<Double> wheelPositions = new ArrayList<>();
+                List<DcMotor> motors = Arrays.asList(robot.lfWheel, robot.lrWheel, robot.rrWheel, robot.rfWheel);
+                for (DcMotor motor : motors) {
+                    wheelPositions.add(4 * 2 * Math.PI * motor.getCurrentPosition() / -1120);
+                }
+                return wheelPositions;
+            }
+
+            @Override
+            public double getExternalHeading() {
+                Orientation g0angles = null;
+                Orientation g1angles = null;
+                if (robot.gyro0 != null) {
+                    g0angles = robot.gyro0.getAngularOrientation(); // Get z axis angle from first gyro (in radians so that a conversion is unnecessary for proper employment of Java's Math class)
+                }
+                if (robot.gyro1 != null) {
+                    g1angles = robot.gyro1.getAngularOrientation(); // Get z axis angle from second gyro (in radians so that a conversion is unnecessary for proper employment of Java's Math class)
+                }
+                double robotAngle;
+                if (g0angles != null && g1angles != null) {
+                    robotAngle = ((g0angles.firstAngle + g1angles.firstAngle) / 2); // Average angle measures to determine actual robot angle
+                } else if (g0angles != null) {
+                    robotAngle = g0angles.firstAngle;
+                } else if (g1angles != null) {
+                    robotAngle = g1angles.firstAngle;
+                } else {
+                    robotAngle = 0;
+                }
+                return robotAngle;
+            }
+        };
+        TrajectoryConfig config;
+        try {
+            InputStream inputStream = AppUtil.getDefContext().getAssets().open("trajectory/GOFAutoCrater" + position + ".yaml");
+            ObjectMapper MAPPER = new ObjectMapper(new YAMLFactory());
+            config = MAPPER.readValue(inputStream, TrajectoryConfig.class);
+        }
+        catch(Exception p_exception) {
+            config = null;
+        }
+        Trajectory trajectory = new Trajectory();
+        if(config != null) {
+            trajectory = config.toTrajectory();
+        }
+        PIDFCoefficients coeffs = ((DcMotorEx)robot.lfWheel).getPIDFCoefficients(robot.lfWheel.getMode());
+        PIDCoefficients translationalCoeffs = new PIDCoefficients(coeffs.p, coeffs.i, coeffs.d);
+        MecanumPIDVAFollower follower = new MecanumPIDVAFollower(drive, translationalCoeffs, translationalCoeffs, 1 / 25.0, 1 / 30.0, robot.getBatteryVoltage());
+        follower.followTrajectory(trajectory);
+        while(opModeIsActive() && follower.isFollowing()) {
+            follower.update(drive.getPoseEstimate());
+            telemetry.addData("Status", "Following trajectory....");
+            telemetry.update();
+        }
     }
 
     private int detectGold() {
@@ -898,8 +1003,6 @@ public class GOFAutonomousCrater extends LinearOpMode implements Runnable {
         if(robot.gyro1 != null) {
             while(!robot.gyro1.isGyroCalibrated() && opModeIsActive()) {}
         }
-
-        gyro0.close();
 
         telemetry.addData("Message from secondary thread", "Gyros initialized");
         telemetry.update();

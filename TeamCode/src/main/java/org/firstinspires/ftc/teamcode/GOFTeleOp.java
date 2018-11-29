@@ -60,13 +60,13 @@ public class GOFTeleOp extends OpMode {
         }
         robot.setKickPower(kickReadyPos);
 
-        if(robot.gyro0 != null) {
+        /* if(robot.gyro0 != null) {
             while(!robot.gyro0.isGyroCalibrated()) {}
         }
 
         if(robot.gyro1 != null) {
             while(!robot.gyro1.isGyroCalibrated()) {}
-        }
+        } */
 
         telemetry.addData("Status", "Initialized"); // Update phone
     }
@@ -75,7 +75,7 @@ public class GOFTeleOp extends OpMode {
     public void loop() {
 
         double drive = gamepad1.left_stick_y;
-        double hangDrive = gamepad2.right_stick_y;
+        double hangDrive = gamepad2.left_stick_y;
         double turn = gamepad1.right_stick_x;
         double angle = -gamepad1.left_stick_x;
         double gearRatio = 1;
@@ -145,8 +145,8 @@ public class GOFTeleOp extends OpMode {
             driveByField(drive, angle, turn);
         }
 
-        if ((gamepad2.right_trigger - gamepad2.left_trigger) != 0) {
-            robot.setInPower(gamepad2.right_trigger - gamepad2.left_trigger); // Set intake power based on the gamepad trigger values
+        if ((gamepad1.right_trigger - gamepad1.left_trigger) != 0) {
+            robot.setInPower(gamepad1.right_trigger - gamepad1.left_trigger); // Set intake power based on the gamepad trigger values
         } else {
             try {
                 if (robot.intake.getCurrentPosition() % 1120 != 0 && !(robot.intake.isBusy()) && autoIntake) {
@@ -269,13 +269,14 @@ public class GOFTeleOp extends OpMode {
             robot.hangOne.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             firstAngleOffset = 0;
             robot.gyroInit();
+           /*
             if(robot.gyro0 != null) {
                 while(!robot.gyro0.isGyroCalibrated()) {}
             }
             if(robot.gyro1 != null) {
                 while(!robot.gyro1.isGyroCalibrated()) {}
             }
-            telemetry.addData("Status", "Initialized"); // Update phone
+            */
         }
 
         if (gamepad2.left_stick_y != 0) {
@@ -294,7 +295,7 @@ public class GOFTeleOp extends OpMode {
             }
         }
 
-        robot.setHangPower(hangDrive + 0.25 * gamepad2.left_stick_y); // Move container based on gamepad positions
+        robot.setHangPower(hangDrive + 0.25 * gamepad2.right_stick_y); // Move container based on gamepad positions
 
         /* Update phones */
         try {

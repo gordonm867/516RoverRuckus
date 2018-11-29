@@ -25,10 +25,10 @@ import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 import com.qualcomm.hardware.rev.RevTouchSensor;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
@@ -60,19 +60,19 @@ public class GOFHardware {
 
     private static  GOFHardware     robot                    = null;
 
-    public HardwareMap              hwMap;
+    public          HardwareMap     hwMap;
 
-    public Orientation              g0angles;
-    public Orientation              g1angles;
+    public          Orientation     g0angles;
+    public          Orientation     g1angles;
 
-    public Integer                  rightId;
-    public Integer                  centerId;
-    public Integer                  leftId;
+    public          Integer         rightId;
+    public          Integer         centerId;
+    public          Integer         leftId;
 
-    public RevTouchSensor           topSensor;
-    public RevTouchSensor           bottomSensor;
+    public          RevTouchSensor  topSensor;
+    public          RevTouchSensor  bottomSensor;
 
-    public Servo            kicker;
+    public          Servo           kicker;
 
     /* Constructor */
     public static GOFHardware getInstance() {
@@ -397,6 +397,17 @@ public class GOFHardware {
         catch (Exception p_exception) {
             gyro1 = null;
         }
+    }
+
+    public double getBatteryVoltage() {
+        double result = Double.POSITIVE_INFINITY;
+        for (VoltageSensor data : hwMap.voltageSensor) {
+            double voltage = data.getVoltage();
+            if (voltage > 0) {
+                result = Math.min(result, voltage);
+            }
+        }
+        return result;
     }
 
 } //End of class

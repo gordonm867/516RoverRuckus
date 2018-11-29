@@ -20,7 +20,7 @@ poses:
   heading: 0.0
 constraints:
   maximumVelocity: 25.0
-  maximumAcceleration: 40.0
-  maximumAngularVelocity: 3.141592653589793
-  maximumAngularAcceleration: 6.283185307179586
+  maximumAcceleration: 30.0
+  maximumAngularVelocity: 1.5707963267948966
+  maximumAngularAcceleration: 1.5707963267948966
 resolution: 250
