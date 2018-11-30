@@ -1,22 +1,18 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.control.PIDCoefficients;
 import com.acmerobotics.roadrunner.drive.MecanumDrive;
 import com.acmerobotics.roadrunner.followers.MecanumPIDVAFollower;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
-import com.acmerobotics.roadrunner.trajectory.TrajectoryConfig;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import com.acmerobotics.roadrunner.trajectory.TrajectoryBuilder;
+import com.acmerobotics.roadrunner.trajectory.constraints.DriveConstraints;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.util.ElapsedTime;
-
-import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
-
-import java.io.InputStream;
 
 @Autonomous(name="GOFRoadRunnerTest",group="GOFTests")
 // @Disabled
@@ -36,30 +32,34 @@ public class GOFRoadRunnerTest extends LinearOpMode {
             robot.hangOne.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         }
         waitForStart();
-        followTrajectory("Left");
+        doTrajectory("Left");
     }
 
-    private void followTrajectory(String position) {
+    private void doTrajectory(String position) {
+        if(position.equalsIgnoreCase("Left")) {
+            robot.setInPower(0.5);
+            DriveConstraints constraints = new DriveConstraints(12.5, 20.0, 90, 45);
+            Trajectory trajectory = new TrajectoryBuilder(new Pose2d(25, 25, 45), constraints)
+                    .splineTo(new Pose2d(28.0, 47.0, 110))
+                    .splineTo(new Pose2d(-62.0, 57.0, 170.0))
+                    .splineTo(new Pose2d(-43.0, 27.0, 180.0))
+                    .splineTo(new Pose2d(30.00, 57.00, 210))
+                    .build();
+            followTrajectory(trajectory);
+        }
+        else {
+            throw new IllegalArgumentException();
+        }
+    }
+
+    private void followTrajectory(Trajectory trajectory) {
         MecanumDrive drive = new GOFDriveRR();
-        TrajectoryConfig config;
-        try {
-            InputStream inputStream = AppUtil.getDefContext().getAssets().open("trajectory/GOFAutoCrater" + position + ".yaml");
-            ObjectMapper MAPPER = new ObjectMapper(new YAMLFactory());
-            config = MAPPER.readValue(inputStream, TrajectoryConfig.class);
-        }
-        catch(Exception p_exception) {
-            config = null;
-        }
-        Trajectory trajectory = new Trajectory();
-        if(config != null) {
-            trajectory = config.toTrajectory();
-        }
-        PIDFCoefficients coeffs = ((DcMotorEx)robot.lfWheel).getPIDFCoefficients(robot.lfWheel.getMode());
+        PIDFCoefficients coeffs = ((DcMotorEx) robot.lfWheel).getPIDFCoefficients(robot.lfWheel.getMode());
         PIDCoefficients translationalCoeffs = new PIDCoefficients(coeffs.p, coeffs.i, coeffs.d);
         MecanumPIDVAFollower follower = new MecanumPIDVAFollower(drive, translationalCoeffs, translationalCoeffs, 1 / 25.0, 1 / 30.0, robot.getBatteryVoltage());
         follower.followTrajectory(trajectory);
         elapsedTime.reset();
-        while(opModeIsActive() && follower.isFollowing()) {
+        while (opModeIsActive() && follower.isFollowing()) {
             follower.update(drive.getPoseEstimate());
             telemetry.addData("Status", "Following trajectory....");
             telemetry.update();
