@@ -71,7 +71,7 @@ public class GOFAutonomousDepot extends LinearOpMode implements Runnable {
         }
 
         /* Reset encoders */
-        if (robot.rrWheel != null && robot.rfWheel != null && robot.lfWheel != null && robot.lrWheel != null) {
+        if (robot.rrWheel != null && robot.rfWheel != null && robot.lfWheel != null && robot.lrWheel != null && robot.hangOne != null) {
             robot.rrWheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             robot.rfWheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             robot.lfWheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);

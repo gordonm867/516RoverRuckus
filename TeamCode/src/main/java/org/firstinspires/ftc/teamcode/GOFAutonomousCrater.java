@@ -211,8 +211,6 @@ public class GOFAutonomousCrater extends LinearOpMode implements Runnable {
         if (opModeIsActive()) {
             robot.setKickPower(kickReadyPos); // Move kicker out of the way
         }
-        followTrajectory("Left");
-        /*
         encoderMovePreciseTimed(555, -780, -674, 877, 0.8, 2);
         while(opModeIsActive() && !robot.bottomSensor.isPressed() && robot.hangOne.isBusy()) {
             double oldPos = robot.hangOne.getCurrentPosition();
@@ -227,7 +225,6 @@ public class GOFAutonomousCrater extends LinearOpMode implements Runnable {
         encoderMovePreciseTimed(-512, -591, -525, -601, 0.8, 2);
         robot.setInPower(0);
         encoderMovePreciseTimed(-139, -179, -138, -151, 0.8, 2);
-        */
         while(elapsedTime.time() < 30 && opModeIsActive() && robot.hangOne.isBusy()) {}
     }
 
@@ -244,32 +241,6 @@ public class GOFAutonomousCrater extends LinearOpMode implements Runnable {
         resetEncoders();
         robot.hangOne.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER); // Reset hang encoder
         robot.hangOne.setMode(DcMotor.RunMode.RUN_TO_POSITION); // Set hang wheel back to run to position mode
-    }
-
-    private void followTrajectory(String position) {
-        MecanumDrive drive = new GOFDriveRR();
-        TrajectoryConfig config;
-        try {
-            InputStream inputStream = AppUtil.getDefContext().getAssets().open("trajectory/GOFAutoCrater" + position + ".yaml");
-            ObjectMapper MAPPER = new ObjectMapper(new YAMLFactory());
-            config = MAPPER.readValue(inputStream, TrajectoryConfig.class);
-        }
-        catch(Exception p_exception) {
-            config = null;
-        }
-        Trajectory trajectory = new Trajectory();
-        if(config != null) {
-            trajectory = config.toTrajectory();
-        }
-        PIDFCoefficients coeffs = ((DcMotorEx)robot.lfWheel).getPIDFCoefficients(robot.lfWheel.getMode());
-        PIDCoefficients translationalCoeffs = new PIDCoefficients(coeffs.p, coeffs.i, coeffs.d);
-        MecanumPIDVAFollower follower = new MecanumPIDVAFollower(drive, translationalCoeffs, translationalCoeffs, 1 / 25.0, 1 / 30.0, robot.getBatteryVoltage());
-        follower.followTrajectory(trajectory);
-        while(opModeIsActive() && follower.isFollowing()) {
-            follower.update(drive.getPoseEstimate());
-            telemetry.addData("Status", "Following trajectory....");
-            telemetry.update();
-        }
     }
 
     private int detectGold() {
