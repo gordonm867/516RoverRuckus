@@ -79,6 +79,7 @@ public class GOFTeleOp extends OpMode {
         double turn = gamepad1.right_stick_x;
         double angle = -gamepad1.left_stick_x;
         double gearRatio = 1;
+        double startTime = elapsedTime.time();
         Orientation g0angles = null;
         Orientation g1angles = null;
         if(robot.gyro0 != null) {
@@ -148,6 +149,9 @@ public class GOFTeleOp extends OpMode {
         if ((gamepad1.right_trigger - gamepad1.left_trigger) != 0) {
             robot.setInPower(gamepad1.right_trigger - gamepad1.left_trigger); // Set intake power based on the gamepad trigger values
         } else {
+            if(!autoIntake) {
+                robot.setInPower(0);
+            }
             try {
                 if (robot.intake.getCurrentPosition() % 1120 != 0 && !(robot.intake.isBusy()) && autoIntake) {
                     if (robot.intake.getCurrentPosition() % 1120 < (560 * gearRatio)) {
@@ -315,15 +319,20 @@ public class GOFTeleOp extends OpMode {
             telemetry.addData("  driver mode", "" + driverMode);
             telemetry.addData("Gyros", "");
             telemetry.addData("  robot angle", "" + (robotAngle * (180 / Math.PI)));
-            telemetry.addData("  x acceleration", "" + ((robot.gyro0.getAcceleration().xAccel + robot.gyro1.getAcceleration().xAccel) / 2));
-            telemetry.addData("  y acceleration", "" + ((robot.gyro0.getAcceleration().yAccel + robot.gyro1.getAcceleration().yAccel) / 2));
-            telemetry.addData("  z acceleration", ((robot.gyro0.getAcceleration().zAccel + robot.gyro1.getAcceleration().zAccel) / 2));
+            telemetry.addData("  x acceleration", "" + ((robot.gyro0.getGravity().xAccel + robot.gyro1.getGravity().xAccel) / 2));
+            telemetry.addData("  y acceleration", "" + ((robot.gyro0.getGravity().yAccel + robot.gyro1.getGravity().yAccel) / 2));
+            telemetry.addData("  z acceleration", ((robot.gyro0.getGravity().zAccel + robot.gyro1.getGravity().zAccel) / 2));
+            telemetry.addData("  x velocity", ((robot.gyro0.getVelocity().xVeloc + robot.gyro1.getVelocity().xVeloc) / 2));
+            telemetry.addData("  y velocity", ((robot.gyro0.getVelocity().yVeloc + robot.gyro1.getVelocity().yVeloc) / 2));
+            telemetry.addData("  z velocity", ((robot.gyro0.getVelocity().zVeloc + robot.gyro1.getVelocity().zVeloc) / 2));
+            double endTime = elapsedTime.time();
+            double timeDifference = endTime - startTime;
+            telemetry.addData("Cycle Time", timeDifference);
         }
         catch (Exception p_exception) {
             telemetry.addData("Uh oh: ", "The driver controller was unable to communicate via telemetry.  For help, please seek a better programmer.");
         }
         telemetry.update();
-
     }
 
     @Override

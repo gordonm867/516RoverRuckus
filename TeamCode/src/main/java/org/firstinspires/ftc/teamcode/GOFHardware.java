@@ -56,7 +56,7 @@ public class GOFHardware {
     public          DistanceSensor   frontDistanceSensor;
     public          DistanceSensor   backDistanceSensor;
 
-    public          double           maxDriveSpeed           = 0.7;
+    public          double           maxDriveSpeed           = 0.8;
 
     private static  GOFHardware     robot                    = null;
 

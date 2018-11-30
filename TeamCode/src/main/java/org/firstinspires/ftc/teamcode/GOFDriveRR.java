@@ -24,7 +24,7 @@ public class GOFDriveRR extends MecanumDrive {
         robot.lrWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         robot.rrWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         robot.rfWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        robot.setDrivePower(v1, v, v2, v3);
+        robot.setDrivePower(-v1, -v, -v2, -v3);
     }
 
     @NotNull

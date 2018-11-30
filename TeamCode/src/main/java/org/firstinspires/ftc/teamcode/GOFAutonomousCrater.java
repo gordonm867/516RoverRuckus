@@ -138,7 +138,7 @@ public class GOFAutonomousCrater extends LinearOpMode implements Runnable {
     }
 
     private void centerCraterAuto() {
-        encoderMovePreciseTimed(235, -278, -264, 285, 1, 1); // side to side
+        encoderMovePreciseTimed(258, -392, -422, 358, 1, 1); // side to side
         encoderMovePreciseTimed(-525, -542, -516, -534, 0.5, 1);
         robot.hangOne.setTargetPosition(8058);
         robot.setHangPower(-1);
@@ -161,7 +161,7 @@ public class GOFAutonomousCrater extends LinearOpMode implements Runnable {
     }
 
     private void rightCraterAuto() {
-        encoderMovePreciseTimed(235, -278, -264, 285, 1, 1); // side to side
+        encoderMovePreciseTimed(258, -392, -422, 358, 1, 1); // side to side
         encoderMovePreciseTimed(-525, -542, -516, -534, 0.5, 1);
         robot.hangOne.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         robot.hangOne.setTargetPosition(8058);
@@ -169,6 +169,7 @@ public class GOFAutonomousCrater extends LinearOpMode implements Runnable {
         if (opModeIsActive()) {
             robot.setKickPower(kickReadyPos); // Move kicker out of the way
         }
+        /*
         encoderMovePreciseTimed(-979, 1009, 928, -961, 0.8, 2);
         while(opModeIsActive() && !robot.bottomSensor.isPressed() && robot.hangOne.isBusy()) {
             double oldPos = robot.hangOne.getCurrentPosition();
@@ -199,11 +200,11 @@ public class GOFAutonomousCrater extends LinearOpMode implements Runnable {
         encoderMovePreciseTimed(711, 698, 706, 696, -1, 2);
         robot.hangOne.setTargetPosition(0);
         robot.setHangPower(1);
-        while(elapsedTime.time() < 30 && opModeIsActive() && robot.hangOne.isBusy()) {}
+        while(elapsedTime.time() < 30 && opModeIsActive() && robot.hangOne.isBusy()) {} */
     }
 
     private void leftCraterAuto() {
-        encoderMovePreciseTimed(235, -278, -264, 285, 1, 1); // side to side
+        encoderMovePreciseTimed(258, -392, -422, 358, 1, 1); // side to side
         encoderMovePreciseTimed(-525, -542, -516, -534, 0.5, 1);
         robot.hangOne.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         robot.hangOne.setTargetPosition(8058);

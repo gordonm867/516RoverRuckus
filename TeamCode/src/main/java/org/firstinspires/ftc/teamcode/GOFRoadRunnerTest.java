@@ -30,6 +30,12 @@ public class GOFRoadRunnerTest extends LinearOpMode {
             robot.lrWheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             robot.intake.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             robot.hangOne.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            robot.rrWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            robot.rfWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            robot.lfWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            robot.lrWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            robot.intake.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            robot.hangOne.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         }
         waitForStart();
         doTrajectory("Left");
@@ -38,7 +44,7 @@ public class GOFRoadRunnerTest extends LinearOpMode {
     private void doTrajectory(String position) {
         if(position.equalsIgnoreCase("Left")) {
             robot.setInPower(0.5);
-            DriveConstraints constraints = new DriveConstraints(12.5, 20.0, 90, 45);
+            DriveConstraints constraints = new DriveConstraints(22.4, 22.4, 90, 45);
             Trajectory trajectory = new TrajectoryBuilder(new Pose2d(25, 25, 45), constraints)
                     .splineTo(new Pose2d(28.0, 47.0, 110))
                     .splineTo(new Pose2d(-62.0, 57.0, 170.0))
@@ -56,7 +62,7 @@ public class GOFRoadRunnerTest extends LinearOpMode {
         MecanumDrive drive = new GOFDriveRR();
         PIDFCoefficients coeffs = ((DcMotorEx) robot.lfWheel).getPIDFCoefficients(robot.lfWheel.getMode());
         PIDCoefficients translationalCoeffs = new PIDCoefficients(coeffs.p, coeffs.i, coeffs.d);
-        MecanumPIDVAFollower follower = new MecanumPIDVAFollower(drive, translationalCoeffs, translationalCoeffs, 1 / 25.0, 1 / 30.0, robot.getBatteryVoltage());
+        MecanumPIDVAFollower follower = new MecanumPIDVAFollower(drive, translationalCoeffs, translationalCoeffs, 1 / 22.4, 1 / 22.4, robot.getBatteryVoltage());
         follower.followTrajectory(trajectory);
         elapsedTime.reset();
         while (opModeIsActive() && follower.isFollowing()) {
