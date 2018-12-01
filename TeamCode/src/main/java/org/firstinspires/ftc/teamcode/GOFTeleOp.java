@@ -322,9 +322,6 @@ public class GOFTeleOp extends OpMode {
             telemetry.addData("  x acceleration", "" + ((robot.gyro0.getGravity().xAccel + robot.gyro1.getGravity().xAccel) / 2));
             telemetry.addData("  y acceleration", "" + ((robot.gyro0.getGravity().yAccel + robot.gyro1.getGravity().yAccel) / 2));
             telemetry.addData("  z acceleration", ((robot.gyro0.getGravity().zAccel + robot.gyro1.getGravity().zAccel) / 2));
-            telemetry.addData("  x velocity", ((robot.gyro0.getVelocity().xVeloc + robot.gyro1.getVelocity().xVeloc) / 2));
-            telemetry.addData("  y velocity", ((robot.gyro0.getVelocity().yVeloc + robot.gyro1.getVelocity().yVeloc) / 2));
-            telemetry.addData("  z velocity", ((robot.gyro0.getVelocity().zVeloc + robot.gyro1.getVelocity().zVeloc) / 2));
             double endTime = elapsedTime.time();
             double timeDifference = endTime - startTime;
             telemetry.addData("Cycle Time", timeDifference);
