@@ -15,6 +15,8 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.GOFHardware;
+
 @Autonomous(name="GOFRoadRunnerTest",group="GOFTests")
 // @Disabled
 public class GOFRoadRunnerTest extends LinearOpMode {
@@ -43,7 +45,7 @@ public class GOFRoadRunnerTest extends LinearOpMode {
     }
 
     private void doTrajectory(String position) {
-        if(position.equalsIgnoreCase("Left")) {
+        if (position.equalsIgnoreCase("Left")) {
             robot.setInPower(0.5);
             DriveConstraints constraints = new DriveConstraints(22.4, 22.4, 90, 45);
             Trajectory trajectory = new TrajectoryBuilder(new Pose2d(25, 25, 45), constraints)
@@ -53,8 +55,7 @@ public class GOFRoadRunnerTest extends LinearOpMode {
                     .splineTo(new Pose2d(30.00, 57.00, 210))
                     .build();
             followTrajectory(trajectory);
-        }
-        else {
+        } else {
             throw new IllegalArgumentException();
         }
     }
@@ -72,6 +73,5 @@ public class GOFRoadRunnerTest extends LinearOpMode {
             telemetry.update();
         }
     }
-
-} */
-
+}
+*/

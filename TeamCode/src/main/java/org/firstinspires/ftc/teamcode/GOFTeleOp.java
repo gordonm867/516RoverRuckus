@@ -1,11 +1,8 @@
 package org.firstinspires.ftc.teamcode;
 
-import android.os.Environment;
-
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.PIDCoefficients;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -13,9 +10,6 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
-
-import java.io.File;
-import java.util.Scanner;
 
 @TeleOp(name="GOFTeleOp", group="GOF")
 
@@ -29,13 +23,20 @@ public class GOFTeleOp extends OpMode {
     private     boolean         forcedOn            = false;
     private     boolean         ypressed            = false;
 
+    private     double          angle;
+    private     double          drive;
+    private     double          endTime;
     private     double          firstAngleOffset;
     private     double          kickOutPos          = 0.35;
     private     double          kickReadyPos        = 0.2;
+    private     double          maxDriveSpeed;
+    private     double          robotAngle;
+    private     double          timeDifference;
+    private     double          turn;
 
     private     ElapsedTime     elapsedTime         = new ElapsedTime();
 
-    private     GOFHardware     robot               = GOFHardware.getInstance(); // Use the GOFHardware class
+    public      GOFHardware     robot               = GOFHardware.getInstance(); // Use the GOFHardware class
 
     private     int             inReady             = 0;
     private     int             inRatioOne;
@@ -46,39 +47,33 @@ public class GOFTeleOp extends OpMode {
 
     @Override
     public void init() {
-
         msStuckDetectInit = 10000; // Allow gyros to calibrate
         robot.init(hardwareMap);
+        robot.setKickPower(kickReadyPos);
+
+        // Recommended: uncomment below code for field-oriented driving without a manual gyro reset
+
+        /*
         File fileName = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "gof.txt");
         try {
             Scanner inFile = new Scanner(fileName);
             firstAngleOffset = inFile.nextDouble();
         }
         catch(Exception p_exception) {
-            telemetry.addData("Reminder", "The gyros have to be manually reset because your programmer was too lazy to make a text file");
+            telemetry.addData("Reminder", "The gyros have to be manually reset as autonomous failed to create the text file");
             firstAngleOffset = 0;
         }
-        robot.setKickPower(kickReadyPos);
-
-        /* if(robot.gyro0 != null) {
-            while(!robot.gyro0.isGyroCalibrated()) {}
-        }
-
-        if(robot.gyro1 != null) {
-            while(!robot.gyro1.isGyroCalibrated()) {}
-        } */
-
+        */
+        maxDriveSpeed = robot.maxDriveSpeed;
         telemetry.addData("Status", "Initialized"); // Update phone
     }
 
     @Override
     public void loop() {
-
-        double drive = gamepad1.left_stick_y;
+        drive = gamepad1.left_stick_y;
         double hangDrive = gamepad2.left_stick_y;
-        double turn = gamepad1.right_stick_x;
-        double angle = -gamepad1.left_stick_x;
-        double gearRatio = 1;
+        turn = gamepad1.right_stick_x;
+        angle = -gamepad1.left_stick_x;
         double startTime = elapsedTime.time();
         Orientation g0angles = null;
         Orientation g1angles = null;
@@ -88,7 +83,6 @@ public class GOFTeleOp extends OpMode {
         if(robot.gyro1 != null) {
             g1angles = robot.gyro1.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.RADIANS); // Get z axis angle from second gyro (in radians so that a conversion is unnecessary for proper employment of Java's Math class)
         }
-        double robotAngle;
         if(g0angles != null && g1angles != null) {
             robotAngle = ((g0angles.firstAngle + g1angles.firstAngle) / 2) + firstAngleOffset; // Average angle measures to determine actual robot angle
         }
@@ -105,12 +99,12 @@ public class GOFTeleOp extends OpMode {
         /* Precision vertical drive */
         if (gamepad1.dpad_down || gamepad1.dpad_up) {
             if (gamepad1.left_stick_y != 0) {
-                drive = drive * 0.25; // Slow down joystick driving
+                drive = drive * Math.sqrt(0.25); // Slow down joystick driving
             } else {
                 if (gamepad1.dpad_down) {
-                    drive = 0.25; // Slow drive backwards
+                    drive = Math.sqrt(0.25); // Slow drive backwards
                 } else {
-                    drive = -0.25; // Slow drive forwards
+                    drive = -Math.sqrt(0.25); // Slow drive forwards
                 }
             }
         }
@@ -118,29 +112,30 @@ public class GOFTeleOp extends OpMode {
         /* Precision sideways drive */
         if (gamepad1.dpad_right || gamepad1.dpad_left) {
             if (gamepad1.right_stick_x != 0) {
-                angle = angle * 0.25; // Slow down joystick side movement
+                angle = angle * Math.sqrt(0.25); // Slow down joystick side movement
             } else {
                 if (gamepad1.dpad_left) {
-                    angle = 0.25; // Slow leftwards
+                    angle = Math.sqrt(0.25); // Slow leftwards
                 } else {
-                    angle = -0.25; // Slow rightwards
+                    angle = -Math.sqrt(0.25); // Slow rightwards
                 }
             }
         }
 
         /* Precision turn */
         if (gamepad1.left_bumper) {
-            turn = -0.45; // Slow left turn
+            turn = -Math.sqrt(0.3); // Slow left turn
         }
         if (gamepad1.right_bumper) {
-            turn = 0.45; // Slow right turn
+            turn = Math.sqrt(0.3); // Slow right turn
         }
 
         if(driverMode == 1) {
             drive = adjust(drive);
             turn = adjust(turn);
             angle = adjust(angle);
-            robot.setDrivePower(drive + turn - angle, drive + turn + angle, drive - turn + angle, drive - turn - angle); // Set motors to values based on gamepad
+            double scaleFactor = maxDriveSpeed / (Math.max(Math.abs(drive + turn + angle), Math.abs(drive - turn - angle)));
+            robot.setDrivePower(scaleFactor * (drive + turn - angle), scaleFactor * (drive + turn + angle), scaleFactor * (drive - turn + angle), scaleFactor * (drive - turn - angle)); // Set motors to values based on gamepad
         }
         else {
             driveByField(drive, angle, turn);
@@ -154,7 +149,7 @@ public class GOFTeleOp extends OpMode {
             }
             try {
                 if (robot.intake.getCurrentPosition() % 1120 != 0 && !(robot.intake.isBusy()) && autoIntake) {
-                    if (robot.intake.getCurrentPosition() % 1120 < (560 * gearRatio)) {
+                    if (robot.intake.getCurrentPosition() % 1120 < 560) {
                         robot.setInPos((robot.intake.getCurrentPosition() - ((robot.intake.getCurrentPosition() % 1120))), (-0.75)); // Ensure straight tubing by setting intake position to nearest multiple of 1120
                     } else {
                         robot.setInPos((robot.intake.getCurrentPosition() - ((robot.intake.getCurrentPosition() % 1120)) + 1120), (0.75));
@@ -273,14 +268,6 @@ public class GOFTeleOp extends OpMode {
             robot.hangOne.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             firstAngleOffset = 0;
             robot.gyroInit();
-           /*
-            if(robot.gyro0 != null) {
-                while(!robot.gyro0.isGyroCalibrated()) {}
-            }
-            if(robot.gyro1 != null) {
-                while(!robot.gyro1.isGyroCalibrated()) {}
-            }
-            */
         }
 
         if (gamepad2.left_stick_y != 0) {
@@ -300,17 +287,20 @@ public class GOFTeleOp extends OpMode {
         }
 
         robot.setHangPower(hangDrive + 0.25 * gamepad2.right_stick_y); // Move container based on gamepad positions
-
-        /* Update phones */
         try {
-            telemetry.addData("Status", "Run Time: " + elapsedTime.toString());
-            telemetry.addData("Motors", "");
-            telemetry.addData("  rr", "" + robot.rrWheel.getCurrentPosition());
-            telemetry.addData("  rf", "" + robot.rfWheel.getCurrentPosition());
-            telemetry.addData("  lr", "" + robot.lrWheel.getCurrentPosition());
-            telemetry.addData("  lf", "" + robot.lfWheel.getCurrentPosition());
-            telemetry.addData("  hw1", "" + robot.hangOne.getCurrentPosition());
-            telemetry.addData("Variables", "");
+            String tmy = "Run Time: " + elapsedTime.toString() + "\n";
+            tmy += "Motors" +"\n";
+            tmy += "    rr: " + robot.rrWheel.getCurrentPosition() + "\n";
+            tmy += "    rf: " + robot.rfWheel.getCurrentPosition() + "\n";
+            tmy += "    lr: " + robot.lrWheel.getCurrentPosition() + "\n";
+            tmy += "    lf: " + robot.lfWheel.getCurrentPosition() + "\n";
+            tmy += "    h1: " + robot.hangOne.getCurrentPosition() + "\n";
+            tmy += "Robot angle: " + (robotAngle * (180 / Math.PI)) + "\n";
+            endTime = elapsedTime.time();
+            timeDifference = endTime - startTime;
+            tmy += "Cycle Tim: e" + timeDifference;
+            telemetry.addData("", tmy);
+            /*telemetry.addData("Variables", "");
             telemetry.addData("  drive", "" + drive);
             telemetry.addData("  turn", "" + turn);
             telemetry.addData("  angle", "" + angle);
@@ -322,9 +312,8 @@ public class GOFTeleOp extends OpMode {
             telemetry.addData("  x acceleration", "" + ((robot.gyro0.getGravity().xAccel + robot.gyro1.getGravity().xAccel) / 2));
             telemetry.addData("  y acceleration", "" + ((robot.gyro0.getGravity().yAccel + robot.gyro1.getGravity().yAccel) / 2));
             telemetry.addData("  z acceleration", ((robot.gyro0.getGravity().zAccel + robot.gyro1.getGravity().zAccel) / 2));
-            double endTime = elapsedTime.time();
-            double timeDifference = endTime - startTime;
             telemetry.addData("Cycle Time", timeDifference);
+            */
         }
         catch (Exception p_exception) {
             telemetry.addData("Uh oh: ", "The driver controller was unable to communicate via telemetry.  For help, please seek a better programmer.");
@@ -375,13 +364,8 @@ public class GOFTeleOp extends OpMode {
                 }
                 drive = x * Math.cos(theta); // Set forward speed dependent on the intended angle of movement, adjusting for the angle of the robot
                 angle = x * Math.sin(theta); // Set sideways speed dependent on the intended angle of movement, adjusting for the angle of the robot
-                double maxPower = Math.max(Math.abs(drive + angle), Math.abs(drive - angle));
-                double maxPowerAdjust = maxPower / robot.maxDriveSpeed;
-                if (maxPower > robot.maxDriveSpeed) { // Ensure that no power sent to the wheels is greater than the maximum allowed power, which would result in skewed proportions after each power is clipped
-                    drive *= maxPowerAdjust;
-                    angle *= maxPowerAdjust;
-                }
-                robot.setDrivePower(drive + turn - angle, drive + turn + angle, drive - turn + angle, drive - turn - angle); // Send adjusted powers to GOFHardware() class
+                double scaleFactor = maxDriveSpeed / Math.max(Math.max(Math.abs(drive + turn + angle), Math.abs(drive + turn - angle)), Math.max(Math.abs(drive - turn - angle), Math.abs(drive - turn + angle)));
+                robot.setDrivePower(scaleFactor * (drive + turn - angle), scaleFactor * (drive + turn + angle), scaleFactor * (drive - turn + angle), scaleFactor * (drive - turn - angle)); // Send adjusted values to GOFHardware() class
             }
         }
         catch(Exception p_exception) {

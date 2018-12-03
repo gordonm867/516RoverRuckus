@@ -73,6 +73,7 @@ public class GOFHardware {
     public          RevTouchSensor  bottomSensor;
 
     public          Servo           kicker;
+    public          Servo           teamFlag;
 
     /* Constructor */
     public static GOFHardware getInstance() {
@@ -170,6 +171,13 @@ public class GOFHardware {
         }
         catch (Exception p_exception) {
             kicker = null;
+        }
+
+        try { // Team market servo
+            teamFlag = hwMap.get(Servo.class, "tm");
+        }
+        catch (Exception p_exception) {
+            teamFlag = null;
         }
 
         /*

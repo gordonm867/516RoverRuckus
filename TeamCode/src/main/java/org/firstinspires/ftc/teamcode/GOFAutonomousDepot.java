@@ -9,6 +9,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.Acceleration;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
@@ -39,13 +40,14 @@ public class GOFAutonomousDepot extends LinearOpMode implements Runnable {
     private static final    String              TFOD_MODEL_ASSET        = "RoverRuckus.tflite";
     private static final    String              LABEL_GOLD_MINERAL      = "Gold Mineral";
     private static final    String              LABEL_SILVER_MINERAL    = "Silver Mineral";
-    private static final    String              VUFORIA_KEY             = "AWVhzQD/////AAABmWz790KTAURpmjOzox2azmML6FgjPO5DBf5SHQLIKvCsslmH9wp8b5zkCGfES8tt+8xslwaK7sd2h5H1jwmix26x+Eg5j60l00SlNiJMDAp5IOMWvhdJGZ8jJ8wFHCNkwERQG57JnrOXVSFDlc1sfum3oH68fEd8RrA570Y+WQda1fP8hYdZtbgG+ZDVG+9XyoDrToYU3FYl3WM1iUphAbHJz1BMFFnWJdbZzOicvqah/RwXqtxRDNlem3JdT4W95kCY5bckg92oaFIBk9n01Gzg8w5mFTReYMVI3Fne72/KpPRPJwblO0W9OI3o7djg+iPjxkKOeHUWW+tmi6r3LRaKTrIUfLfazRu0QwLA8Bgw";
+    private static final    String              VUFORIA_KEY             = "AfN1XhX/////AAABmRhXZKBYWkUdoJ9LcAhCL203EmKMF6cUKyS5Xzvg1Vbrz0NByBxjMYoArq4HPvoMPxSVx2ufbAEVb0mTS9wfrLObRB7S1QX3fyV8qOGbN/p+T33Ugvqg9SgQdLay7Mas1YLm8OeW6Li5UvpgfEP5xsPyTtYsL55RnmPl9Hfy571rANqHA2R/eWwrgP/utbHbbAMuXpvl3qV+VOmzA4UPdNiYuAyqmQ5yt5ZcbxvjdOth3NnQirCZZ+Dd3FRA7DDRAFrqSqHvxic+3yq5o82qk+Mn8Rz4dCMZjIRyemAWIbFXQVhq2r25sbbBFSBBY80ZfF9qkamx9EBAqlbHidw05K65guENU+MuF8FWzL5vn61R";
 
     private                 GOFVuforiaLocalizer vuforia;
     private                 TFObjectDetector    detector;
 
     private                 boolean             remove;
     private                 boolean             doubleSample            = false;
+    private                 boolean             yPressed                = false;
     private                 double              angleOffset             = 0.25;
     private                 double              kickOutPos              = 0.35;
     private                 double              kickReadyPos            = 0.2;
@@ -65,6 +67,18 @@ public class GOFAutonomousDepot extends LinearOpMode implements Runnable {
         GOFAutoTransitioner.transitionOnStop(this, "GOFTeleOp");
 
         while(opModeIsActive() && vuforiaThread.isAlive() && !vuforiaThread.isInterrupted()) {}
+
+        while(!gamepad1.x) {
+            telemetry.addData("Double Sampling is", (doubleSample ? "ON" : "OFF") + " - Press \"Y\" to change and \"X\" to finalize (on gamepad1)");
+            telemetry.update();
+            if(gamepad1.y && !yPressed) {
+                doubleSample = !doubleSample;
+                yPressed = true;
+            }
+            else {
+                yPressed = false;
+            }
+        }
 
         if (!(detector == null)) {
             detector.activate(); // Begin detection
@@ -315,17 +329,10 @@ public class GOFAutonomousDepot extends LinearOpMode implements Runnable {
             robot.rfWheel.setTargetPosition(rf);
             robot.lfWheel.setTargetPosition(lf);
             robot.lrWheel.setTargetPosition(lr);
-            Orientation g0angles = gyro0.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
-            Orientation g1angles = gyro1.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
-            double robotAngle = (g0angles.firstAngle + g1angles.firstAngle) / 2;
             robot.setDrivePower(-(lr / Math.abs(lr)) * speed, -(lf / Math.abs(lf)) * speed, -(rr / Math.abs(rr)) * speed, -(rf / Math.abs(rf)) * speed);
             ElapsedTime limitTest = new ElapsedTime();
             while ((robot.rrWheel.isBusy() || robot.rfWheel.isBusy() || robot.lrWheel.isBusy() || robot.lfWheel.isBusy()) && opModeIsActive() && limitTest.time() < timeLimit) {
                 updateTelemetry();
-                g0angles = gyro0.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
-                g1angles = gyro1.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
-                robotAngle = (g0angles.firstAngle + g1angles.firstAngle) / 2;
-
             }
             if(limitTest.time() > timeLimit) {
                 robot.rrWheel.setTargetPosition((robot.rrWheel.getCurrentPosition()));
@@ -806,7 +813,7 @@ public class GOFAutonomousDepot extends LinearOpMode implements Runnable {
 
         parameters.vuforiaLicenseKey = VUFORIA_KEY;
         parameters.cameraDirection = VuforiaLocalizer.CameraDirection.BACK;
-        // parameters.cameraName = hardwareMap.get(WebcamName.class, "WC1"); // Use external camera
+        // parameters.cameraName = hardwareMap.get(WebcamName.class, "Wc1"); // Use external camera
         vuforia = new GOFVuforiaLocalizer(parameters);
     }
 
@@ -909,8 +916,8 @@ public class GOFAutonomousDepot extends LinearOpMode implements Runnable {
         robot.lrWheel.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         robot.rrWheel.setTargetPosition(rr);
         robot.rfWheel.setTargetPosition(rf);
-        robot.lfWheel.setTargetPosition(lr);
-        robot.lrWheel.setTargetPosition(lf);
+        robot.lfWheel.setTargetPosition(lf);
+        robot.lrWheel.setTargetPosition(lr);
         robot.setDrivePower(0.75, 0.75, 0.75, 0.75);
         while (robot.rrWheel.isBusy() || robot.rfWheel.isBusy() || robot.lrWheel.isBusy() || robot.lfWheel.isBusy()) {
             updateTelemetry();
@@ -926,8 +933,8 @@ public class GOFAutonomousDepot extends LinearOpMode implements Runnable {
         robot.lrWheel.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         robot.rrWheel.setTargetPosition(rr);
         robot.rfWheel.setTargetPosition(rf);
-        robot.lfWheel.setTargetPosition(lr);
-        robot.lrWheel.setTargetPosition(lf);
+        robot.lfWheel.setTargetPosition(lf);
+        robot.lrWheel.setTargetPosition(lr);
         robot.setDrivePower(speed, speed, speed, speed);
         while ((robot.rrWheel.isBusy() || robot.rfWheel.isBusy() || robot.lrWheel.isBusy() || robot.lfWheel.isBusy()) && opModeIsActive()) {
             updateTelemetry();
@@ -956,17 +963,17 @@ public class GOFAutonomousDepot extends LinearOpMode implements Runnable {
             Acceleration g1accel = null;
             double robotAccel;
             if (robot.gyro0 != null) {
-                g0accel = robot.gyro0.getAcceleration();
+                g0accel = robot.gyro0.getGravity();
             }
             if (robot.gyro1 != null) {
-                g1accel = robot.gyro1.getAcceleration();
+                g1accel = robot.gyro1.getGravity();
             }
             if (g0accel != null && g1accel != null) {
-                robotAccel = ((g0accel.xAccel + g1accel.xAccel) / 2);
+                robotAccel = ((Math.sqrt(Math.pow(g0accel.xAccel, 2) + Math.pow(g0accel.yAccel, 2)) + Math.sqrt(Math.pow(g0accel.xAccel, 2) + Math.pow(g0accel.yAccel, 2))) / 2);
             } else if (g0accel != null) {
-                robotAccel = g0accel.xAccel;
+                robotAccel = Math.sqrt(Math.pow(g0accel.xAccel, 2) + Math.pow(g0accel.yAccel, 2));
             } else if (g1accel != null) {
-                robotAccel = g1accel.xAccel;
+                robotAccel = Math.sqrt(Math.pow(g1accel.xAccel, 2) + Math.pow(g1accel.yAccel, 2));;
             } else {
                 robotAccel = 0;
             }
@@ -994,17 +1001,17 @@ public class GOFAutonomousDepot extends LinearOpMode implements Runnable {
             Acceleration g1accel = null;
             double robotAccel;
             if (robot.gyro0 != null) {
-                g0accel = robot.gyro0.getAcceleration();
+                g0accel = robot.gyro0.getGravity();
             }
             if (robot.gyro1 != null) {
-                g1accel = robot.gyro1.getAcceleration();
+                g1accel = robot.gyro1.getGravity();
             }
             if (g0accel != null && g1accel != null) {
-                robotAccel = ((g0accel.xAccel + g1accel.xAccel) / 2);
+                robotAccel = ((Math.sqrt(Math.pow(g0accel.xAccel, 2) + Math.pow(g0accel.yAccel, 2)) + Math.sqrt(Math.pow(g0accel.xAccel, 2) + Math.pow(g0accel.yAccel, 2))) / 2);
             } else if (g0accel != null) {
-                robotAccel = g0accel.xAccel;
+                robotAccel = Math.sqrt(Math.pow(g0accel.xAccel, 2) + Math.pow(g0accel.yAccel, 2));
             } else if (g1accel != null) {
-                robotAccel = g1accel.xAccel;
+                robotAccel = Math.sqrt(Math.pow(g1accel.xAccel, 2) + Math.pow(g1accel.yAccel, 2));;
             } else {
                 robotAccel = 0;
             }
@@ -1032,17 +1039,17 @@ public class GOFAutonomousDepot extends LinearOpMode implements Runnable {
             Acceleration g1accel = null;
             double robotAccel;
             if (robot.gyro0 != null) {
-                g0accel = robot.gyro0.getAcceleration();
+                g0accel = robot.gyro0.getGravity();
             }
             if (robot.gyro1 != null) {
-                g1accel = robot.gyro1.getAcceleration();
+                g1accel = robot.gyro1.getGravity();
             }
             if (g0accel != null && g1accel != null) {
-                robotAccel = ((g0accel.zAccel + g1accel.zAccel) / 2);
+                robotAccel = ((Math.sqrt(Math.pow(g0accel.xAccel, 2) + Math.pow(g0accel.yAccel, 2)) + Math.sqrt(Math.pow(g0accel.xAccel, 2) + Math.pow(g0accel.yAccel, 2))) / 2);
             } else if (g0accel != null) {
-                robotAccel = g0accel.zAccel;
+                robotAccel = Math.sqrt(Math.pow(g0accel.xAccel, 2) + Math.pow(g0accel.yAccel, 2));
             } else if (g1accel != null) {
-                robotAccel = g1accel.zAccel;
+                robotAccel = Math.sqrt(Math.pow(g1accel.xAccel, 2) + Math.pow(g1accel.yAccel, 2));;
             } else {
                 robotAccel = 0;
             }
@@ -1070,17 +1077,17 @@ public class GOFAutonomousDepot extends LinearOpMode implements Runnable {
             Acceleration g1accel = null;
             double robotAccel;
             if (robot.gyro0 != null) {
-                g0accel = robot.gyro0.getAcceleration();
+                g0accel = robot.gyro0.getGravity();
             }
             if (robot.gyro1 != null) {
-                g1accel = robot.gyro1.getAcceleration();
+                g1accel = robot.gyro1.getGravity();
             }
             if (g0accel != null && g1accel != null) {
-                robotAccel = ((g0accel.zAccel + g1accel.zAccel) / 2);
+                robotAccel = ((Math.sqrt(Math.pow(g0accel.xAccel, 2) + Math.pow(g0accel.yAccel, 2)) + Math.sqrt(Math.pow(g0accel.xAccel, 2) + Math.pow(g0accel.yAccel, 2))) / 2);
             } else if (g0accel != null) {
-                robotAccel = g0accel.zAccel;
+                robotAccel = Math.sqrt(Math.pow(g0accel.xAccel, 2) + Math.pow(g0accel.yAccel, 2));
             } else if (g1accel != null) {
-                robotAccel = g1accel.zAccel;
+                robotAccel = Math.sqrt(Math.pow(g1accel.xAccel, 2) + Math.pow(g1accel.yAccel, 2));;
             } else {
                 robotAccel = 0;
             }
