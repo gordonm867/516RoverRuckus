@@ -70,8 +70,8 @@
       <file leaf-file-name="GOFAutonomousCrater.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/GOFAutonomousCrater.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="85">
-              <caret line="268" column="73" lean-forward="true" selection-start-line="268" selection-start-column="73" selection-end-line="268" selection-end-column="73" />
+            <state relative-caret-position="347">
+              <caret line="286" column="83" selection-start-line="286" selection-start-column="83" selection-end-line="286" selection-end-column="83" />
               <folding>
                 <element signature="e#7592#11347#0" />
                 <element signature="e#10587#11369#0" />
@@ -129,14 +129,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>encoderMovePreciseTimed</find>
-      <find>* 4 * Math.Pi * 1120</find>
-      <find>getBottom()</find>
-      <find>gamepad1.a</find>
-      <find>getTop()</find>
-      <find>getLeft()</find>
-      <find>getDeath()</find>
-      <find>gamepad1.y</find>
       <find>gamepad1.b</find>
       <find>turn</find>
       <find>turn(d</find>
@@ -159,6 +151,14 @@
       <find>double</find>
       <find>rr: &quot; + robot.rrWheel.getCur</find>
       <find>Math.atan</find>
+      <find>0.582</find>
+      <find>6.02</find>
+      <find>9.009</find>
+      <find>0.589</find>
+      <find>1.05</find>
+      <find>2.625</find>
+      <find>3.125</find>
+      <find>6.25</find>
     </findStrings>
   </component>
   <component name="GradleLocalSettings">
@@ -3177,10 +3177,11 @@
       </list>
     </option>
   </component>
-  <component name="ProjectFrameBounds">
-    <option name="y" value="64" />
-    <option name="width" value="1206" />
-    <option name="height" value="678" />
+  <component name="ProjectFrameBounds" extendedState="1">
+    <option name="x" value="90" />
+    <option name="y" value="42" />
+    <option name="width" value="1233" />
+    <option name="height" value="589" />
   </component>
   <component name="ProjectView">
     <navigator proportions="" version="1">
@@ -3439,7 +3440,7 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="0" y="64" width="1206" height="678" extended-state="0" />
+    <frame x="90" y="42" width="1233" height="589" extended-state="1" />
     <editor active="true" />
     <layout>
       <window_info anchor="bottom" id="Android Profiler" order="12" />
@@ -3462,7 +3463,7 @@
       <window_info anchor="bottom" id="Version Control" order="9" show_stripe_button="false" />
       <window_info anchor="bottom" id="Terminal" order="11" weight="0.3291592" />
       <window_info id="Captures" order="6" weight="0.25" />
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.28436425" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.2779177" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.3297491" />
       <window_info anchor="right" id="Gradle" order="7" />
       <window_info anchor="right" id="Theme Preview" order="8" />
@@ -3891,8 +3892,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/GOFAutonomousCrater.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="85">
-          <caret line="268" column="73" lean-forward="true" selection-start-line="268" selection-start-column="73" selection-end-line="268" selection-end-column="73" />
+        <state relative-caret-position="347">
+          <caret line="286" column="83" selection-start-line="286" selection-start-column="83" selection-end-line="286" selection-end-column="83" />
           <folding>
             <element signature="e#7592#11347#0" />
             <element signature="e#10587#11369#0" />
