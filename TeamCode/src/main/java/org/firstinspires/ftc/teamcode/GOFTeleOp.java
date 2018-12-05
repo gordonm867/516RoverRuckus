@@ -50,6 +50,7 @@ public class GOFTeleOp extends OpMode {
         msStuckDetectInit = 10000; // Allow gyros to calibrate
         robot.init(hardwareMap);
         robot.setKickPower(kickReadyPos);
+        robot.teamFlag.setPosition(0.030);
 
         // Recommended: uncomment below code for field-oriented driving without a manual gyro reset
 

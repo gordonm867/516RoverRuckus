@@ -153,6 +153,18 @@ public class GOFAutonomousDepot extends LinearOpMode implements Runnable {
     */
 
     private void centerDepotAuto() { // Run if gold is at center
+        encoderMovePreciseTimed(258, -392, -422, 358, 1, 1); // side to side
+        robot.hangOne.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        robot.hangOne.setTargetPosition(8058);
+        robot.setHangPower(-1);
+        encoderMovePreciseTimed(-525, -542, -516, -534, 0.5, 1);
+        if (opModeIsActive()) {
+            robot.setKickPower(kickReadyPos); // Move kicker out of the way
+        }
+        turn(11.70938996, 2);
+        encoderMovePreciseTimed(-((int)((12 * Math.sqrt(Math.pow(3, 2) + Math.pow(3, 2)) - 9) * 1120 / (4 * Math.PI))), 1, 3); // 3735
+        turn(45, 3);
+        encoderMovePreciseTimed(((int)((12 * Math.sqrt(Math.pow(6.9, 2)) - 9) * 1120 / (4 * Math.PI))), -1, 4.5); // 6577
     }
 
     private void rightDepotAuto() { // Run if gold is at right
@@ -185,6 +197,38 @@ public class GOFAutonomousDepot extends LinearOpMode implements Runnable {
         robot.hangOne.setTargetPosition(robot.hangOne.getCurrentPosition());
         robot.setHangPower(0);
         resetEncoders();
+    }
+
+    private double atan(double num) { // Returns atan in degrees
+        return(Math.atan(num) * (180 / Math.PI));
+    }
+
+    private void encoderMovePreciseTimed(int pos, double speed, double timeLimit) { // Move encoders towards target position until the position is reached, or the time limit expires
+        if (opModeIsActive() && robot.rrWheel != null && robot.rfWheel != null && robot.lrWheel != null && robot.lfWheel != null && robot.hangOne != null) {
+            robot.rrWheel.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            robot.rfWheel.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            robot.lfWheel.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            robot.lrWheel.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            idle();
+            robot.rrWheel.setTargetPosition(pos);
+            robot.rfWheel.setTargetPosition(pos);
+            robot.lfWheel.setTargetPosition(pos);
+            robot.lrWheel.setTargetPosition(pos);
+            robot.setDrivePower(-(pos / Math.abs(pos)) * speed, -(pos / Math.abs(pos)) * speed, -(pos / Math.abs(pos)) * speed, -(pos / Math.abs(pos)) * speed);
+            ElapsedTime limitTest = new ElapsedTime();
+            while ((robot.rrWheel.isBusy() || robot.rfWheel.isBusy() || robot.lrWheel.isBusy() || robot.lfWheel.isBusy()) && opModeIsActive() && limitTest.time() < timeLimit) {
+                updateTelemetry();
+            }
+            if(limitTest.time() > timeLimit) {
+                robot.rrWheel.setTargetPosition((robot.rrWheel.getCurrentPosition()));
+                robot.rfWheel.setTargetPosition((robot.rfWheel.getCurrentPosition()));
+                robot.lrWheel.setTargetPosition((robot.lrWheel.getCurrentPosition()));
+                robot.lfWheel.setTargetPosition((robot.lfWheel.getCurrentPosition()));
+            }
+            robot.setDrivePower(0, 0, 0, 0);
+            resetEncoders();
+            sleep(100);
+        }
     }
 
     private int detectGold() {
@@ -681,7 +725,7 @@ public class GOFAutonomousDepot extends LinearOpMode implements Runnable {
         double angleIntended = robotAngle + angle;
         if (angleIntended < robotAngle) { // left turn
             while(angleIntended < robotAngle) {
-                robot.setDrivePower(0.05 * Math.abs(angleIntended - robotAngle), 0.05 * Math.abs(angleIntended - robotAngle), -0.05 * Math.abs(angleIntended - robotAngle), -0.05 * Math.abs(angleIntended - robotAngle));
+                robot.setDrivePower(-0.5, -0.5, 0.5, 0.5);
                 g0angles = null;
                 g1angles = null;
                 if (robot.gyro0 != null) {
@@ -704,7 +748,7 @@ public class GOFAutonomousDepot extends LinearOpMode implements Runnable {
         }
         else if (angleIntended > robotAngle) {
             while (angleIntended > robotAngle) {
-                robot.setDrivePower(-0.05 * Math.abs(angleIntended - robotAngle), -0.05 * Math.abs(angleIntended - robotAngle), 0.05 * Math.abs(angleIntended - robotAngle), 0.05 * Math.abs(angleIntended - robotAngle));
+                robot.setDrivePower(0.5, 0.5, 0.5, 0.5);
                 g0angles = null;
                 g1angles = null;
                 if (robot.gyro0 != null) {
@@ -730,12 +774,6 @@ public class GOFAutonomousDepot extends LinearOpMode implements Runnable {
 
     private void turn(double angle, double time) {
         ElapsedTime turnTime = new ElapsedTime();
-        while(angle < -180) {
-            angle += 360;
-        }
-        while(angle > 180) {
-            angle -= 360;
-        }
         robot.rrWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         robot.rfWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         robot.lfWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
