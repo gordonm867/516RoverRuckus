@@ -31,11 +31,8 @@ import java.util.Scanner;
 public class GOFAutonomousDepot extends LinearOpMode implements Runnable {
 
     /* Declare OpMode members */
-    private                 BNO055IMU           gyro0;
-    private                 BNO055IMU           gyro1;
     private                 GOFHardware         robot                   = GOFHardware.getInstance(); // Use the GOFHardware class
     private                 ElapsedTime         elapsedTime             = new ElapsedTime(); // Measure timing
-    private                 Thread              vuforiaThread;
 
     private static final    String              TFOD_MODEL_ASSET        = "RoverRuckus.tflite";
     private static final    String              LABEL_GOLD_MINERAL      = "Gold Mineral";
@@ -58,7 +55,7 @@ public class GOFAutonomousDepot extends LinearOpMode implements Runnable {
     public void runOpMode() {
         /* Initialize hardware class */
         robot.init(hardwareMap);
-        vuforiaThread = new Thread(new GOFAutonomousDepot());
+        Thread vuforiaThread = new Thread(new GOFAutonomousDepot());
         vuforiaThread.start();
 
         vuforiaInit();
@@ -901,9 +898,6 @@ public class GOFAutonomousDepot extends LinearOpMode implements Runnable {
             resetEncoders();
         }
         robot.setKickPower(kickReadyPos);
-
-        gyro0 = robot.gyro0;
-        gyro1 = robot.gyro1;
 
         if(robot.gyro0 != null) {
             while(!robot.gyro0.isGyroCalibrated()) {}

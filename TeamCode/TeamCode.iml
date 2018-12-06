@@ -105,31 +105,14 @@
     </content>
     <orderEntry type="jdk" jdkName="Android API 23 Platform" jdkType="Android SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="Gradle: org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.2.71@jar" level="project" />
-    <orderEntry type="library" name="Gradle: org.jetbrains.kotlin:kotlin-reflect:1.2.21@jar" level="project" />
-    <orderEntry type="library" name="Gradle: tfod-release:@aar" level="project" />
-    <orderEntry type="library" name="Gradle: org.jetbrains.kotlin:kotlin-stdlib-common:1.2.71@jar" level="project" />
     <orderEntry type="library" name="Gradle: FtcCommon-release:@aar" level="project" />
-    <orderEntry type="library" name="Gradle: org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.2.71@jar" level="project" />
-    <orderEntry type="library" name="Gradle: com.fasterxml.jackson.core:jackson-core:2.9.6@jar" level="project" />
-    <orderEntry type="library" name="Gradle: org.nanohttpd:nanohttpd-websocket:2.3.1@jar" level="project" />
-    <orderEntry type="library" name="Gradle: org.jetbrains.kotlin:kotlin-stdlib:1.2.71@jar" level="project" />
+    <orderEntry type="library" name="Gradle: tensorflow-lite-0.0.0-nightly:@aar" level="project" />
     <orderEntry type="library" name="Gradle: com.android.support:multidex-1.0.2" level="project" />
     <orderEntry type="library" name="Gradle: RobotCore-release:@aar" level="project" />
-    <orderEntry type="library" name="Gradle: com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.9.6@jar" level="project" />
-    <orderEntry type="library" name="Gradle: com.fasterxml.jackson.module:jackson-module-kotlin:2.9.6@jar" level="project" />
-    <orderEntry type="library" name="Gradle: org.yaml:snakeyaml:1.18@jar" level="project" />
-    <orderEntry type="library" name="Gradle: org.jetbrains:annotations:13.0@jar" level="project" />
-    <orderEntry type="library" name="Gradle: org.openftc:rev-extensions-2-1.0" level="project" />
-    <orderEntry type="library" name="Gradle: org.apache.commons:commons-math3:3.6.1@jar" level="project" />
-    <orderEntry type="library" name="Gradle: com.fasterxml.jackson.core:jackson-annotations:2.9.0@jar" level="project" />
-    <orderEntry type="library" name="Gradle: tensorflow-lite-0.0.0-nightly:@aar" level="project" />
+    <orderEntry type="library" name="Gradle: tfod-release:@aar" level="project" />
+    <orderEntry type="library" name="Gradle: WirelessP2p-release:@aar" level="project" />
     <orderEntry type="library" name="Gradle: Hardware-release:@aar" level="project" />
     <orderEntry type="library" scope="TEST" name="Gradle: com.android.support:multidex-instrumentation-1.0.2" level="project" />
-    <orderEntry type="library" name="Gradle: com.acmerobotics.dashboard:dashboard-0.2.0" level="project" />
-    <orderEntry type="library" name="Gradle: com.acmerobotics.roadrunner:core:0.2.2@jar" level="project" />
-    <orderEntry type="library" name="Gradle: WirelessP2p-release:@aar" level="project" />
-    <orderEntry type="library" name="Gradle: com.fasterxml.jackson.core:jackson-databind:2.9.6@jar" level="project" />
     <orderEntry type="module" module-name="FtcRobotController" />
   </component>
 </module>

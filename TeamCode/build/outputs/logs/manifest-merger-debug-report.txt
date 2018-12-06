@@ -12,8 +12,6 @@ MERGED from [:FtcCommon-release:] /Users/mgordon/.gradle/caches/transforms-1/fil
 MERGED from [:WirelessP2p-release:] /Users/mgordon/.gradle/caches/transforms-1/files-1.1/WirelessP2p-release.aar/bc7efb01aa766fb3f2ec41b7572fd69c/AndroidManifest.xml:2:1-11:12
 MERGED from [:tfod-release:] /Users/mgordon/.gradle/caches/transforms-1/files-1.1/tfod-release.aar/fef5deb25e9678e11eb98c6966598da0/AndroidManifest.xml:2:1-11:12
 MERGED from [:tensorflow-lite-0.0.0-nightly:] /Users/mgordon/.gradle/caches/transforms-1/files-1.1/tensorflow-lite-0.0.0-nightly.aar/ff1e53d7d1463acb225db936f1b7d2c0/AndroidManifest.xml:2:1-6:12
-MERGED from [com.acmerobotics.dashboard:dashboard:0.2.0] /Users/mgordon/.gradle/caches/transforms-1/files-1.1/dashboard-0.2.0.aar/3d2d6d3a33532288e6fac7970cba6a27/AndroidManifest.xml:2:1-9:12
-MERGED from [org.openftc:rev-extensions-2:1.0] /Users/mgordon/.gradle/caches/transforms-1/files-1.1/rev-extensions-2-1.0.aar/6560cf2a19bc216c3b94de46e876dfa0/AndroidManifest.xml:2:1-12:12
 MERGED from [:Inspection-release:] /Users/mgordon/.gradle/caches/transforms-1/files-1.1/Inspection-release.aar/76ddb38a7569b295d4b851e4674b10fa/AndroidManifest.xml:2:1-32:12
 MERGED from [:Blocks-release:] /Users/mgordon/.gradle/caches/transforms-1/files-1.1/Blocks-release.aar/045a8a31b425b6d08dae4e8778998efc/AndroidManifest.xml:2:1-41:12
 INJECTED from /Users/mgordon/516-Gears-Of-Fire/TeamCode/src/main/AndroidManifest.xml:8:1-13:12
@@ -91,10 +89,6 @@ MERGED from [:WirelessP2p-release:] /Users/mgordon/.gradle/caches/transforms-1/f
 MERGED from [:WirelessP2p-release:] /Users/mgordon/.gradle/caches/transforms-1/files-1.1/WirelessP2p-release.aar/bc7efb01aa766fb3f2ec41b7572fd69c/AndroidManifest.xml:5:5-7:41
 MERGED from [:tfod-release:] /Users/mgordon/.gradle/caches/transforms-1/files-1.1/tfod-release.aar/fef5deb25e9678e11eb98c6966598da0/AndroidManifest.xml:7:5-9:41
 MERGED from [:tfod-release:] /Users/mgordon/.gradle/caches/transforms-1/files-1.1/tfod-release.aar/fef5deb25e9678e11eb98c6966598da0/AndroidManifest.xml:7:5-9:41
-MERGED from [com.acmerobotics.dashboard:dashboard:0.2.0] /Users/mgordon/.gradle/caches/transforms-1/files-1.1/dashboard-0.2.0.aar/3d2d6d3a33532288e6fac7970cba6a27/AndroidManifest.xml:5:5-7:41
-MERGED from [com.acmerobotics.dashboard:dashboard:0.2.0] /Users/mgordon/.gradle/caches/transforms-1/files-1.1/dashboard-0.2.0.aar/3d2d6d3a33532288e6fac7970cba6a27/AndroidManifest.xml:5:5-7:41
-MERGED from [org.openftc:rev-extensions-2:1.0] /Users/mgordon/.gradle/caches/transforms-1/files-1.1/rev-extensions-2-1.0.aar/6560cf2a19bc216c3b94de46e876dfa0/AndroidManifest.xml:8:5-10:41
-MERGED from [org.openftc:rev-extensions-2:1.0] /Users/mgordon/.gradle/caches/transforms-1/files-1.1/rev-extensions-2-1.0.aar/6560cf2a19bc216c3b94de46e876dfa0/AndroidManifest.xml:8:5-10:41
 MERGED from [:Inspection-release:] /Users/mgordon/.gradle/caches/transforms-1/files-1.1/Inspection-release.aar/76ddb38a7569b295d4b851e4674b10fa/AndroidManifest.xml:7:5-9:41
 MERGED from [:Inspection-release:] /Users/mgordon/.gradle/caches/transforms-1/files-1.1/Inspection-release.aar/76ddb38a7569b295d4b851e4674b10fa/AndroidManifest.xml:7:5-9:41
 MERGED from [:Blocks-release:] /Users/mgordon/.gradle/caches/transforms-1/files-1.1/Blocks-release.aar/045a8a31b425b6d08dae4e8778998efc/AndroidManifest.xml:7:5-9:41

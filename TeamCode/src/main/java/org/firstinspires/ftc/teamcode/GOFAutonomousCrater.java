@@ -2,28 +2,14 @@ package org.firstinspires.ftc.teamcode;
 
 import android.os.Environment;
 
-import com.acmerobotics.roadrunner.control.PIDCoefficients;
-import com.acmerobotics.roadrunner.drive.MecanumDrive;
-import com.acmerobotics.roadrunner.followers.MecanumPIDVAFollower;
-import com.acmerobotics.roadrunner.trajectory.Trajectory;
-import com.acmerobotics.roadrunner.trajectory.TrajectoryBuilder;
-import com.acmerobotics.roadrunner.trajectory.TrajectoryConfig;
-import com.acmerobotics.roadrunner.trajectory.TrajectoryLoader;
-import com.acmerobotics.roadrunner.trajectory.constraints.DriveConstraints;
-import com.acmerobotics.roadrunner.trajectory.constraints.MecanumConstraints;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
-import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.Acceleration;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
@@ -32,17 +18,10 @@ import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
-import org.firstinspires.ftc.robotcore.internal.opmode.OpModeManagerImpl;
-import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
@@ -50,11 +29,8 @@ import java.util.List;
 public class GOFAutonomousCrater extends LinearOpMode implements Runnable {
 
     /* Declare OpMode members */
-    private                 BNO055IMU           gyro0;
-    private                 BNO055IMU           gyro1;
     private                 GOFHardware         robot                   = GOFHardware.getInstance(); // Use the GOFHardware class
     private                 ElapsedTime         elapsedTime             = new ElapsedTime(); // Measure timing
-    private                 Thread              vuforiaThread;
 
     private static final    String              TFOD_MODEL_ASSET        = "RoverRuckus.tflite";
     private static final    String              LABEL_GOLD_MINERAL      = "Gold Mineral";
@@ -78,7 +54,7 @@ public class GOFAutonomousCrater extends LinearOpMode implements Runnable {
     public void runOpMode() {
         /* Initialize hardware class */
         robot.init(hardwareMap);
-        vuforiaThread = new Thread(new GOFAutonomousCrater());
+        Thread vuforiaThread = new Thread(new GOFAutonomousCrater());
         vuforiaThread.start();
 
         /* Reset encoders */
@@ -1172,9 +1148,6 @@ public class GOFAutonomousCrater extends LinearOpMode implements Runnable {
             resetEncoders();
         }
         robot.setKickPower(kickReadyPos);
-
-        gyro0 = robot.gyro0;
-        gyro1 = robot.gyro1;
 
         if(robot.gyro0 != null) {
             while(!robot.gyro0.isGyroCalibrated() && opModeIsActive()) {}
