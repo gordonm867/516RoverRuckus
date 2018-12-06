@@ -153,18 +153,12 @@ public class GOFAutonomousDepot extends LinearOpMode implements Runnable {
     */
 
     private void centerDepotAuto() { // Run if gold is at center
-        encoderMovePreciseTimed(258, -392, -422, 358, 1, 1); // side to side
-        robot.hangOne.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        robot.hangOne.setTargetPosition(8058);
-        robot.setHangPower(-1);
-        encoderMovePreciseTimed(-525, -542, -516, -534, 0.5, 1);
-        if (opModeIsActive()) {
-            robot.setKickPower(kickReadyPos); // Move kicker out of the way
-        }
-        turn(11.70938996, 2);
+        while(!gamepad1.a) {}
         encoderMovePreciseTimed(-((int)((12 * Math.sqrt(Math.pow(3, 2) + Math.pow(3, 2)) - 9) * 1120 / (4 * Math.PI))), 1, 3); // 3735
+        while(!gamepad1.a) {}
         turn(45, 3);
-        encoderMovePreciseTimed(((int)((12 * Math.sqrt(Math.pow(6.9, 2)) - 9) * 1120 / (4 * Math.PI))), -1, 4.5); // 6577
+        while(!gamepad1.a) {}
+        encoderMovePreciseTimed(((int)((12 * Math.sqrt(Math.pow(6.9, 2)) - 9) * 1120 / (4 * Math.PI))), 1, 4.5); // 6577
     }
 
     private void rightDepotAuto() { // Run if gold is at right
@@ -868,14 +862,37 @@ public class GOFAutonomousDepot extends LinearOpMode implements Runnable {
 
     /* Update telemetry with autonomous encoder positions */
     public void updateTelemetry() { // Update telemetry on autonomous statuses
-        telemetry.addData("Remaining Distances", "");
-        telemetry.addData("  rr: ", robot.rrWheel.getTargetPosition() - robot.rrWheel.getCurrentPosition());
-        telemetry.addData("  rf: ", robot.rfWheel.getTargetPosition() - robot.rfWheel.getCurrentPosition());
-        telemetry.addData("  lr: ", robot.lrWheel.getTargetPosition() - robot.lrWheel.getCurrentPosition());
-        telemetry.addData("  lf: ", robot.lfWheel.getTargetPosition() - robot.lfWheel.getCurrentPosition());
-        telemetry.addData("  h1: ", robot.hangOne.getTargetPosition() - robot.hangOne.getCurrentPosition());
-        telemetry.addData("Robot angle", ((robot.g0angles.firstAngle + robot.g1angles.firstAngle) / 2));
-        telemetry.update();
+        try {
+            telemetry.addData("Remaining Distances", "");
+            telemetry.addData("  rr: ", robot.rrWheel.getTargetPosition() - robot.rrWheel.getCurrentPosition());
+            telemetry.addData("  rf: ", robot.rfWheel.getTargetPosition() - robot.rfWheel.getCurrentPosition());
+            telemetry.addData("  lr: ", robot.lrWheel.getTargetPosition() - robot.lrWheel.getCurrentPosition());
+            telemetry.addData("  lf: ", robot.lfWheel.getTargetPosition() - robot.lfWheel.getCurrentPosition());
+            telemetry.addData("  h1: ", robot.hangOne.getTargetPosition() - robot.hangOne.getCurrentPosition());
+            Orientation g0angles = null;
+            Orientation g1angles = null;
+            double robotAngle = 0;
+            if (robot.gyro0 != null) {
+                g0angles = robot.gyro0.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES); // Get z axis angle from first gyro (in radians so that a conversion is unnecessary for proper employment of Java's Math class)
+            }
+            if (robot.gyro1 != null) {
+                g1angles = robot.gyro1.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES); // Get z axis angle from second gyro (in radians so that a conversion is unnecessary for proper employment of Java's Math class)
+            }
+            if (g0angles != null && g1angles != null) {
+                robotAngle = ((g0angles.firstAngle + g1angles.firstAngle) / 2); // Average angle measures to determine actual robot angle
+            } else if (g0angles != null) {
+                robotAngle = g0angles.firstAngle;
+            } else if (g1angles != null) {
+                robotAngle = g1angles.firstAngle;
+            } else {
+                robotAngle = 0;
+            }
+            telemetry.addData("Robot angle", robotAngle);
+            telemetry.update();
+        }
+        catch(Exception p_exception) {
+            telemetry.addData("Oops", "Telemetry could not be updated.  For help, please seek a better programmer");
+        }
     }
 
     public void run() {

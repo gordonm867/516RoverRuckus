@@ -20,6 +20,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
@@ -69,6 +70,7 @@ public class GOFAutonomousCrater extends LinearOpMode implements Runnable {
     private                 double              angleOffset             = 0.25;
     private                 double              kickOutPos              = 0.35;
     private                 double              kickReadyPos            = 0.2;
+    private                 double[]            point                   = new double[2];
     private                 double              startTime               = elapsedTime.time();
     private                 int                 goldPos                 = -2;
 
@@ -110,6 +112,9 @@ public class GOFAutonomousCrater extends LinearOpMode implements Runnable {
             }
         }
 
+        point[0] = -2; // Current x: -2
+        point[1] = -2; // Current y: -2
+
         telemetry.addData("Status: ", "Entering loop");
         telemetry.update();
 
@@ -136,11 +141,14 @@ public class GOFAutonomousCrater extends LinearOpMode implements Runnable {
 
         /* Move to gold */
         if (robot.rrWheel != null && robot.rfWheel != null && robot.lfWheel != null && robot.lrWheel != null && opModeIsActive()) {
+            goldPos = Range.clip(goldPos, -2, 1);
             if (goldPos == -1) {
                 leftCraterAuto();
-            } else if (goldPos == 1) {
+            }
+            else if (goldPos == 1) {
                 rightCraterAuto();
-            } else if (goldPos == 0 || goldPos == -2) {
+            }
+            else if (goldPos == 0 || goldPos == -2) {
                 centerCraterAuto();
             }
         }
@@ -187,13 +195,13 @@ public class GOFAutonomousCrater extends LinearOpMode implements Runnable {
             encoderMovePreciseTimed(-((int)((12 * Math.sqrt(Math.pow(0.339, 2) + Math.pow(3.049, 2)) - 9) * 1120 / (4 * Math.PI))), 1, 1.5); // -2478
             while(!gamepad1.a) {}
             turn(180 - (((atan(9))) - (atan(-2375.0 / 986.0))), 2); // 28.886358902734912
-            encoderMovePreciseTimed(-((int)((12 * Math.sqrt(Math.pow(0.966, 2) + Math.pow(2.375, 2)) - 9) * 1120 / (4 * Math.PI))), 1, 2); // -2742
+            encoderMovePreciseTimed(-((int)((12 * Math.sqrt(Math.pow(0.966, 2) + Math.pow(2.375, 2)) - 9) * 1120 / (4 * Math.PI))), 1, 1.5); // -1940
             while(!gamepad1.a) {}
             turn(atan(-2375.0 / 986.0) - atan(1), 3); // -112.45383284317498
             encoderMovePreciseTimed(-((int)((12 * Math.sqrt(Math.pow(2.591, 2) + Math.pow(2.591, 2)) - 9) * 1120 / (4 * Math.PI))), 1, 2.5); // -3918
             while(!gamepad1.a) {}
             turn(-135, 3); // -135
-            encoderMovePreciseTimed(-((int) ((12 * Math.sqrt(Math.pow(0, 2) + Math.pow(7.466, 2)) - 9) * 1120 / (4 * Math.PI))), 1, 6); // -7985
+            encoderMovePreciseTimed(-((int) ((12 * Math.sqrt(Math.pow(0, 2) + Math.pow(7.466, 2)) - 9) * 1120 / (4 * Math.PI))), 1, 5); // -7182
         }
         else {
             turn((atan(8)) + 45, 3); // 127.8749836510982
@@ -224,7 +232,7 @@ public class GOFAutonomousCrater extends LinearOpMode implements Runnable {
         if (opModeIsActive()) {
             robot.setKickPower(kickReadyPos); // Move kicker out of the way
         }
-        turn(atan(-25) + 45 - 11.70938996, 3); // -54.418779917361476
+        turn(atan(-25) + 45, 3); //-42.70938995736148
         while(opModeIsActive() && !robot.bottomSensor.isPressed() && robot.hangOne.isBusy()) {
             double oldPos = robot.hangOne.getCurrentPosition();
             sleep(100);
@@ -236,7 +244,7 @@ public class GOFAutonomousCrater extends LinearOpMode implements Runnable {
         robot.setInPower(0.5);
         encoderMovePreciseTimed((-((int)((12 * Math.sqrt(Math.pow(0.08, 2) + Math.pow(2, 2)) - 9) * 1120 / (4 * Math.PI)))), 1, 1); // -1338
         robot.setInPower(0);
-        encoderMovePreciseTimed((((int)((12 * Math.sqrt(Math.pow(0.08, 2) + Math.pow(2, 2)) - 9) * 1120 / (4 * Math.PI)))), -1, 1); // 1338
+        encoderMovePreciseTimed((((int)((12 * Math.sqrt(Math.pow(0.08, 2) + Math.pow(2, 2)) - 9) * 1120 / (4 * Math.PI)))), 1, 1); // 1338
         turn(180 - (atan(25) - atan(41.0/27.0)), 3); // 148.92424404157896
         robot.setInPower(0.5);
         encoderMovePreciseTimed((-((int)((12 * Math.sqrt(Math.pow(1.317, 2) + Math.pow(2, 2)) - 9) * 1120 / (4 * Math.PI)))), 1, 1.5); // -1759
@@ -245,7 +253,7 @@ public class GOFAutonomousCrater extends LinearOpMode implements Runnable {
         encoderMovePreciseTimed((-((int)((12 * Math.sqrt(Math.pow(1.183, 2) + Math.pow(4.732, 2)) - 9) * 1120 / (4 * Math.PI)))), 1, 3); // -4414
         robot.teamFlag.setPosition(0.65);
         turn(180 - (atan(-3366/125) - atan(4)) - 360, 1.5); // -16.238841629692274
-        encoderMovePreciseTimed((((int)((12 * Math.sqrt(Math.pow(0.269, 2) + Math.pow(7.24, 2)) - 9) * 1120 / (4 * Math.PI)))), -1, 4.5); // 6946
+        encoderMovePreciseTimed(-(((int)((12 * Math.sqrt(Math.pow(0.269, 2) + Math.pow(7.24, 2)) - 9) * 1120 / (4 * Math.PI)))), 1, 4.5); // 6946
         robot.hangOne.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         idle();
         robot.hangOne.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -304,7 +312,30 @@ public class GOFAutonomousCrater extends LinearOpMode implements Runnable {
         if (opModeIsActive()) {
             robot.setKickPower(kickReadyPos); // Move kicker out of the way
         }
-        turn(31.0, 3); // Determined in TeleOp to account for potential error, but should be (45 + atan(-1/25)) = 42.70938996
+        robot.setInPower(0.5);
+        runToPoint(-3.875, 2.125);
+        robot.setInPower(0);
+        while(opModeIsActive() && !robot.bottomSensor.isPressed() && robot.hangOne.isBusy()) {
+            double oldPos = robot.hangOne.getCurrentPosition();
+            sleep(100);
+            double newPos = robot.hangOne.getCurrentPosition();
+            if(oldPos == newPos) {
+                break;
+            }
+        }
+        runToPoint(-5.039, -4.856);
+        robot.teamFlag.setPosition(0.65);
+        robot.setInPower(0.5);
+        if(doubleSample) {
+            runToPoint(-1.963, -3.78);
+            robot.setInPower(0);
+            runToPoint(-4.966, 3);
+        }
+        else {
+            runToPoint(-3.846, 3);
+        }
+        /*
+        turn(24.6, 3); // Determined in TeleOp to account for potential error, but should be (45 + atan(-1/25)) = 42.70938996
         while(!gamepad1.a) {}
         robot.setInPower(0.5);
         while(opModeIsActive() && !robot.bottomSensor.isPressed() && robot.hangOne.isBusy()) {
@@ -324,7 +355,7 @@ public class GOFAutonomousCrater extends LinearOpMode implements Runnable {
         while(!gamepad1.a) {}
         robot.teamFlag.setPosition(0.65);
         if(!doubleSample) {
-            encoderMovePreciseTimed(((int)((12 * Math.sqrt(Math.pow(7.9, 2) + Math.pow(1.317, 2)) - 9) * 1120 / (4 * Math.PI))), -1, 10);
+            encoderMovePreciseTimed(((int)((12 * Math.sqrt(Math.pow(7.9, 2) + Math.pow(1.317, 2)) - 9) * 1120 / (4 * Math.PI))), 1, 10);
         }
         else {
             turn(180 - (((atan(6))) - (atan(7.0/20.0))), 3); // 116.56505177707799
@@ -342,32 +373,7 @@ public class GOFAutonomousCrater extends LinearOpMode implements Runnable {
             idle();
             robot.hangOne.setTargetPosition(8058);
             while (elapsedTime.time() < 30 && opModeIsActive() && robot.hangOne.isBusy()) {}
-        }
-        /*
-        encoderMovePreciseTimed(258, -392, -422, 358, 1, 1); // side to side
-        encoderMovePreciseTimed(-525, -542, -516, -534, 0.5, 1);
-        robot.hangOne.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        robot.hangOne.setTargetPosition(8058);
-        robot.setHangPower(-1);
-        if (opModeIsActive()) {
-            robot.setKickPower(kickReadyPos); // Move kicker out of the way
-        }
-        encoderMovePreciseTimed(555, -780, -674, 877, 0.8, 2);
-        while(opModeIsActive() && !robot.bottomSensor.isPressed() && robot.hangOne.isBusy()) {
-            double oldPos = robot.hangOne.getCurrentPosition();
-            sleep(100);
-            double newPos = robot.hangOne.getCurrentPosition();
-            if(oldPos == newPos) {
-                break;
-            }
-        }
-        robot.setInPower(0.5);
-        encoderMovePreciseTimed(34, 61, -58, -79, 0.8, 1);
-        encoderMovePreciseTimed(-512, -591, -525, -601, 0.8, 2);
-        robot.setInPower(0);
-        encoderMovePreciseTimed(-139, -179, -138, -151, 0.8, 2);
-        while(elapsedTime.time() < 30 && opModeIsActive() && robot.hangOne.isBusy()) {}
-        */
+        } */
     }
 
     private double atan(double num) { // Returns atan in degrees
@@ -577,6 +583,57 @@ public class GOFAutonomousCrater extends LinearOpMode implements Runnable {
             resetEncoders();
             sleep(100);
         }
+    }
+
+    private void runToPoint(double x, double y) {
+        double yDiff = point[1] - y;
+        double xDiff = point[0] - x;
+        double straightAngle = atan(yDiff / xDiff);
+        Orientation g0angles = null;
+        Orientation g1angles = null;
+        double robotAngle;
+        if (robot.gyro0 != null) {
+            g0angles = robot.gyro0.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES); // Get z axis angle from first gyro (in radians so that a conversion is unnecessary for proper employment of Java's Math class)
+        }
+        if (robot.gyro1 != null) {
+            g1angles = robot.gyro1.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES); // Get z axis angle from second gyro (in radians so that a conversion is unnecessary for proper employment of Java's Math class)
+        }
+        if (g0angles != null && g1angles != null) {
+            robotAngle = ((g0angles.firstAngle + g1angles.firstAngle) / 2); // Average angle measures to determine actual robot angle
+        } else if (g0angles != null) {
+            robotAngle = g0angles.firstAngle;
+        } else if (g1angles != null) {
+            robotAngle = g1angles.firstAngle;
+        } else {
+            robotAngle = 0;
+        }
+        double turnAngle = straightAngle - (robotAngle - 45);
+        if(turnAngle > 180) {
+            turnAngle -= 360;
+        }
+        if(turnAngle < -180) {
+            turnAngle += 360;
+        }
+        boolean backward;
+        if(Math.min(Math.abs(turnAngle), Math.abs(180 + turnAngle)) == Math.abs(turnAngle)) {
+            turn(turnAngle);
+            backward = false;
+        }
+        else {
+            turn(180 + turnAngle);
+            backward = true;
+        }
+        while(!gamepad1.a) {}
+        double distance;
+        if(!backward) {
+            distance = -((12 * Math.hypot(xDiff, yDiff)) - 9);
+        }
+        else {
+            distance = ((12 * Math.hypot(xDiff, yDiff)) - 9);
+        }
+        while(opModeIsActive() && !gamepad1.a) {}
+        encoderMovePreciseTimed((int)(distance * 1120 / (4 * Math.PI)), 1, (distance * 1120 / (4 * Math.PI)) / 1500);
+        while(opModeIsActive() && !gamepad1.a) {}
     }
 
     /* Reset encoders and set modes to "Run to position" */
@@ -1058,12 +1115,13 @@ public class GOFAutonomousCrater extends LinearOpMode implements Runnable {
 
     /* Update telemetry with autonomous encoder positions */
     private void updateTelemetry() { // Update telemetry on autonomous statuses
-        telemetry.addData("Remaining Distances", "");
-        telemetry.addData("  rr: ", robot.rrWheel.getTargetPosition() - robot.rrWheel.getCurrentPosition());
-        telemetry.addData("  rf: ", robot.rfWheel.getTargetPosition() - robot.rfWheel.getCurrentPosition());
-        telemetry.addData("  lr: ", robot.lrWheel.getTargetPosition() - robot.lrWheel.getCurrentPosition());
-        telemetry.addData("  lf: ", robot.lfWheel.getTargetPosition() - robot.lfWheel.getCurrentPosition());
-        telemetry.addData("  h1: ", robot.hangOne.getTargetPosition() - robot.hangOne.getCurrentPosition());
+        String telemetryString = "";
+        telemetryString += "Remaining Distances\n";
+        telemetryString += "  rr: " + (robot.rrWheel.getTargetPosition() - robot.rrWheel.getCurrentPosition());
+        telemetryString += "  rf: " + (robot.rfWheel.getTargetPosition() - robot.rfWheel.getCurrentPosition());
+        telemetryString += "  lr: " + (robot.lrWheel.getTargetPosition() - robot.lrWheel.getCurrentPosition());
+        telemetryString += "  lf: " + (robot.lfWheel.getTargetPosition() - robot.lfWheel.getCurrentPosition());
+        telemetryString += "  h1: " + (robot.hangOne.getTargetPosition() - robot.hangOne.getCurrentPosition());
         Orientation g0angles = null;
         Orientation g1angles = null;
         if (robot.gyro0 != null) {
@@ -1082,7 +1140,8 @@ public class GOFAutonomousCrater extends LinearOpMode implements Runnable {
         } else {
             robotAngle = 0;
         }
-        telemetry.addData("Robot angle", "" + robotAngle);
+        telemetryString += ("Robot angle: " + robotAngle);
+        telemetry.addData("", telemetryString);
         telemetry.update();
     }
 
