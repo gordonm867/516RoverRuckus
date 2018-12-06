@@ -385,6 +385,25 @@ public class GOFAutonomousCrater extends LinearOpMode implements Runnable {
         robot.hangOne.setTargetPosition(-8058);
         while (opModeIsActive() && robot.hangOne.getCurrentPosition() > -8058) {
             telemetry.addData("h1: ", "" + robot.hangOne.getCurrentPosition());
+            Orientation g0angles = null;
+            Orientation g1angles = null;
+            if (robot.gyro0 != null) {
+                g0angles = robot.gyro0.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.RADIANS); // Get z axis angle from first gyro (in radians so that a conversion is unnecessary for proper employment of Java's Math class)
+            }
+            if (robot.gyro1 != null) {
+                g1angles = robot.gyro1.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.RADIANS); // Get z axis angle from second gyro (in radians so that a conversion is unnecessary for proper employment of Java's Math class)
+            }
+            double robotAngle;
+            if (g0angles != null && g1angles != null) {
+                robotAngle = ((g0angles.firstAngle + g1angles.firstAngle) / 2); // Average angle measures to determine actual robot angle
+            } else if(g0angles != null) {
+                robotAngle = g0angles.firstAngle;
+            } else if(g1angles != null) {
+                robotAngle = g1angles.firstAngle;
+            } else {
+                robotAngle = 0;
+            }
+            telemetry.addData("Current angle", (robotAngle - 45));
             telemetry.update();
             robot.setHangPower(-1);
         }
@@ -1140,7 +1159,7 @@ public class GOFAutonomousCrater extends LinearOpMode implements Runnable {
         } else {
             robotAngle = 0;
         }
-        telemetryString += ("Robot angle: " + robotAngle);
+        telemetryString += ("Robot angle: " + (robotAngle - 45));
         telemetry.addData("", telemetryString);
         telemetry.update();
     }
