@@ -653,6 +653,8 @@ public class GOFAutonomousCrater extends LinearOpMode implements Runnable {
         while(opModeIsActive() && !gamepad1.a) {}
         encoderMovePreciseTimed((int)(distance * 1120 / (4 * Math.PI)), 1, (distance * 1120 / (4 * Math.PI)) / 1500);
         while(opModeIsActive() && !gamepad1.a) {}
+        point[0] = x;
+        point[1] = y;
     }
 
     /* Reset encoders and set modes to "Run to position" */
