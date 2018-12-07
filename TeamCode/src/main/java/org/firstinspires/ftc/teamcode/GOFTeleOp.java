@@ -299,7 +299,7 @@ public class GOFTeleOp extends OpMode {
             tmy += "Robot angle: " + (robotAngle * (180 / Math.PI)) + "\n";
             endTime = elapsedTime.time();
             timeDifference = endTime - startTime;
-            tmy += "Cycle Tim: e" + timeDifference;
+            tmy += "Cycle Time: " + timeDifference;
             telemetry.addData("", tmy);
             /*telemetry.addData("Variables", "");
             telemetry.addData("  drive", "" + drive);
