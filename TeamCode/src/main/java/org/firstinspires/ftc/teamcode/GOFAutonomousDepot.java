@@ -236,7 +236,7 @@ public class GOFAutonomousDepot extends LinearOpMode implements Runnable {
                         Recognition recognition = updatedRecognitionsItr.next();
                         if(updatedRecognitions.size() > 2) {
                             for(Recognition recognitionNested : updatedRecognitions) {
-                                if((recognitionNested.getLeft() + 10 > recognition.getLeft()) && (recognitionNested.getLeft() - 10 < recognition.getLeft()) && (recognitionNested.getTop() + 10 > recognition.getTop() && recognitionNested.getTop() - 10 < recognition.getTop())) {
+                                if((recognitionNested.getTop() + 10 > recognition.getTop()) && (recognitionNested.getTop() - 10 < recognition.getTop()) && (recognitionNested.getLeft() + 10 > recognition.getLeft() && recognitionNested.getLeft() - 10 < recognition.getLeft())) {
                                     if(recognitionNested != recognition) {
                                         remove = true;
                                     }
@@ -253,15 +253,15 @@ public class GOFAutonomousDepot extends LinearOpMode implements Runnable {
                                 Recognition min2 = null;
                                 double minRecY = Double.MAX_VALUE;
                                 for(Recognition minFind : updatedRecognitions) {
-                                    if(minFind.getLeft() < minRecY) {
-                                        minRecY = minFind.getLeft();
+                                    if(minFind.getTop() < minRecY) {
+                                        minRecY = minFind.getTop();
                                         min1 = minFind;
                                     }
                                 }
                                 minRecY = Double.MAX_VALUE;
                                 for(Recognition minFind : updatedRecognitions) {
-                                    if(minFind.getLeft() < minRecY && minFind != min1) {
-                                        minRecY = minFind.getLeft();
+                                    if(minFind.getTop() < minRecY && minFind != min1) {
+                                        minRecY = minFind.getTop();
                                         min2 = minFind;
                                     }
                                 }
@@ -281,11 +281,11 @@ public class GOFAutonomousDepot extends LinearOpMode implements Runnable {
                         double silverMineral2X = -987654;
                         for (Recognition recognition : updatedRecognitions) { // For each item in the list of recognized items
                             if (recognition.getLabel().equals(LABEL_GOLD_MINERAL)) { // If the item is gold....
-                                goldMineralX = (int) (recognition.getTop()); // Set the gold x position to its x position
+                                goldMineralX = (int) (recognition.getLeft()); // Set the gold x position to its x position
                             } else if (silverMineral1X == -987654) { // If the item is silver and no silver has been assigned an x position yet....
-                                silverMineral1X = (int) (recognition.getTop()); // Set the first silver x position to its x position
+                                silverMineral1X = (int) (recognition.getLeft()); // Set the first silver x position to its x position
                             } else { // If the item is silver and another silver has been found
-                                silverMineral2X = (int) (recognition.getTop()); // Set the second silver x position to its x position
+                                silverMineral2X = (int) (recognition.getLeft()); // Set the second silver x position to its x position
                             }
                         }
                         if (goldMineralX != -987654 && silverMineral1X != -987654 && silverMineral2X != -987654) { // If all of the minerals have new x positions....
@@ -311,11 +311,11 @@ public class GOFAutonomousDepot extends LinearOpMode implements Runnable {
                         double silverMineral2X = -987654;
                         for (Recognition recognition : updatedRecognitions) { // For each item in the list of recognized items
                             if (recognition.getLabel().equals(LABEL_GOLD_MINERAL)) { // If the item is gold....
-                                goldMineralX = (int) (recognition.getTop()); // Set the gold x position to its x position (note that the phone's orientation reverses axes)
+                                goldMineralX = (int) (recognition.getLeft()); // Set the gold x position to its x position (note that the phone's orientation reverses axes)
                             } else if (silverMineral1X == -987654) { // If the item is silver and no silver has been assigned an x position yet....
-                                silverMineral1X = (int) (recognition.getTop()); // Set the first silver x position to its x position
+                                silverMineral1X = (int) (recognition.getLeft()); // Set the first silver x position to its x position
                             } else {
-                                silverMineral2X = (int) (recognition.getTop());
+                                silverMineral2X = (int) (recognition.getLeft());
                             }
                             if (silverMineral2X == -987654 && goldMineralX != -987654 && silverMineral1X != -987654) {
                                 if (goldMineralX > silverMineral1X) {
@@ -841,8 +841,8 @@ public class GOFAutonomousDepot extends LinearOpMode implements Runnable {
         VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
 
         parameters.vuforiaLicenseKey = VUFORIA_KEY;
-        parameters.cameraDirection = VuforiaLocalizer.CameraDirection.BACK;
-        // parameters.cameraName = hardwareMap.get(WebcamName.class, "Wc1"); // Use external camera
+        // parameters.cameraDirection = VuforiaLocalizer.CameraDirection.BACK;
+        parameters.cameraName = hardwareMap.get(WebcamName.class, "Wc1"); // Use external camera
         vuforia = new GOFVuforiaLocalizer(parameters);
     }
 

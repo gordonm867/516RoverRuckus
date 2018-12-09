@@ -73,7 +73,7 @@ public class GOFTeleOp extends OpMode {
     public void loop() {
         drive = gamepad1.left_stick_y;
         double hangDrive = gamepad2.left_stick_y;
-        turn = gamepad1.right_stick_x;
+        turn = -gamepad1.right_stick_x;
         angle = -gamepad1.left_stick_x;
         double startTime = elapsedTime.time();
         Orientation g0angles = null;
@@ -100,12 +100,12 @@ public class GOFTeleOp extends OpMode {
         /* Precision vertical drive */
         if (gamepad1.dpad_down || gamepad1.dpad_up) {
             if (gamepad1.left_stick_y != 0) {
-                drive = drive * Math.sqrt(0.25); // Slow down joystick driving
+                drive = drive * Math.pow(0.25, 2); // Slow down joystick driving
             } else {
                 if (gamepad1.dpad_down) {
-                    drive = Math.sqrt(0.25); // Slow drive backwards
+                    drive = Math.pow(0.25, 2); // Slow drive backwards
                 } else {
-                    drive = -Math.sqrt(0.25); // Slow drive forwards
+                    drive = -Math.pow(0.25, 2); // Slow drive forwards
                 }
             }
         }
@@ -113,22 +113,22 @@ public class GOFTeleOp extends OpMode {
         /* Precision sideways drive */
         if (gamepad1.dpad_right || gamepad1.dpad_left) {
             if (gamepad1.right_stick_x != 0) {
-                angle = angle * Math.sqrt(0.25); // Slow down joystick side movement
+                angle = angle * Math.pow(0.25, 2); // Slow down joystick side movement
             } else {
                 if (gamepad1.dpad_left) {
-                    angle = Math.sqrt(0.25); // Slow leftwards
+                    angle = Math.pow(0.25, 2); // Slow leftwards
                 } else {
-                    angle = -Math.sqrt(0.25); // Slow rightwards
+                    angle = -Math.pow(0.25, 2); // Slow rightwards
                 }
             }
         }
 
         /* Precision turn */
-        if (gamepad1.left_bumper) {
-            turn = -Math.sqrt(0.3); // Slow left turn
+        if(gamepad1.left_bumper) {
+            turn = Math.pow(0.25, 2); // Slow left turn
         }
-        if (gamepad1.right_bumper) {
-            turn = Math.sqrt(0.3); // Slow right turn
+        if(gamepad1.right_bumper) {
+            turn = -Math.pow(0.25, 2); // Slow right turn
         }
 
         if(driverMode == 1) {
