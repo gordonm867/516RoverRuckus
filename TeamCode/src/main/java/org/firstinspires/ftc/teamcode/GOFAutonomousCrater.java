@@ -27,7 +27,7 @@ import java.util.Iterator;
 import java.util.List;
 
 @Autonomous(name="GOFAutoCrater", group="GOF")
-public class GOFAutonomousCrater extends LinearOpMode implements Runnable {
+public class GOFAutonomousCrater extends LinearOpMode {
 
     /* Declare OpMode members */
     private                 GOFHardware         robot                   = GOFHardware.getInstance(); // Use the GOFHardware class
@@ -44,19 +44,18 @@ public class GOFAutonomousCrater extends LinearOpMode implements Runnable {
     private                 boolean             remove;
     private                 boolean             doubleSample            = true;
     private                 boolean             yPressed                = false;
-    private                 double              angleOffset             = 5;
+    private                 double              angleOffset             = 3;
     private                 double              kickOutPos              = 0.35;
     private                 double              kickReadyPos            = 0.2;
     private                 double[]            point                   = new double[2];
     private                 double              startTime               = elapsedTime.time();
+    private                 double              turns                   = 0;
     private                 int                 goldPos                 = -2;
 
     @Override
     public void runOpMode() {
         /* Initialize hardware class */
         robot.init(hardwareMap);
-        Thread vuforiaThread = new Thread(new GOFAutonomousCrater());
-        vuforiaThread.start();
 
         /* Reset encoders */
         if (robot.rrWheel != null && robot.rfWheel != null && robot.lfWheel != null && robot.lrWheel != null) {
@@ -67,15 +66,12 @@ public class GOFAutonomousCrater extends LinearOpMode implements Runnable {
             robot.lrWheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             robot.intake.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             robot.hangOne.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            idle();
         }
 
         vuforiaInit(); // Initialize Vuforia
         detectInit(); // Initialize TensorFlwo
 
         GOFAutoTransitioner.transitionOnStop(this, "GOFTeleOp"); // Start TeleOp after autonomous ends (doesn't work right now)
-
-        while(!isStopRequested() && vuforiaThread.isAlive() && !vuforiaThread.isInterrupted()) {}
 
         while(!gamepad1.x) {
             telemetry.addData("Double Sampling is", (doubleSample ? "ON" : "OFF") + " - Press \"Y\" to change and \"X\" to finalize (on gamepad1)");
@@ -108,13 +104,27 @@ public class GOFAutonomousCrater extends LinearOpMode implements Runnable {
         detector.shutdown();
         vuforia.close();
 
+        /*
         robot.playSound(goldPos);
         if (robot.soundError) {
             telemetry.addData("Error: ", "Unable to play sound.");
         }
+        */
 
         /* Descend */
         descend();
+        turn(-getAngle(), 1);
+        encoderMovePreciseTimed(258, -392, -422, 358, 1, 1); // side to side
+        robot.hangOne.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        robot.hangOne.setTargetPosition(8050);
+        robot.setHangPower(-1);
+        encoderMovePreciseTimed(-525, -542, -516, -534, 0.5, 1);
+        if (opModeIsActive()) {
+            robot.setKickPower(kickReadyPos); // Move kicker out of the way
+        }
+        telemetry.addData("Status", "Turning " + -getAngle());
+        telemetry.update();
+        turn(-getAngle(), 1);
 
         /* Move to gold */
         if (robot.rrWheel != null && robot.rfWheel != null && robot.lfWheel != null && robot.lrWheel != null && opModeIsActive()) {
@@ -134,27 +144,19 @@ public class GOFAutonomousCrater extends LinearOpMode implements Runnable {
             telemetry.update();
         }
 
-        try {
-            storeAngle();
-        }
-        catch(Exception p_exception) {
-            telemetry.addData("Note", "Angle could not be saved; please manually initialize gyro in TeleOp");
-            telemetry.update();
+        if(opModeIsActive()) {
+            try {
+                storeAngle();
+            } catch (Exception p_exception) {
+                telemetry.addData("Note", "Angle could not be saved; please manually initialize gyro in TeleOp");
+                telemetry.update();
+            }
         }
     }
 
     private void centerCraterAuto() {
-        encoderMovePreciseTimed(258, -392, -422, 358, 1, 1); // side to side
-        robot.hangOne.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        robot.hangOne.setTargetPosition(8058);
-        robot.setHangPower(-1);
-        encoderMovePreciseTimed(-525, -542, -516, -534, 0.5, 1);
-        if (opModeIsActive()) {
-            robot.setKickPower(kickReadyPos); // Move kicker out of the way
-        }
-        turn(-getAngle(), 1);
         turn(-11.70938996, 1);
-        while(!gamepad1.a) {}
+        while(!gamepad1.a && opModeIsActive()) {}
         while(opModeIsActive() && !robot.bottomSensor.isPressed() && robot.hangOne.isBusy()) {
             double oldPos = robot.hangOne.getCurrentPosition();
             sleep(100);
@@ -164,26 +166,36 @@ public class GOFAutonomousCrater extends LinearOpMode implements Runnable {
             }
         }
         robot.setInPower(0.5);
-        encoderMovePreciseTimed(-((int)((12 * Math.sqrt(Math.pow(1.049, 2) + Math.pow(1.049, 2)) - 9) * 560 / (4 * Math.PI))), 1, 0.75); // -784
-        while(!gamepad1.a) {}
+        encoderMovePreciseTimed(-((int)((12 * Math.sqrt(Math.pow(1.049, 2) + Math.pow(1.049, 2)) - 7) * 560 / (4 * Math.PI))), 1, 0.75); // -784
+        while(!gamepad1.a && opModeIsActive()) {}
+        robot.setInPower(0);
+        encoderMovePreciseTimed(((int)((12 * Math.sqrt(Math.pow(1.049, 2) + Math.pow(1.049, 2)) - 7) * 560 / (4 * Math.PI))), 1, 0.75); // 784
+        turn(90, 3);
+        while(!gamepad1.a && opModeIsActive()) {}
         if(doubleSample) {
-            turn((atan(9)) + 45, 3); // 128.65980825409008
-            while(!gamepad1.a) {}
-            robot.setInPower(0);
-            encoderMovePreciseTimed(-((int)((12 * Math.sqrt(Math.pow(0.339, 2) + Math.pow(3.049, 2)) - 9) * 560 / (4 * Math.PI))), 1, 1.5); // -2478
-            while(!gamepad1.a) {}
-            turn(180 - (((atan(9))) - (atan(-2375.0 / 986.0))), 2); // 28.886358902734912
-            encoderMovePreciseTimed(-((int)((12 * Math.sqrt(Math.pow(0.966, 2) + Math.pow(2.375, 2)) - 9) * 560 / (4 * Math.PI))), 1, 1.5); // -1940
-            while(!gamepad1.a) {}
-            turn(atan(-2375.0 / 986.0) - atan(1), 3); // -112.45383284317498
-            encoderMovePreciseTimed(-((int)((12 * Math.sqrt(Math.pow(2.591, 2) + Math.pow(2.591, 2)) - 9) * 560 / (4 * Math.PI))), 1, 2.5); // -3918
-            while(!gamepad1.a) {}
-            turn(-135, 3); // -135
-            encoderMovePreciseTimed(-((int) ((12 * Math.sqrt(Math.pow(0, 2) + Math.pow(7.466, 2)) - 9) * 560 / (4 * Math.PI))), 1, 5); // -7182
+            encoderMovePreciseTimed((-((int)((12 * Math.sqrt(Math.pow(2, 2) + Math.pow(2, 2)) - 9) * 560 / (4 * Math.PI)))), 1, 1.5); // -1759
+            while(!gamepad1.a && opModeIsActive()) {}
+            turn(90, 3);
+            while(!gamepad1.a && opModeIsActive()) {}
+            encoderMovePreciseTimed((-((int)((12 * Math.sqrt(Math.pow(2, 2) + Math.pow(2, 2)) - 9) * 560 / (4 * Math.PI)))), 1, 1.5);
+            while(!gamepad1.a && opModeIsActive()) {}
+            turn(-90, 3);
+            while(!gamepad1.a && opModeIsActive()) {}
+            encoderMovePreciseTimed((-((int)((12 * Math.sqrt(Math.pow(3, 2) + Math.pow(3, 2)) - 9) * 560 / (4 * Math.PI)))), 1, 1.5);
+            while(!gamepad1.a && opModeIsActive()) {}
+            robot.teamFlag.setPosition(0.65);
+            turn(-45, 3);
+            while(!gamepad1.a && opModeIsActive()) {}
+            encoderMovePreciseTimed((((int)((12 * Math.sqrt(Math.pow(0, 2) + Math.pow(7, 2)) - 9) * 560 / (4 * Math.PI)))), 1, 3); // -3342
         }
         else {
-            turn((atan(8)) + 45, 3); // 127.8749836510982
-            robot.setInPower(0);
+            encoderMovePreciseTimed((-((int)((12 * Math.sqrt(Math.pow(3, 2) + Math.pow(3, 2)) - 9) * 560 / (4 * Math.PI)))), 1, 1.5);
+            while(!gamepad1.a && opModeIsActive()) {}
+            turn(-45, 3);
+            while(!gamepad1.a && opModeIsActive()) {}
+            encoderMovePreciseTimed((-((int)((12 * Math.sqrt(Math.pow(0, 2) + Math.pow(4, 2)) - 9) * 560 / (4 * Math.PI)))), 1, 1.5); // -1737
+            while(!gamepad1.a && opModeIsActive()) {}
+            encoderMovePreciseTimed((((int)((12 * Math.sqrt(Math.pow(0, 2) + Math.pow(7.25, 2)) - 9) * 560 / (4 * Math.PI)))), 1, 2.5); // 3475
         }
         /*
         encoderMovePreciseTimed(258, -392, -422, 358, 1, 1); // side to side
@@ -202,17 +214,8 @@ public class GOFAutonomousCrater extends LinearOpMode implements Runnable {
     }
 
     private void rightCraterAuto() {
-        encoderMovePreciseTimed(258, -392, -422, 358, 1, 1); // side to side
-        robot.hangOne.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        robot.hangOne.setTargetPosition(8058);
-        robot.setHangPower(-1);
-        encoderMovePreciseTimed(-525, -542, -516, -534, 0.5, 1);
-        if (opModeIsActive()) {
-            robot.setKickPower(kickReadyPos); // Move kicker out of the way
-        }
-        turn(-getAngle(), 1);
-        while(!gamepad1.a) {}
-        turn(atan(-25) + 30, 3); // -32.70938995736148
+        while(!gamepad1.a && opModeIsActive()) {}
+        turn(atan(-25) + 39, 3); // -32.70938995736148
         while(opModeIsActive() && !robot.bottomSensor.isPressed() && robot.hangOne.isBusy()) {
             double oldPos = robot.hangOne.getCurrentPosition();
             sleep(100);
@@ -221,28 +224,29 @@ public class GOFAutonomousCrater extends LinearOpMode implements Runnable {
                 break;
             }
         }
-        while(!gamepad1.a) {}
+        robot.hangOne.setTargetPosition(robot.hangOne.getCurrentPosition());
+        robot.setHangPower(0);
+        while(!gamepad1.a && opModeIsActive()) {}
         robot.setInPower(0.5);
         encoderMovePreciseTimed((-((int)((12 * Math.sqrt(Math.pow(0.4, 2) + Math.pow(2, 2)) - 9) * 560 / (4 * Math.PI)))), 1, 1); // -1338
-        while(!gamepad1.a) {}
+        while(!gamepad1.a && opModeIsActive()) {}
         robot.setInPower(0);
         encoderMovePreciseTimed((((int)((12 * Math.sqrt(Math.pow(0.4, 2) + Math.pow(2, 2)) - 9) * 560 / (4 * Math.PI)))), 1, 1); // 1338
-        while(!gamepad1.a) {}
+        while(!gamepad1.a && opModeIsActive()) {}
         turn(atan(25) - atan(-1), 3); // -136.65457618639903
-        while(!gamepad1.a) {}
+        while(!gamepad1.a && opModeIsActive()) {}
         encoderMovePreciseTimed((-((int)((12 * Math.sqrt(Math.pow(2, 2) + Math.pow(2, 2)) - 9) * 560 / (4 * Math.PI)))), 1, 1.5); // -1759
-        while(!gamepad1.a) {}
+        while(!gamepad1.a && opModeIsActive()) {}
         turn(45, 3);
-        while(!gamepad1.a) {}
+        while(!gamepad1.a && opModeIsActive()) {}
         robot.setInPower(0.5);
         encoderMovePreciseTimed((-((int)((12 * Math.sqrt(Math.pow(0, 2) + Math.pow(4, 2)) - 9) * 560 / (4 * Math.PI)))), 1, 3); // -4414
         robot.setInPower(0);
-        encoderMovePreciseTimed(-((int)((12 * Math.sqrt(Math.pow(0.6, 2) + Math.pow(1.886, 2)) - 9) * 560 / (4 * Math.PI))), 1, 1); // -657
         robot.teamFlag.setPosition(0.65);
-        while(!gamepad1.a) {}
-        turn(atan(-7) - 90 + 180, 1.5); // -16.238841629692274
-        while(!gamepad1.a) {}
-        encoderMovePreciseTimed((((int)((12 * Math.sqrt(Math.pow(0.269, 2) + Math.pow(7.24, 2)) - 9) * 560 / (4 * Math.PI)))), 1, 4.5); // 6946
+        while(!gamepad1.a && opModeIsActive()) {}
+        turn(atan(-7) + 94, 1.5); // -16.238841629692274
+        while(!gamepad1.a && opModeIsActive()) {}
+        encoderMovePreciseTimed((((int)((12 * Math.sqrt(Math.pow(0.269, 2) + Math.pow(7.24, 2)) - 20) * 560 / (4 * Math.PI)))), 1, 4.5); // 6946
         /*
         encoderMovePreciseTimed(258, -392, -422, 358, 1, 1); // side to side
         encoderMovePreciseTimed(-525, -542, -516, -534, 0.5, 1);
@@ -287,33 +291,8 @@ public class GOFAutonomousCrater extends LinearOpMode implements Runnable {
     }
 
     private void leftCraterAuto() {
-        encoderMovePreciseTimed(258, -392, -422, 358, 1, 1); // side to side
-        robot.hangOne.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        robot.hangOne.setTargetPosition(8058);
-        robot.setHangPower(-1);
-        encoderMovePreciseTimed(-525, -542, -516, -534, 0.5, 1);
-        if (opModeIsActive()) {
-            robot.setKickPower(kickReadyPos); // Move kicker out of the way
-        }
-        Orientation g0angles = null;
-        Orientation g1angles = null;
-        double robotAngle;
-        if (robot.gyro0 != null) {
-            g0angles = robot.gyro0.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES); // Get z axis angle from first gyro (in radians so that a conversion is unnecessary for proper employment of Java's Math class)
-        }
-        if (robot.gyro1 != null) {
-            g1angles = robot.gyro1.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES); // Get z axis angle from second gyro (in radians so that a conversion is unnecessary for proper employment of Java's Math class)
-        }
-        if (g0angles != null && g1angles != null) {
-            robotAngle = ((g0angles.firstAngle + g1angles.firstAngle) / 2); // Average angle measures to determine actual robot angle
-        } else if (g0angles != null) {
-            robotAngle = g0angles.firstAngle;
-        } else if (g1angles != null) {
-            robotAngle = g1angles.firstAngle;
-        } else {
-            robotAngle = 0;
-        }
-        turn(-robotAngle, 1);
+        turn(45.0 + atan(-1.0/15.0), 3);
+        while(!gamepad1.a && opModeIsActive()) {}
         while(opModeIsActive() && !robot.bottomSensor.isPressed() && robot.hangOne.isBusy()) {
             double oldPos = robot.hangOne.getCurrentPosition();
             sleep(100);
@@ -322,47 +301,20 @@ public class GOFAutonomousCrater extends LinearOpMode implements Runnable {
                 break;
             }
         }
+        robot.hangOne.setPower(0);
+        robot.hangOne.setTargetPosition(robot.hangOne.getCurrentPosition());
         robot.setInPower(0.5);
-        runToPoint(-3.875, 2.125);
+        encoderMovePreciseTimed(-((int)((12 * Math.sqrt(Math.pow(0.133, 2) + Math.pow(2, 2)) - 9) * 560 / (4 * Math.PI))), 1, 1);
+        while(!gamepad1.a && opModeIsActive()) {}
         robot.setInPower(0);
-        while(opModeIsActive() && !robot.bottomSensor.isPressed() && robot.hangOne.isBusy()) {
-            double oldPos = robot.hangOne.getCurrentPosition();
-            sleep(100);
-            double newPos = robot.hangOne.getCurrentPosition();
-            if(oldPos == newPos) {
-                break;
-            }
-        }
-        runToPoint(-5.039, -4.856);
-        robot.teamFlag.setPosition(0.65);
-        robot.setInPower(0.5);
-        if(doubleSample) {
-            runToPoint(-1.963, -3.78);
-            robot.setInPower(0);
-            runToPoint(-4.966, 3);
-        }
-        else {
-            runToPoint(-3.846, 3);
-        }
-        /*
-        turn(24.6, 3); // Determined in TeleOp to account for potential error, but should be (45 + atan(-1/25)) = 42.70938996
-        while(!gamepad1.a) {}
-        robot.setInPower(0.5);
-        while(opModeIsActive() && !robot.bottomSensor.isPressed() && robot.hangOne.isBusy()) {
-            double oldPos = robot.hangOne.getCurrentPosition();
-            sleep(100);
-            double newPos = robot.hangOne.getCurrentPosition();
-            if(oldPos == newPos) {
-                break;
-            }
-        }
-        encoderMovePreciseTimed(-((int)((12 * Math.sqrt(Math.pow(0.8, 2) + Math.pow(2, 2)) - 9) * 560 / (4 * Math.PI))), 1, 1);
-        while(!gamepad1.a) {}
-        robot.setInPower(0);
-        turn(atan(6) - atan(-1.0/25.0), 3); // 82.82828783461292
-        while(!gamepad1.a) {}
-        encoderMovePreciseTimed(-((int)((12 * Math.sqrt(Math.pow(1.163, 2) + Math.pow(6.98, 2)) - 9) * 560 / (4 * Math.PI))), 1, 5);
-        while(!gamepad1.a) {}
+        encoderMovePreciseTimed(((int)((12 * Math.sqrt(Math.pow(0.133, 2) + Math.pow(2, 2)) - 9) * 560 / (4 * Math.PI))), 1, 1);
+        turn(atan(1) - atan(-1.0/15.0), 3); // 48.81407483429035
+        while(!gamepad1.a && opModeIsActive()) {}
+        encoderMovePreciseTimed(-((int)((12 * Math.sqrt(Math.pow(2, 2) + Math.pow(2, 2)) - 9) * 560 / (4 * Math.PI))), 1, 1); // -1111
+        while(!gamepad1.a && opModeIsActive()) {}
+        turn(90, 3);
+        while(!gamepad1.a && opModeIsActive()) {}
+        encoderMovePreciseTimed(-((int)((12 * Math.sqrt(Math.pow(4, 2) + Math.pow(4, 2)) - 9) * 560 / (4 * Math.PI))), 1, 2); // -2222
         robot.teamFlag.setPosition(0.65);
         if(!doubleSample) {
             encoderMovePreciseTimed(((int)((12 * Math.sqrt(Math.pow(7.9, 2) + Math.pow(1.317, 2)) - 9) * 560 / (4 * Math.PI))), 1, 10);
@@ -370,20 +322,18 @@ public class GOFAutonomousCrater extends LinearOpMode implements Runnable {
         else {
             turn(180 - (((atan(6))) - (atan(7.0/20.0))), 3); // 116.56505177707799
             robot.setInPower(0.5);
-            while(!gamepad1.a) {}
-            encoderMovePreciseTimed(-((int) ((12 * Math.sqrt(Math.pow(3.209, 2) + Math.pow(1.123, 2)) - 9) * 560 / (4 * Math.PI))), 1, 2); // -2834
-            while(!gamepad1.a) {}
+            while(!gamepad1.a && opModeIsActive()) {}
+            encoderMovePreciseTimed(-((int)((12 * Math.sqrt(Math.pow(3.209, 2) + Math.pow(1.123, 2)) - 9) * 560 / (4 * Math.PI))), 1, 2); // -2834
+            while(!gamepad1.a && opModeIsActive()) {}
             turn(180 + ((atan(-3.25)) - (atan(7.0 / 20.0))), 3); // 94.67244275538944
             robot.setInPower(0);
-            while(!gamepad1.a) {}
-            encoderMovePreciseTimed(-((int) ((12 * Math.sqrt(Math.pow(2.085, 2) + Math.pow(6.777, 2)) - 9) * 560 / (4 * Math.PI))), 1, 4.5); // -6781
+            while(!gamepad1.a && opModeIsActive()) {}
+            encoderMovePreciseTimed(-((int)((12 * Math.sqrt(Math.pow(2.085, 2) + Math.pow(6.777, 2)) - 9) * 560 / (4 * Math.PI))), 1, 4.5); // -6781
             robot.hangOne.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            idle();
             robot.hangOne.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            idle();
             robot.hangOne.setTargetPosition(8058);
             while (elapsedTime.time() < 30 && opModeIsActive() && robot.hangOne.isBusy()) {}
-        } */
+        }
     }
 
     private double atan(double num) { // Returns atan in degrees
@@ -393,27 +343,9 @@ public class GOFAutonomousCrater extends LinearOpMode implements Runnable {
     private void descend() {
         resetEncoders();
         robot.hangOne.setTargetPosition(-8058);
-        while (opModeIsActive() && robot.hangOne.getCurrentPosition() > -8058) {
+        while (opModeIsActive() && robot.hangOne.getCurrentPosition() > -8058 && !robot.bottomSensor.isPressed()) {
             telemetry.addData("h1: ", "" + robot.hangOne.getCurrentPosition());
-            Orientation g0angles = null;
-            Orientation g1angles = null;
-            if (robot.gyro0 != null) {
-                g0angles = robot.gyro0.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.RADIANS); // Get z axis angle from first gyro (in radians so that a conversion is unnecessary for proper employment of Java's Math class)
-            }
-            if (robot.gyro1 != null) {
-                g1angles = robot.gyro1.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.RADIANS); // Get z axis angle from second gyro (in radians so that a conversion is unnecessary for proper employment of Java's Math class)
-            }
-            double robotAngle;
-            if (g0angles != null && g1angles != null) {
-                robotAngle = ((g0angles.firstAngle + g1angles.firstAngle) / 2); // Average angle measures to determine actual robot angle
-            } else if(g0angles != null) {
-                robotAngle = g0angles.firstAngle;
-            } else if(g1angles != null) {
-                robotAngle = g1angles.firstAngle;
-            } else {
-                robotAngle = 0;
-            }
-            telemetry.addData("Current angle", (robotAngle - 45));
+            telemetry.addData("Current angle", (getAngle() - 45));
             telemetry.update();
             robot.setHangPower(-1);
         }
@@ -421,9 +353,7 @@ public class GOFAutonomousCrater extends LinearOpMode implements Runnable {
         robot.setHangPower(0); // Stop sending power just in case
         resetEncoders();
         robot.hangOne.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER); // Reset hang encoder
-        idle();
         robot.hangOne.setMode(DcMotor.RunMode.RUN_TO_POSITION); // Set hang wheel back to run to position mode
-        idle();
     }
 
     private int detectGold() {
@@ -485,11 +415,11 @@ public class GOFAutonomousCrater extends LinearOpMode implements Runnable {
                         double silverMineral2X = -987654;
                         for (Recognition recognition : updatedRecognitions) { // For each item in the list of recognized items
                             if (recognition.getLabel().equals(LABEL_GOLD_MINERAL)) { // If the item is gold....
-                                goldMineralX = (int) (recognition.getLeft()); // Set the gold x position to its x position
+                                goldMineralX = (int)(recognition.getLeft()); // Set the gold x position to its x position
                             } else if (silverMineral1X == -987654) { // If the item is silver and no silver has been assigned an x position yet....
-                                silverMineral1X = (int) (recognition.getLeft()); // Set the first silver x position to its x position
+                                silverMineral1X = (int)(recognition.getLeft()); // Set the first silver x position to its x position
                             } else { // If the item is silver and another silver has been found
-                                silverMineral2X = (int) (recognition.getLeft()); // Set the second silver x position to its x position
+                                silverMineral2X = (int)(recognition.getLeft()); // Set the second silver x position to its x position
                             }
                         }
                         if (goldMineralX != -987654 && silverMineral1X != -987654 && silverMineral2X != -987654) { // If all of the minerals have new x positions....
@@ -515,11 +445,11 @@ public class GOFAutonomousCrater extends LinearOpMode implements Runnable {
                         double silverMineral2X = -987654;
                         for (Recognition recognition : updatedRecognitions) { // For each item in the list of recognized items
                             if (recognition.getLabel().equals(LABEL_GOLD_MINERAL)) { // If the item is gold....
-                                goldMineralX = (int) (recognition.getLeft()); // Set the gold x position to its x position (note that the phone's orientation reverses axes)
+                                goldMineralX = (int)(recognition.getLeft()); // Set the gold x position to its x position (note that the phone's orientation reverses axes)
                             } else if (silverMineral1X == -987654) { // If the item is silver and no silver has been assigned an x position yet....
-                                silverMineral1X = (int) (recognition.getLeft()); // Set the first silver x position to its x position
+                                silverMineral1X = (int)(recognition.getLeft()); // Set the first silver x position to its x position
                             } else {
-                                silverMineral2X = (int) (recognition.getLeft());
+                                silverMineral2X = (int)(recognition.getLeft());
                             }
                             if (silverMineral2X == -987654 && goldMineralX != -987654 && silverMineral1X != -987654) {
                                 if (goldMineralX > silverMineral1X) {
@@ -564,7 +494,6 @@ public class GOFAutonomousCrater extends LinearOpMode implements Runnable {
             robot.rfWheel.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             robot.lfWheel.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             robot.lrWheel.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            idle();
             robot.rrWheel.setTargetPosition(rr);
             robot.rfWheel.setTargetPosition(rf);
             robot.lfWheel.setTargetPosition(lf);
@@ -592,7 +521,6 @@ public class GOFAutonomousCrater extends LinearOpMode implements Runnable {
             robot.rfWheel.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             robot.lfWheel.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             robot.lrWheel.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            idle();
             robot.rrWheel.setTargetPosition(pos);
             robot.rfWheel.setTargetPosition(pos);
             robot.lfWheel.setTargetPosition(pos);
@@ -614,13 +542,108 @@ public class GOFAutonomousCrater extends LinearOpMode implements Runnable {
         }
     }
 
-    private void runToPoint(double x, double y) {
-        double yDiff = point[1] - y;
-        double xDiff = point[0] - x;
-        double straightAngle = atan(yDiff / xDiff);
+    /* Reset encoders and set modes to "Run to position" */
+    private void resetEncoders() { // Reset encoder values and set encoders to "run to position" mode
+        robot.rrWheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.rfWheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.lfWheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.lrWheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.rrWheel.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        robot.rfWheel.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        robot.lfWheel.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        robot.lrWheel.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        robot.hangOne.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+    }
+
+    private void turn(double angle, double time) {
+        turns += 1;
+        angle += (angleOffset * Math.abs(angle) / angle);
+        double paramAngle = angle;
+        double oldAngle;
+        double angleIntended;
+        double robotAngle;
+        double lastError;
+        double error = 0;
+        ElapsedTime turnTime = new ElapsedTime();
+        robot.rrWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.rfWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.lfWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.lrWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robotAngle = getAngle();
+        oldAngle = robotAngle;
+        angleIntended = robotAngle + angle;
+        if (angleIntended < robotAngle) { // Left turn
+            if(angleIntended > 180) {
+                angleIntended -= 360;
+            }
+            else if(angleIntended < -180) {
+                angleIntended += 360;
+            }
+            while(opModeIsActive() && !(angleIntended - angleOffset < robotAngle && angleIntended + angleOffset > robotAngle) && turnTime.time() < time) {
+                if(oldAngle > 0 || (Math.abs(angleIntended) == angleIntended && Math.abs(robotAngle) == robotAngle) || (Math.abs(angleIntended) != angleIntended && Math.abs(robotAngle) != robotAngle)) {
+                    lastError = error;
+                    error = Math.abs(robotAngle - angleIntended);
+                    if(lastError != 0 && error > lastError) {
+                        error = lastError;
+                    }
+                }
+                else {
+                    lastError = error;
+                    error = Math.abs(robotAngle - (angleIntended + (360 * -(Math.abs(angleIntended) / angleIntended))));
+                    if(lastError != 0 && error > lastError) {
+                        error = lastError;
+                    }
+                }
+                robot.setDrivePower(Math.min(-0.0075 * error, -0.05), Math.min(-0.0075 * error, -0.05), Math.max(0.0075 * error, 0.05), Math.max(0.0075 * error, 0.05));
+                robotAngle = getAngle();
+            }
+            robot.setDrivePower(0, 0, 0, 0);
+        }
+        else if(opModeIsActive() && angleIntended > robotAngle) { // Right turn
+            if(angleIntended > 180) {
+                angleIntended -= 360;
+            }
+            else if(angleIntended < -180) {
+                angleIntended += 360;
+            }
+            while(opModeIsActive() && !(angleIntended - angleOffset < robotAngle && angleIntended + angleOffset > robotAngle) && turnTime.time() < time) {
+                if(oldAngle < 0 || (Math.abs(angleIntended) == angleIntended && Math.abs(robotAngle) == robotAngle) || (Math.abs(angleIntended) != angleIntended && Math.abs(robotAngle) != robotAngle)) {
+                    error = Math.abs(robotAngle - angleIntended);
+                    if(error > 180) {
+                        lastError = error;
+                        error = Math.abs(robotAngle + angleIntended);
+                        if(lastError != 0 && error > lastError) {
+                            error = lastError;
+                        }
+                    }
+                }
+                else {
+                    lastError = error;
+                    error = Math.abs(robotAngle - (angleIntended + (360 * -(Math.abs(angleIntended) / angleIntended))));
+                    if(lastError != 0 && error > lastError) {
+                        error = lastError;
+                    }
+                }
+                robot.setDrivePower(Math.max(0.0075 * error, 0.05), Math.max(0.0075 * error, 0.05), Math.min(-0.0075 * error, -0.05), Math.min(-0.0075 * error, -0.05));
+                robotAngle = getAngle();
+            }
+            robot.setDrivePower(0, 0, 0, 0);
+        }
+        resetEncoders();
+        angleIntended = oldAngle + paramAngle;
+        error = angleIntended - getAngle();
+        if(Math.abs(error) > 0.1 && time - turnTime.time() > 0.75 && turns <= 1) {
+            turn(-error, time - turnTime.time());
+        }
+        else {
+            turns = 0;
+        }
+    }
+
+    private double getAngle() {
+        double robotAngle;
         Orientation g0angles = null;
         Orientation g1angles = null;
-        double robotAngle;
         if (robot.gyro0 != null) {
             g0angles = robot.gyro0.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES); // Get z axis angle from first gyro (in radians so that a conversion is unnecessary for proper employment of Java's Math class)
         }
@@ -636,60 +659,276 @@ public class GOFAutonomousCrater extends LinearOpMode implements Runnable {
         } else {
             robotAngle = 0;
         }
-        double turnAngle = straightAngle - (robotAngle - 45);
-        if(turnAngle > 360) {
-            turnAngle -= 360;
-        }
-        if(turnAngle > 180) {
-            turnAngle -= 180;
-        }
-        if(turnAngle < -360) {
-            turnAngle += 360;
-        }
-        if(turnAngle < -180) {
-            turnAngle += 360;
-        }
-        boolean backward;
-        if(Math.min(Math.abs(turnAngle), Math.abs(180 + turnAngle)) == Math.abs(turnAngle)) {
-            turn(turnAngle, 3);
-            backward = false;
-        }
-        else {
-            turn(180 + turnAngle, 3);
-            backward = true;
-        }
-        while(!gamepad1.a) {}
-        double distance;
-        if(!backward) {
-            distance = -((12 * Math.hypot(xDiff, yDiff)) - 9);
-        }
-        else {
-            distance = ((12 * Math.hypot(xDiff, yDiff)) - 9);
-        }
-        while(opModeIsActive() && !gamepad1.a) {}
-        encoderMovePreciseTimed((int)(distance * 560 / (4 * Math.PI)), 0.35, (distance * 560 / (4 * Math.PI)) / 1500);
-        while(opModeIsActive() && !gamepad1.a) {}
-        point[0] = x;
-        point[1] = y;
+        return robotAngle;
     }
 
-    /* Reset encoders and set modes to "Run to position" */
-    private void resetEncoders() { // Reset encoder values and set encoders to "run to position" mode
-        robot.rrWheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        robot.rfWheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        robot.lfWheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        robot.lrWheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        idle();
+    private void vuforiaInit() { // Initialize Vuforia
+        VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
+
+        parameters.vuforiaLicenseKey = VUFORIA_KEY;
+        // parameters.cameraDirection = VuforiaLocalizer.CameraDirection.BACK;
+        parameters.cameraName = hardwareMap.get(WebcamName.class, "Wc1"); // Use external camera
+        vuforia = new GOFVuforiaLocalizer(parameters);
+    }
+
+    private void detectInit() { // Initialize TensorFlow detector
+        int tfodMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(
+                "tfodMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+        TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
+        detector = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
+        detector.loadModelFromAsset(TFOD_MODEL_ASSET, LABEL_GOLD_MINERAL, LABEL_SILVER_MINERAL);
+        if (!(detector == null)) {
+            detector.activate(); // Begin detection
+        }
+    }
+
+    /* Update telemetry with autonomous encoder positions */
+    private void updateTelemetry() { // Update telemetry on autonomous statuses
+        String telemetryString = "";
+        telemetryString += "Remaining Distances\n";
+        telemetryString += "  rr: " + (robot.rrWheel.getTargetPosition() - robot.rrWheel.getCurrentPosition());
+        telemetryString += "  rf: " + (robot.rfWheel.getTargetPosition() - robot.rfWheel.getCurrentPosition());
+        telemetryString += "  lr: " + (robot.lrWheel.getTargetPosition() - robot.lrWheel.getCurrentPosition());
+        telemetryString += "  lf: " + (robot.lfWheel.getTargetPosition() - robot.lfWheel.getCurrentPosition());
+        telemetryString += "  h1: " + (robot.hangOne.getTargetPosition() - robot.hangOne.getCurrentPosition());
+        telemetryString += ("Robot angle: " + (getAngle() - 45));
+        telemetry.addData("", telemetryString);
+        telemetry.update();
+    }
+
+    private void storeAngle() throws IOException {
+        double robotAngle = getAngle();
+        File fileDir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator);
+        File file = new File(fileDir, "gof.txt");
+        boolean created = file.exists();
+        if (!created) {
+            created = file.mkdirs();
+        }
+        if(created) {
+            File txtfile = new File(file, "gof.txt");
+            FileWriter writer = new FileWriter(txtfile);
+            writer.append(Double.toString(robotAngle));
+            writer.close();
+        }
+    }
+
+
+    /*
+         ==================================================
+
+                D E P R E C A T E D  M E T H O D S
+
+         ==================================================
+    */
+
+    /* ENCODER MOVEMENTS */
+
+    // Encoder move methods have been replaced with timed method to prevent an over-consumption of time
+    // as encoders attempt to perfect some movements.  Former methods have been deprecated.
+
+    @Deprecated
+    public void encoderMove(int rr, int rf, int lr, int lf) {
         robot.rrWheel.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         robot.rfWheel.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         robot.lfWheel.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         robot.lrWheel.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        robot.hangOne.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        idle();
+        robot.rrWheel.setTargetPosition(rr);
+        robot.rfWheel.setTargetPosition(rf);
+        robot.lfWheel.setTargetPosition(lr);
+        robot.lrWheel.setTargetPosition(lf);
+        robot.setDrivePower(0.75, 0.75, 0.75, 0.75);
+        while (robot.rrWheel.isBusy() || robot.rfWheel.isBusy() || robot.lrWheel.isBusy() || robot.lfWheel.isBusy()) {
+            updateTelemetry();
+        }
+        resetEncoders();
     }
 
-    /* Straighten robot to nearest 45º angle */
-    private void adjustAngle() {
+    @Deprecated
+    public void encoderMovePrecise(int rr, int rf, int lr, int lf, double speed) {
+        robot.rrWheel.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        robot.rfWheel.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        robot.lfWheel.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        robot.lrWheel.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        robot.rrWheel.setTargetPosition(rr);
+        robot.rfWheel.setTargetPosition(rf);
+        robot.lfWheel.setTargetPosition(lr);
+        robot.lrWheel.setTargetPosition(lf);
+        robot.setDrivePower(speed, speed, speed, speed);
+        while ((robot.rrWheel.isBusy() || robot.rfWheel.isBusy() || robot.lrWheel.isBusy() || robot.lfWheel.isBusy()) && opModeIsActive()) {
+            updateTelemetry();
+        }
+        resetEncoders();
+    }
+
+    /* KINEMATIC MOVEMENT EQUATIONS */
+
+    // These equations used the equation x = (vix)(t) + (1/2)(ax)(t^2) for movement, assuming that initial
+    // velocity was always zero.  However, due to the inaccuracy of the accelerometer, the slight delay
+    // before the motors could be fully stopped after reaching the intended distance, and the difficulty
+    // of obtaining precise field distances and angular measurements, encoder counts appear to be the
+    // more feasible solution.  These methods have thus been deprecated.
+
+    @Deprecated
+    public void moveDistanceRight(double meters) {
+        robot.rrWheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        robot.rfWheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        robot.lrWheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        robot.lfWheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        ElapsedTime time = new ElapsedTime();
+        double distance = 0;
+        while (distance < meters && opModeIsActive()) {
+            robot.setDrivePower(-0.25, 0.25, 0.25, -0.25);
+            Acceleration g0accel = null;
+            Acceleration g1accel = null;
+            double robotAccel;
+            if (robot.gyro0 != null) {
+                g0accel = robot.gyro0.getGravity();
+            }
+            if (robot.gyro1 != null) {
+                g1accel = robot.gyro1.getGravity();
+            }
+            if (g0accel != null && g1accel != null) {
+                robotAccel = ((Math.sqrt(Math.pow(g0accel.xAccel, 2) + Math.pow(g0accel.yAccel, 2)) + Math.sqrt(Math.pow(g1accel.xAccel, 2) + Math.pow(g1accel.yAccel, 2))) / 2);
+            } else if (g0accel != null) {
+                robotAccel = Math.sqrt(Math.pow(g0accel.xAccel, 2) + Math.pow(g0accel.yAccel, 2));
+            } else if (g1accel != null) {
+                robotAccel = Math.sqrt(Math.pow(g1accel.xAccel, 2) + Math.pow(g1accel.yAccel, 2));
+            } else {
+                robotAccel = 0;
+            }
+            distance = ((0.5) * robotAccel * Math.pow(time.time(), 2));
+            telemetry.addData("Distance Moved", "" + distance);
+            telemetry.addData("Distance Remaining", "" + (meters - distance));
+            telemetry.addData("Intended Total Distance", "" + meters);
+            telemetry.update();
+        }
+        robot.setDrivePower(0, 0, 0, 0);
+        resetEncoders();
+    }
+
+    @Deprecated
+    public void moveDistanceLeft(double meters) {
+        robot.rrWheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        robot.rfWheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        robot.lrWheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        robot.lfWheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        ElapsedTime time = new ElapsedTime();
+        double distance = 0;
+        while (distance < meters && opModeIsActive()) {
+            robot.setDrivePower(0.25, -0.25, -0.25, 0.25);
+            Acceleration g0accel = null;
+            Acceleration g1accel = null;
+            double robotAccel;
+            if (robot.gyro0 != null) {
+                g0accel = robot.gyro0.getGravity();
+            }
+            if (robot.gyro1 != null) {
+                g1accel = robot.gyro1.getGravity();
+            }
+            if (g0accel != null && g1accel != null) {
+                robotAccel = ((g0accel.xAccel + g1accel.xAccel) / 2);
+            } else if (g0accel != null) {
+                robotAccel = g0accel.xAccel;
+            } else if (g1accel != null) {
+                robotAccel = g1accel.xAccel;
+            } else {
+                robotAccel = 0;
+            }
+            distance = ((0.5) * robotAccel * Math.pow(time.time(), 2));
+            telemetry.addData("Distance Moved", "" + distance);
+            telemetry.addData("Distance Remaining", "" + (meters - distance));
+            telemetry.addData("Intended Total Distance", "" + meters);
+            telemetry.update();
+        }
+        robot.setDrivePower(0, 0, 0, 0);
+        resetEncoders();
+    }
+
+    @Deprecated
+    public void moveDistanceStraight(double meters) {
+        robot.rrWheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        robot.rfWheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        robot.lrWheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        robot.lfWheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        ElapsedTime time = new ElapsedTime();
+        double distance = 0;
+        while (distance < meters && opModeIsActive()) {
+            robot.setDrivePower(0.25, 0.25, 0.25, 0.25);
+            Acceleration g0accel = null;
+            Acceleration g1accel = null;
+            double robotAccel;
+            if (robot.gyro0 != null) {
+                g0accel = robot.gyro0.getGravity();
+            }
+            if (robot.gyro1 != null) {
+                g1accel = robot.gyro1.getGravity();
+            }
+            if (g0accel != null && g1accel != null) {
+                robotAccel = ((Math.sqrt(Math.pow(g0accel.xAccel, 2) + Math.pow(g0accel.yAccel, 2)) + Math.sqrt(Math.pow(g1accel.xAccel, 2) + Math.pow(g1accel.yAccel, 2))) / 2);
+            } else if (g0accel != null) {
+                robotAccel = Math.sqrt(Math.pow(g0accel.xAccel, 2) + Math.pow(g0accel.yAccel, 2));
+            } else if (g1accel != null) {
+                robotAccel = Math.sqrt(Math.pow(g1accel.xAccel, 2) + Math.pow(g1accel.yAccel, 2));
+            } else {
+                robotAccel = 0;
+            }
+            distance = ((0.5) * robotAccel * Math.pow(time.time(), 2));
+            telemetry.addData("Distance Moved", "" + distance);
+            telemetry.addData("Distance Remaining", "" + (meters - distance));
+            telemetry.addData("Intended Total Distance", "" + meters);
+            telemetry.update();
+        }
+        robot.setDrivePower(0, 0, 0, 0);
+        resetEncoders();
+    }
+
+    @Deprecated
+    public void moveDistanceBack(double meters) {
+        robot.rrWheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        robot.rfWheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        robot.lrWheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        robot.lfWheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        ElapsedTime time = new ElapsedTime();
+        double distance = 0;
+        while (distance > meters && opModeIsActive()) {
+            robot.setDrivePower(-0.25, -0.25, -0.25, -0.25);
+            Acceleration g0accel = null;
+            Acceleration g1accel = null;
+            double robotAccel;
+            if (robot.gyro0 != null) {
+                g0accel = robot.gyro0.getGravity();
+            }
+            if (robot.gyro1 != null) {
+                g1accel = robot.gyro1.getGravity();
+            }
+            if (g0accel != null && g1accel != null) {
+                robotAccel = ((Math.sqrt(Math.pow(g0accel.xAccel, 2) + Math.pow(g0accel.yAccel, 2)) + Math.sqrt(Math.pow(g1accel.xAccel, 2) + Math.pow(g1accel.yAccel, 2))) / 2);
+            } else if (g0accel != null) {
+                robotAccel = Math.sqrt(Math.pow(g0accel.xAccel, 2) + Math.pow(g0accel.yAccel, 2));
+            } else if (g1accel != null) {
+                robotAccel = Math.sqrt(Math.pow(g1accel.xAccel, 2) + Math.pow(g1accel.yAccel, 2));
+            } else {
+                robotAccel = 0;
+            }
+            distance = ((0.5) * robotAccel * Math.pow(time.time(), 2));
+            telemetry.addData("Distance Moved", "" + distance);
+            telemetry.addData("Distance Remaining", "" + (meters - distance));
+            telemetry.addData("Intended Total Distance", "" + meters);
+            telemetry.update();
+        }
+        robot.setDrivePower(0, 0, 0, 0);
+        resetEncoders();
+    }
+
+    /* STRAIGHTEN ROBOT */
+
+    // Due to the difficulty associated with accurately straightening the gyro, straightening methods
+    // have been replaced with turn P control and experimental error correction.  The former methods,
+    // which turn to the nearest multiple of the given number of degrees (which defaults to 45º using
+    // method overloading) have been deprecated.
+
+    @Deprecated
+    public void adjustAngle() {
         robot.rrWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         robot.rfWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         robot.lrWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -748,7 +987,8 @@ public class GOFAutonomousCrater extends LinearOpMode implements Runnable {
         resetEncoders();
     }
 
-    private void adjustAngle(double time) {
+    @Deprecated
+    public void adjustAngle(double time) {
         robot.rrWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         robot.rfWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         robot.lrWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -842,7 +1082,8 @@ public class GOFAutonomousCrater extends LinearOpMode implements Runnable {
         resetEncoders();
     }
 
-    private void adjustAngle(double time, double straight) {
+    @Deprecated
+    public void adjustAngle(double time, double straight) {
         robot.rrWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         robot.rfWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         robot.lrWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -909,7 +1150,8 @@ public class GOFAutonomousCrater extends LinearOpMode implements Runnable {
         resetEncoders();
     }
 
-    private void adjustAngle(double time, double straight, double precision) {
+    @Deprecated
+    public void adjustAngle(double time, double straight, double precision) {
         robot.rrWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         robot.rfWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         robot.lrWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -973,384 +1215,6 @@ public class GOFAutonomousCrater extends LinearOpMode implements Runnable {
                 }
             }
         }
-        resetEncoders();
-    }
-
-    private void turn(double angle, double time) {
-        angle += angleOffset;
-        double angleIntended;
-        double robotAngle;
-        ElapsedTime turnTime = new ElapsedTime();
-        robot.rrWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        robot.rfWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        robot.lfWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        robot.lrWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        robotAngle = getAngle();
-        angleIntended = robotAngle + angle;
-        if (angleIntended < robotAngle) { // Left turn
-            if(angleIntended > 180) {
-                angleIntended -= 360;
-            }
-            else if(angleIntended < -180) {
-                angleIntended += 360;
-            }
-            telemetry.addData("Status", "Turning to angle " + angleIntended);
-            telemetry.update();
-            while(opModeIsActive() && !(angleIntended - angleOffset < robotAngle && angleIntended + angleOffset > robotAngle) && turnTime.time() < time) {
-                double error = Math.abs(robotAngle - angleIntended);
-                robot.setDrivePower(Math.min(-0.01 * error, -0.1), Math.min(-0.025 * error, -0.1), Math.max(0.01 * error, 0.1), Math.max(0.01 * error, 0.1));
-                robotAngle = getAngle();
-                telemetry.addData("Angle", robotAngle);
-                telemetry.addData("Error", robotAngle - angleIntended);
-                telemetry.update();
-            }
-            robot.setDrivePower(0, 0, 0, 0);
-        }
-        else if(opModeIsActive() && angleIntended > robotAngle) { // Right turn
-            if(angleIntended > 180) {
-                angleIntended -= 360;
-            }
-            else if(angleIntended < -180) {
-                angleIntended += 360;
-            }
-            telemetry.addData("Status", "Turning to angle " + angleIntended);
-            telemetry.update();
-            while(opModeIsActive() && !(angleIntended - angleOffset < robotAngle && angleIntended + angleOffset > robotAngle) && turnTime.time() < time) {
-                double error = Math.abs(robotAngle - angleIntended);
-                robot.setDrivePower(Math.max(0.01 * error, 0.1), Math.max(0.01 * error, 0.1), Math.min(-0.01 * error, -0.1), Math.min(-0.01 * error, -0.1));
-                robotAngle = getAngle();
-                telemetry.addData("Angle", robotAngle);
-                telemetry.addData("Error", angleIntended - robotAngle);
-                telemetry.update();
-            }
-            robot.setDrivePower(0, 0, 0, 0);
-        }
-        resetEncoders();
-        double error = angleIntended - robotAngle;
-        if(time - turnTime.time() > 0 && Math.abs(error) > angleOffset && opModeIsActive()) {
-            turn(error, time - turnTime.time());
-        }
-    }
-
-    private double getAngle() {
-        double robotAngle;
-        Orientation g0angles = null;
-        Orientation g1angles = null;
-        if (robot.gyro0 != null) {
-            g0angles = robot.gyro0.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES); // Get z axis angle from first gyro (in radians so that a conversion is unnecessary for proper employment of Java's Math class)
-        }
-        if (robot.gyro1 != null) {
-            g1angles = robot.gyro1.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES); // Get z axis angle from second gyro (in radians so that a conversion is unnecessary for proper employment of Java's Math class)
-        }
-        if (g0angles != null && g1angles != null) {
-            robotAngle = ((g0angles.firstAngle + g1angles.firstAngle) / 2); // Average angle measures to determine actual robot angle
-        } else if (g0angles != null) {
-            robotAngle = g0angles.firstAngle;
-        } else if (g1angles != null) {
-            robotAngle = g1angles.firstAngle;
-        } else {
-            robotAngle = 0;
-        }
-        return robotAngle;
-    }
-
-    private void vuforiaInit() { // Initialize Vuforia
-        VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
-
-        parameters.vuforiaLicenseKey = VUFORIA_KEY;
-        // parameters.cameraDirection = VuforiaLocalizer.CameraDirection.BACK;
-        parameters.cameraName = hardwareMap.get(WebcamName.class, "Wc1"); // Use external camera
-        vuforia = new GOFVuforiaLocalizer(parameters);
-    }
-
-    private void detectInit() { // Initialize TensorFlow detector
-        int tfodMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(
-                "tfodMonitorViewId", "id", hardwareMap.appContext.getPackageName());
-        TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
-        detector = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
-        detector.loadModelFromAsset(TFOD_MODEL_ASSET, LABEL_GOLD_MINERAL, LABEL_SILVER_MINERAL);
-        if (!(detector == null)) {
-            detector.activate(); // Begin detection
-        }
-    }
-
-    /* Update telemetry with autonomous encoder positions */
-    private void updateTelemetry() { // Update telemetry on autonomous statuses
-        String telemetryString = "";
-        telemetryString += "Remaining Distances\n";
-        telemetryString += "  rr: " + (robot.rrWheel.getTargetPosition() - robot.rrWheel.getCurrentPosition());
-        telemetryString += "  rf: " + (robot.rfWheel.getTargetPosition() - robot.rfWheel.getCurrentPosition());
-        telemetryString += "  lr: " + (robot.lrWheel.getTargetPosition() - robot.lrWheel.getCurrentPosition());
-        telemetryString += "  lf: " + (robot.lfWheel.getTargetPosition() - robot.lfWheel.getCurrentPosition());
-        telemetryString += "  h1: " + (robot.hangOne.getTargetPosition() - robot.hangOne.getCurrentPosition());
-        telemetryString += ("Robot angle: " + (getAngle() - 45));
-        telemetry.addData("", telemetryString);
-        telemetry.update();
-    }
-
-    public void run() {
-        /* Reset encoders */
-        if(robot.rrWheel != null && robot.rfWheel != null && robot.lfWheel != null && robot.lrWheel != null && robot.hangOne != null) {
-            resetEncoders();
-        }
-        robot.setKickPower(kickReadyPos);
-
-        if(robot.gyro0 != null) {
-            while(!robot.gyro0.isGyroCalibrated() && opModeIsActive()) {}
-        }
-
-        if(robot.gyro1 != null) {
-            while(!robot.gyro1.isGyroCalibrated() && opModeIsActive()) {}
-        }
-
-        telemetry.addData("Message from secondary thread", "Gyros initialized");
-        telemetry.update();
-        Thread.currentThread().interrupt();
-    }
-
-    private void storeAngle() throws IOException {
-        Orientation g0angles = null;
-        Orientation g1angles = null;
-        if (robot.gyro0 != null) {
-            g0angles = robot.gyro0.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.RADIANS); // Get z axis angle from first gyro (in radians so that a conversion is unnecessary for proper employment of Java's Math class)
-        }
-        if (robot.gyro1 != null) {
-            g1angles = robot.gyro1.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.RADIANS); // Get z axis angle from second gyro (in radians so that a conversion is unnecessary for proper employment of Java's Math class)
-        }
-        double robotAngle;
-        if (g0angles != null && g1angles != null) {
-            robotAngle = ((g0angles.firstAngle + g1angles.firstAngle) / 2); // Average angle measures to determine actual robot angle
-        } else if (g0angles != null) {
-            robotAngle = g0angles.firstAngle;
-        } else if (g1angles != null) {
-            robotAngle = g1angles.firstAngle;
-        } else {
-            robotAngle = 0;
-        }
-        File fileDir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator);
-        File file = new File(fileDir, "gof.txt");
-        boolean created = file.exists();
-        if (!created) {
-            created = file.mkdirs();
-        }
-        if(created) {
-            File txtfile = new File(file, "gof.txt");
-            FileWriter writer = new FileWriter(txtfile);
-            writer.append(Double.toString(robotAngle));
-            writer.close();
-        }
-    }
-
-
-
-    /*
-         ==================================================
-
-                D E P R E C A T E D  M E T H O D S
-
-         ==================================================
-    */
-
-
-    // Encoder move methods have been replaced with timed method to prevent an over-consumption of time
-    // as encoders attempt to perfect some movements.  Former methods have been deprecated.
-
-    @Deprecated
-    public void encoderMove(int rr, int rf, int lr, int lf) {
-        robot.rrWheel.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        robot.rfWheel.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        robot.lfWheel.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        robot.lrWheel.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        idle();
-        robot.rrWheel.setTargetPosition(rr);
-        robot.rfWheel.setTargetPosition(rf);
-        robot.lfWheel.setTargetPosition(lr);
-        robot.lrWheel.setTargetPosition(lf);
-        robot.setDrivePower(0.75, 0.75, 0.75, 0.75);
-        while (robot.rrWheel.isBusy() || robot.rfWheel.isBusy() || robot.lrWheel.isBusy() || robot.lfWheel.isBusy()) {
-            updateTelemetry();
-        }
-        resetEncoders();
-    }
-
-    @Deprecated
-    public void encoderMovePrecise(int rr, int rf, int lr, int lf, double speed) {
-        robot.rrWheel.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        robot.rfWheel.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        robot.lfWheel.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        robot.lrWheel.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        idle();
-        robot.rrWheel.setTargetPosition(rr);
-        robot.rfWheel.setTargetPosition(rf);
-        robot.lfWheel.setTargetPosition(lr);
-        robot.lrWheel.setTargetPosition(lf);
-        robot.setDrivePower(speed, speed, speed, speed);
-        while ((robot.rrWheel.isBusy() || robot.rfWheel.isBusy() || robot.lrWheel.isBusy() || robot.lfWheel.isBusy()) && opModeIsActive()) {
-            updateTelemetry();
-        }
-        resetEncoders();
-    }
-
-    /* KINEMATIC MOVEMENT EQUATIONS */
-
-    // These equations used the equation x = (vix)(t) + (1/2)(ax)(t^2) for movement, assuming that initial velocity was always
-    // zero.  However, due to the inaccuracy of the accelerometer, the slight delay before the motors could be fully stopped
-    // after reaching the intended distance, and the difficulty of obtaining precise field distances and angular measurements,
-    // encoder counts appear to be the more feasible solution.  These methods have thus been deprecated.
-
-    @Deprecated
-    public void moveDistanceRight(double meters) {
-        robot.rrWheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        robot.rfWheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        robot.lrWheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        robot.lfWheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        idle();
-        ElapsedTime time = new ElapsedTime();
-        double distance = 0;
-        while (distance < meters && opModeIsActive()) {
-            robot.setDrivePower(-0.25, 0.25, 0.25, -0.25);
-            Acceleration g0accel = null;
-            Acceleration g1accel = null;
-            double robotAccel;
-            if (robot.gyro0 != null) {
-                g0accel = robot.gyro0.getGravity();
-            }
-            if (robot.gyro1 != null) {
-                g1accel = robot.gyro1.getGravity();
-            }
-            if (g0accel != null && g1accel != null) {
-                robotAccel = ((Math.sqrt(Math.pow(g0accel.xAccel, 2) + Math.pow(g0accel.yAccel, 2)) + Math.sqrt(Math.pow(g1accel.xAccel, 2) + Math.pow(g1accel.yAccel, 2))) / 2);
-            } else if (g0accel != null) {
-                robotAccel = Math.sqrt(Math.pow(g0accel.xAccel, 2) + Math.pow(g0accel.yAccel, 2));
-            } else if (g1accel != null) {
-                robotAccel = Math.sqrt(Math.pow(g1accel.xAccel, 2) + Math.pow(g1accel.yAccel, 2));
-            } else {
-                robotAccel = 0;
-            }
-            distance = ((0.5) * robotAccel * Math.pow(time.time(), 2));
-            telemetry.addData("Distance Moved", "" + distance);
-            telemetry.addData("Distance Remaining", "" + (meters - distance));
-            telemetry.addData("Intended Total Distance", "" + meters);
-            telemetry.update();
-        }
-        robot.setDrivePower(0, 0, 0, 0);
-        resetEncoders();
-    }
-
-    @Deprecated
-    public void moveDistanceLeft(double meters) {
-        robot.rrWheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        robot.rfWheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        robot.lrWheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        robot.lfWheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        idle();
-        ElapsedTime time = new ElapsedTime();
-        double distance = 0;
-        while (distance < meters && opModeIsActive()) {
-            robot.setDrivePower(0.25, -0.25, -0.25, 0.25);
-            Acceleration g0accel = null;
-            Acceleration g1accel = null;
-            double robotAccel;
-            if (robot.gyro0 != null) {
-                g0accel = robot.gyro0.getGravity();
-            }
-            if (robot.gyro1 != null) {
-                g1accel = robot.gyro1.getGravity();
-            }
-            if (g0accel != null && g1accel != null) {
-                robotAccel = ((g0accel.xAccel + g1accel.xAccel) / 2);
-            } else if (g0accel != null) {
-                robotAccel = g0accel.xAccel;
-            } else if (g1accel != null) {
-                robotAccel = g1accel.xAccel;
-            } else {
-                robotAccel = 0;
-            }
-            distance = ((0.5) * robotAccel * Math.pow(time.time(), 2));
-            telemetry.addData("Distance Moved", "" + distance);
-            telemetry.addData("Distance Remaining", "" + (meters - distance));
-            telemetry.addData("Intended Total Distance", "" + meters);
-            telemetry.update();
-        }
-        robot.setDrivePower(0, 0, 0, 0);
-        resetEncoders();
-    }
-
-    @Deprecated
-    public void moveDistanceStraight(double meters) {
-        robot.rrWheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        robot.rfWheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        robot.lrWheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        robot.lfWheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        idle();
-        ElapsedTime time = new ElapsedTime();
-        double distance = 0;
-        while (distance < meters && opModeIsActive()) {
-            robot.setDrivePower(0.25, 0.25, 0.25, 0.25);
-            Acceleration g0accel = null;
-            Acceleration g1accel = null;
-            double robotAccel;
-            if (robot.gyro0 != null) {
-                g0accel = robot.gyro0.getGravity();
-            }
-            if (robot.gyro1 != null) {
-                g1accel = robot.gyro1.getGravity();
-            }
-            if (g0accel != null && g1accel != null) {
-                robotAccel = ((Math.sqrt(Math.pow(g0accel.xAccel, 2) + Math.pow(g0accel.yAccel, 2)) + Math.sqrt(Math.pow(g1accel.xAccel, 2) + Math.pow(g1accel.yAccel, 2))) / 2);
-            } else if (g0accel != null) {
-                robotAccel = Math.sqrt(Math.pow(g0accel.xAccel, 2) + Math.pow(g0accel.yAccel, 2));
-            } else if (g1accel != null) {
-                robotAccel = Math.sqrt(Math.pow(g1accel.xAccel, 2) + Math.pow(g1accel.yAccel, 2));
-            } else {
-                robotAccel = 0;
-            }
-            distance = ((0.5) * robotAccel * Math.pow(time.time(), 2));
-            telemetry.addData("Distance Moved", "" + distance);
-            telemetry.addData("Distance Remaining", "" + (meters - distance));
-            telemetry.addData("Intended Total Distance", "" + meters);
-            telemetry.update();
-        }
-        robot.setDrivePower(0, 0, 0, 0);
-        resetEncoders();
-    }
-
-    @Deprecated
-    public void moveDistanceBack(double meters) {
-        robot.rrWheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        robot.rfWheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        robot.lrWheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        robot.lfWheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        idle();
-        ElapsedTime time = new ElapsedTime();
-        double distance = 0;
-        while (distance > meters && opModeIsActive()) {
-            robot.setDrivePower(-0.25, -0.25, -0.25, -0.25);
-            Acceleration g0accel = null;
-            Acceleration g1accel = null;
-            double robotAccel;
-            if (robot.gyro0 != null) {
-                g0accel = robot.gyro0.getGravity();
-            }
-            if (robot.gyro1 != null) {
-                g1accel = robot.gyro1.getGravity();
-            }
-            if (g0accel != null && g1accel != null) {
-                robotAccel = ((Math.sqrt(Math.pow(g0accel.xAccel, 2) + Math.pow(g0accel.yAccel, 2)) + Math.sqrt(Math.pow(g1accel.xAccel, 2) + Math.pow(g1accel.yAccel, 2))) / 2);
-            } else if (g0accel != null) {
-                robotAccel = Math.sqrt(Math.pow(g0accel.xAccel, 2) + Math.pow(g0accel.yAccel, 2));
-            } else if (g1accel != null) {
-                robotAccel = Math.sqrt(Math.pow(g1accel.xAccel, 2) + Math.pow(g1accel.yAccel, 2));
-            } else {
-                robotAccel = 0;
-            }
-            distance = ((0.5) * robotAccel * Math.pow(time.time(), 2));
-            telemetry.addData("Distance Moved", "" + distance);
-            telemetry.addData("Distance Remaining", "" + (meters - distance));
-            telemetry.addData("Intended Total Distance", "" + meters);
-            telemetry.update();
-        }
-        robot.setDrivePower(0, 0, 0, 0);
         resetEncoders();
     }
 }

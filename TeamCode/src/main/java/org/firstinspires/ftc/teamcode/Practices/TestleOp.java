@@ -17,6 +17,7 @@ public class TestleOp extends LinearOpMode {
     GOFHardware robot = GOFHardware.getInstance();
     double[] point = new double[2];
     double angleOffset = 3;
+    double turns = 0;
 
     public void runOpMode() {
         point[0] = -2;
@@ -52,11 +53,11 @@ public class TestleOp extends LinearOpMode {
             }
             if(aPressed && !(gamepad1.a && !gamepad1.start)) {
                 aPressed = false;
-                turn(90, 30);
+                turn(90, 5);
             }
             if(bPressed && !gamepad1.b) {
                 bPressed = false;
-                turn(-90, 30);
+                turn(-90, 5);
             }
             if(xPressed && !gamepad1.x) {
                 xPressed = false;
@@ -174,15 +175,21 @@ public class TestleOp extends LinearOpMode {
     }
 
     private void turn(double angle, double time) {
-        angle += 3;
+        turns += 1;
+        angle += (angleOffset * Math.abs(angle) / angle);
+        double paramAngle = angle;
+        double oldAngle;
         double angleIntended;
         double robotAngle;
+        double lastError;
+        double error = 0;
         ElapsedTime turnTime = new ElapsedTime();
         robot.rrWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         robot.rfWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         robot.lfWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         robot.lrWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         robotAngle = getAngle();
+        oldAngle = robotAngle;
         angleIntended = robotAngle + angle;
         if (angleIntended < robotAngle) { // Left turn
             if(angleIntended > 180) {
@@ -191,15 +198,23 @@ public class TestleOp extends LinearOpMode {
             else if(angleIntended < -180) {
                 angleIntended += 360;
             }
-            telemetry.addData("Status", "Turning to angle " + angleIntended);
-            telemetry.update();
             while(opModeIsActive() && !(angleIntended - angleOffset < robotAngle && angleIntended + angleOffset > robotAngle) && turnTime.time() < time) {
-                double error = Math.abs(robotAngle - angleIntended);
-                robot.setDrivePower(Math.min(-0.01 * error, -0.1), Math.min(-0.025 * error, -0.1), Math.max(0.01 * error, 0.1), Math.max(0.01 * error, 0.1));
+                if(oldAngle > 0 || (Math.abs(angleIntended) == angleIntended && Math.abs(robotAngle) == robotAngle) || (Math.abs(angleIntended) != angleIntended && Math.abs(robotAngle) != robotAngle)) {
+                    lastError = error;
+                    error = Math.abs(robotAngle - angleIntended);
+                    if(lastError != 0 && error > lastError) {
+                        error = lastError;
+                    }
+                }
+                else {
+                    lastError = error;
+                    error = Math.abs(robotAngle - (angleIntended + (360 * -(Math.abs(angleIntended) / angleIntended))));
+                    if(lastError != 0 && error > lastError) {
+                        error = lastError;
+                    }
+                }
+                robot.setDrivePower(Math.min(-0.01 * error, -0.05), Math.min(-0.01 * error, -0.05), Math.max(0.01 * error, 0.05), Math.max(0.01 * error, 0.05));
                 robotAngle = getAngle();
-                telemetry.addData("Angle", robotAngle);
-                telemetry.addData("Error", robotAngle - angleIntended);
-                telemetry.update();
             }
             robot.setDrivePower(0, 0, 0, 0);
         }
@@ -210,22 +225,37 @@ public class TestleOp extends LinearOpMode {
             else if(angleIntended < -180) {
                 angleIntended += 360;
             }
-            telemetry.addData("Status", "Turning to angle " + angleIntended);
-            telemetry.update();
             while(opModeIsActive() && !(angleIntended - angleOffset < robotAngle && angleIntended + angleOffset > robotAngle) && turnTime.time() < time) {
-                double error = Math.abs(robotAngle - angleIntended);
-                robot.setDrivePower(Math.max(0.01 * error, 0.1), Math.max(0.01 * error, 0.1), Math.min(-0.01 * error, -0.1), Math.min(-0.01 * error, -0.1));
+                if(oldAngle < 0 || (Math.abs(angleIntended) == angleIntended && Math.abs(robotAngle) == robotAngle) || (Math.abs(angleIntended) != angleIntended && Math.abs(robotAngle) != robotAngle)) {
+                    error = Math.abs(robotAngle - angleIntended);
+                    if(error > 180) {
+                        lastError = error;
+                        error = Math.abs(robotAngle + angleIntended);
+                        if(lastError != 0 && error > lastError) {
+                            error = lastError;
+                        }
+                    }
+                }
+                else {
+                    lastError = error;
+                    error = Math.abs(robotAngle - (angleIntended + (360 * -(Math.abs(angleIntended) / angleIntended))));
+                    if(lastError != 0 && error > lastError) {
+                        error = lastError;
+                    }
+                }
+                robot.setDrivePower(Math.max(0.01 * error, 0.05), Math.max(0.01 * error, 0.05), Math.min(-0.01 * error, -0.05), Math.min(-0.01 * error, -0.05));
                 robotAngle = getAngle();
-                telemetry.addData("Angle", robotAngle);
-                telemetry.addData("Error", angleIntended - robotAngle);
-                telemetry.update();
             }
             robot.setDrivePower(0, 0, 0, 0);
         }
         resetEncoders();
-        double error = angleIntended - robotAngle;
-        if(time - turnTime.time() > 0 && Math.abs(error) > angleOffset && opModeIsActive()) {
-            turn(error, time - turnTime.time());
+        angleIntended = oldAngle + paramAngle;
+        error = angleIntended - getAngle();
+        if(Math.abs(error) > 0.1 && time - turnTime.time() > 0.75 && turns <= 1) {
+            turn(-error, time - turnTime.time());
+        }
+        else {
+            turns = 0;
         }
     }
 

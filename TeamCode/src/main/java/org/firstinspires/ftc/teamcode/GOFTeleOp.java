@@ -100,12 +100,12 @@ public class GOFTeleOp extends OpMode {
         /* Precision vertical drive */
         if (gamepad1.dpad_down || gamepad1.dpad_up) {
             if (gamepad1.left_stick_y != 0) {
-                drive = drive * Math.pow(0.25, 2); // Slow down joystick driving
+                drive = drive * 0.1; // Slow down joystick driving
             } else {
                 if (gamepad1.dpad_down) {
-                    drive = Math.pow(0.25, 2); // Slow drive backwards
+                    drive = 0.1; // Slow drive backwards
                 } else {
-                    drive = -Math.pow(0.25, 2); // Slow drive forwards
+                    drive = -0.1; // Slow drive forwards
                 }
             }
         }
@@ -113,22 +113,22 @@ public class GOFTeleOp extends OpMode {
         /* Precision sideways drive */
         if (gamepad1.dpad_right || gamepad1.dpad_left) {
             if (gamepad1.right_stick_x != 0) {
-                angle = angle * Math.pow(0.25, 2); // Slow down joystick side movement
+                angle = angle * 0.1; // Slow down joystick side movement
             } else {
                 if (gamepad1.dpad_left) {
-                    angle = Math.pow(0.25, 2); // Slow leftwards
+                    angle = 0.1; // Slow leftwards
                 } else {
-                    angle = -Math.pow(0.25, 2); // Slow rightwards
+                    angle = -0.1; // Slow rightwards
                 }
             }
         }
 
         /* Precision turn */
         if(gamepad1.left_bumper) {
-            turn = Math.pow(0.25, 2); // Slow left turn
+            turn = 0.1; // Slow left turn
         }
         if(gamepad1.right_bumper) {
-            turn = -Math.pow(0.25, 2); // Slow right turn
+            turn = -0.1; // Slow right turn
         }
 
         if(driverMode == 1) {
