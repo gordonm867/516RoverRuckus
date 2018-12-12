@@ -71,7 +71,7 @@ public class GOFAutonomousDepot extends LinearOpMode {
         vuforiaInit(); // Initialize Vuforia
         detectInit(); // Initialize TensorFlwo
 
-        GOFAutoTransitioner.transitionOnStop(this, "GOFTeleOp"); // Start TeleOp after autonomous ends (doesn't work right now)
+        GOFAutoTransitioner.transitionOnStop(this, "GOFTeleOp"); // Start TeleOp after autonomous ends
 
         while(!gamepad1.x) {
             telemetry.addData("Double Sampling is", (doubleSample ? "ON" : "OFF") + " - Press \"Y\" to change and \"X\" to finalize (on gamepad1)");
@@ -152,19 +152,69 @@ public class GOFAutonomousDepot extends LinearOpMode {
     }
 
     private void centerDepotAuto() {
+        turn(-11.70938996, 1);
         while(!gamepad1.a) {}
+        while(opModeIsActive() && !robot.bottomSensor.isPressed() && robot.hangOne.isBusy()) {
+            double oldPos = robot.hangOne.getCurrentPosition();
+            sleep(100);
+            double newPos = robot.hangOne.getCurrentPosition();
+            if(oldPos == newPos) {
+                robot.setHangPower(0);
+                robot.hangOne.setTargetPosition(robot.hangOne.getCurrentPosition());
+                break;
+            }
+        }
         robot.setInPower(0.5);
         encoderMovePreciseTimed(-((int)((12 * Math.sqrt(Math.pow(3, 2) + Math.pow(3, 2)) - 9) * 560 / (4 * Math.PI))), 1, 1.5); // -1867
         robot.setInPower(0);
+        robot.teamFlag.setPosition(0.65);
         while(!gamepad1.a) {}
         turn(45, 3);
         while(!gamepad1.a) {}
         encoderMovePreciseTimed(((int)((12 * Math.sqrt(Math.pow(6.9, 2)) - 9) * 560 / (4 * Math.PI))), 1, 4.5); // 6577
     }
 
-    private void rightDepotAuto() {}
+    private void rightDepotAuto() {
+        while(!gamepad1.a && opModeIsActive()) {}
+        turn(atan(1.0/17.0) - 45, 3);
+        while(opModeIsActive() && !robot.bottomSensor.isPressed() && robot.hangOne.isBusy()) {
+            double oldPos = robot.hangOne.getCurrentPosition();
+            sleep(100);
+            double newPos = robot.hangOne.getCurrentPosition();
+            if(oldPos == newPos) {
+                break;
+            }
+        }
+        robot.hangOne.setTargetPosition(robot.hangOne.getCurrentPosition());
+        robot.setHangPower(0);
+        while(!gamepad1.a && opModeIsActive()) {}
+        robot.setInPower(0.5);
+        encoderMovePreciseTimed((-((int)((12 * Math.sqrt(Math.pow(0.118, 2) + Math.pow(2, 2)) - 9) * ticksPerInch))), 1, 1); // -1338
+        while(!gamepad1.a && opModeIsActive()) {}
+        robot.setInPower(0);
+        turn(90 - atan(1.0/17.0), 3);
+        while(!gamepad1.a && opModeIsActive()) {}
+        encoderMovePreciseTimed((-((int)((12 * Math.sqrt(Math.pow(2.83824, 2)) - 9) * ticksPerInch))), 1, 1.5); // -1116
+        robot.teamFlag.setPosition(0.65);
+        while(!gamepad1.a && opModeIsActive()) {}
+        turn(90, 3);
+        while(!gamepad1.a && opModeIsActive()) {}
+        encoderMovePreciseTimed((-((int)((12 * Math.sqrt(Math.pow(6.65, 2)) - 9) * ticksPerInch))), 1, 1.5); // -1116
+    }
 
-    private void leftDepotAuto() {}
+    private void leftDepotAuto() {
+        while(!gamepad1.a && opModeIsActive()) {}
+        turn(atan(17) - 45, 3);
+        while(!gamepad1.a && opModeIsActive()) {}
+        encoderMovePreciseTimed((-((int)((12 * Math.sqrt(Math.pow(0.176, 2) + Math.pow(3, 2)) - 9) * ticksPerInch))), 1, 1.5); // -1338
+        while(!gamepad1.a && opModeIsActive()) {}
+        turn(90, 3);
+        while(!gamepad1.a && opModeIsActive()) {}
+        encoderMovePreciseTimed((-((int)((12 * Math.sqrt(Math.pow(1.82352941175, 2)) - 9) * ticksPerInch))), 1, 1); // -574
+        robot.teamFlag.setPosition(0.65);
+        while(!gamepad1.a && opModeIsActive()) {}
+        encoderMovePreciseTimed((((int)((12 * Math.sqrt(Math.pow(5.75, 2)) - 9) * ticksPerInch))), 1, 2); // 2673
+    }
 
     private double atan(double num) { // Returns atan in degrees
         return(Math.atan(num) * (180 / Math.PI));

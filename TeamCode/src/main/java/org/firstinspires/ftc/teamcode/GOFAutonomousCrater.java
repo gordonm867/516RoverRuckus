@@ -71,7 +71,7 @@ public class GOFAutonomousCrater extends LinearOpMode {
         vuforiaInit(); // Initialize Vuforia
         detectInit(); // Initialize TensorFlwo
 
-        GOFAutoTransitioner.transitionOnStop(this, "GOFTeleOp"); // Start TeleOp after autonomous ends (doesn't work right now)
+        GOFAutoTransitioner.transitionOnStop(this, "GOFTeleOp"); // Start TeleOp after autonomous ends
 
         while(!gamepad1.x) {
             telemetry.addData("Double Sampling is", (doubleSample ? "ON" : "OFF") + " - Press \"Y\" to change and \"X\" to finalize (on gamepad1)");
