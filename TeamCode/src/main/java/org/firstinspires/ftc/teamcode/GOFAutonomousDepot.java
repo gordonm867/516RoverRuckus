@@ -115,7 +115,8 @@ public class GOFAutonomousDepot extends LinearOpMode {
         robot.hangOne.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         robot.hangOne.setTargetPosition(8050);
         robot.setHangPower(-1);
-        encoderMovePreciseTimed(-525, -542, -516, -534, 0.5, 1);
+        turn(-getAngle(), 1);
+        encoderMovePreciseTimed(-711, -86, -333, -815, 0.5, 1);
         if (opModeIsActive()) {
             robot.setKickPower(kickReadyPos); // Move kicker out of the way
         }
@@ -167,11 +168,12 @@ public class GOFAutonomousDepot extends LinearOpMode {
         robot.setInPower(0.5);
         encoderMovePreciseTimed(-((int)((12 * Math.sqrt(Math.pow(3, 2) + Math.pow(3, 2)) - 9) * 560 / (4 * Math.PI))), 1, 1.5); // -1867
         robot.setInPower(0);
-        robot.teamFlag.setPosition(0.65);
+        robot.teamFlag.setPosition(0.786);
+        robot.teamFlag.setPosition(0.614);
         while(!gamepad1.a) {}
-        turn(45, 3);
+        turn(-45, 3);
         while(!gamepad1.a) {}
-        encoderMovePreciseTimed(((int)((12 * Math.sqrt(Math.pow(6.9, 2)) - 9) * 560 / (4 * Math.PI))), 1, 4.5); // 6577
+        encoderMovePreciseTimed(((int)((12 * Math.sqrt(Math.pow(6.9, 2)) - 18) * 560 / (4 * Math.PI))), 1, 4.5); // 6577
     }
 
     private void rightDepotAuto() {
@@ -189,7 +191,7 @@ public class GOFAutonomousDepot extends LinearOpMode {
         robot.setHangPower(0);
         while(!gamepad1.a && opModeIsActive()) {}
         robot.setInPower(0.5);
-        encoderMovePreciseTimed((-((int)((12 * Math.sqrt(Math.pow(0.118, 2) + Math.pow(2, 2)) - 9) * ticksPerInch))), 1, 1); // -1338
+        encoderMovePreciseTimed((-((int)((12 * Math.sqrt(Math.pow(2.72, 2) + Math.pow(0.16, 2)) - 9) * ticksPerInch))), 1, 1); // -1338
         while(!gamepad1.a && opModeIsActive()) {}
         robot.setInPower(0);
         turn(90 - atan(1.0/17.0), 3);
@@ -485,7 +487,7 @@ public class GOFAutonomousDepot extends LinearOpMode {
                         error = lastError;
                     }
                 }
-                robot.setDrivePower(Math.min(-0.0075 * error, -0.05), Math.min(-0.0075 * error, -0.05), Math.max(0.0075 * error, 0.05), Math.max(0.0075 * error, 0.05));
+                robot.setDrivePower(Math.min(-0.0075 * error, -0.1), Math.min(-0.0075 * error, -0.1), Math.max(0.0075 * error, 0.1), Math.max(0.0075 * error, 0.1));
                 robotAngle = getAngle();
             }
             robot.setDrivePower(0, 0, 0, 0);
@@ -515,16 +517,15 @@ public class GOFAutonomousDepot extends LinearOpMode {
                         error = lastError;
                     }
                 }
-                robot.setDrivePower(Math.max(0.0075 * error, 0.05), Math.max(0.0075 * error, 0.05), Math.min(-0.0075 * error, -0.05), Math.min(-0.0075 * error, -0.05));
+                robot.setDrivePower(Math.max(0.0075 * error, 0.1), Math.max(0.0075 * error, 0.1), Math.min(-0.0075 * error, -0.1), Math.min(-0.0075 * error, -0.1));
                 robotAngle = getAngle();
             }
             robot.setDrivePower(0, 0, 0, 0);
         }
         resetEncoders();
-        angleIntended = oldAngle + paramAngle;
         error = angleIntended - getAngle();
         if(Math.abs(error) > 0.1 && time - turnTime.time() > 0.75 && turns <= 1) {
-            turn(-error, time - turnTime.time());
+            turn(error, time - turnTime.time());
         }
         else {
             turns = 0;
@@ -616,7 +617,7 @@ public class GOFAutonomousDepot extends LinearOpMode {
 
     // Encoder move methods have been replaced with timed method to prevent an over-consumption of time
     // as encoders attempt to perfect some movements.  Former methods have been deprecated.
-
+/*
     @Deprecated
     public void encoderMove(int rr, int rf, int lr, int lf) {
         robot.rrWheel.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -659,6 +660,7 @@ public class GOFAutonomousDepot extends LinearOpMode {
     // of obtaining precise field distances and angular measurements, encoder counts appear to be the
     // more feasible solution.  These methods have thus been deprecated.
 
+    /*
     @Deprecated
     public void moveDistanceRight(double meters) {
         robot.rrWheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -772,7 +774,7 @@ public class GOFAutonomousDepot extends LinearOpMode {
         robot.setDrivePower(0, 0, 0, 0);
         resetEncoders();
     }
-
+/*
     @Deprecated
     public void moveDistanceBack(double meters) {
         robot.rrWheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -817,7 +819,7 @@ public class GOFAutonomousDepot extends LinearOpMode {
     // have been replaced with turn P control and experimental error correction.  The former methods,
     // which turn to the nearest multiple of the given number of degrees (which defaults to 45º using
     // method overloading) have been deprecated.
-
+/*
     @Deprecated
     public void adjustAngle() {
         robot.rrWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -1108,4 +1110,5 @@ public class GOFAutonomousDepot extends LinearOpMode {
         }
         resetEncoders();
     }
+    */
 }

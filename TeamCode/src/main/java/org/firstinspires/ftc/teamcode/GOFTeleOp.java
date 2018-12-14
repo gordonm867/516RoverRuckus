@@ -28,7 +28,7 @@ public class GOFTeleOp extends OpMode {
     private     double          endTime;
     private     double          firstAngleOffset;
     private     double          kickOutPos          = 0.35;
-    private     double          kickReadyPos        = 0.2;
+    private     double          kickReadyPos        = 0.175;
     private     double          maxDriveSpeed;
     private     double          robotAngle;
     private     double          timeDifference;
@@ -50,7 +50,7 @@ public class GOFTeleOp extends OpMode {
         msStuckDetectInit = 10000; // Allow gyros to calibrate
         robot.init(hardwareMap);
         robot.setKickPower(kickReadyPos);
-        robot.teamFlag.setPosition(0.030);
+        robot.teamFlag.setPosition(0.043);
 
         // Recommended: uncomment below code for field-oriented driving without a manual gyro reset
 
@@ -76,26 +76,6 @@ public class GOFTeleOp extends OpMode {
         turn = -gamepad1.right_stick_x;
         angle = -gamepad1.left_stick_x;
         double startTime = elapsedTime.time();
-        Orientation g0angles = null;
-        Orientation g1angles = null;
-        if(robot.gyro0 != null) {
-            g0angles = robot.gyro0.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.RADIANS); // Get z axis angle from first gyro (in radians so that a conversion is unnecessary for proper employment of Java's Math class)
-        }
-        if(robot.gyro1 != null) {
-            g1angles = robot.gyro1.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.RADIANS); // Get z axis angle from second gyro (in radians so that a conversion is unnecessary for proper employment of Java's Math class)
-        }
-        if(g0angles != null && g1angles != null) {
-            robotAngle = ((g0angles.firstAngle + g1angles.firstAngle) / 2) + firstAngleOffset; // Average angle measures to determine actual robot angle
-        }
-        else if(g0angles != null) {
-            robotAngle = g0angles.firstAngle + firstAngleOffset;
-        }
-        else if(g1angles != null) {
-            robotAngle = g1angles.firstAngle + firstAngleOffset;
-        }
-        else {
-            robotAngle = Double.NaN;
-        }
 
         /* Precision vertical drive */
         if (gamepad1.dpad_down || gamepad1.dpad_up) {
@@ -135,7 +115,13 @@ public class GOFTeleOp extends OpMode {
             drive = adjust(drive);
             turn = adjust(turn);
             angle = adjust(angle);
-            double scaleFactor = maxDriveSpeed / (Math.max(Math.abs(drive + turn + angle), Math.abs(drive - turn - angle)));
+            double scaleFactor;
+            if(Math.max(Math.abs((drive + turn + angle)), Math.abs((drive - turn - angle))) > 1) {
+                scaleFactor = maxDriveSpeed / (Math.max(Math.abs(drive + turn + angle), Math.abs(drive - turn - angle)));
+            }
+            else {
+                scaleFactor = 1;
+            }
             robot.setDrivePower(scaleFactor * (drive + turn - angle), scaleFactor * (drive + turn + angle), scaleFactor * (drive - turn + angle), scaleFactor * (drive - turn - angle)); // Set motors to values based on gamepad
         }
         else {
@@ -262,11 +248,11 @@ public class GOFTeleOp extends OpMode {
             robot.lrWheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             robot.lfWheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             robot.hangOne.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            robot.rrWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            robot.rfWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            robot.lrWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            robot.lfWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            robot.hangOne.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            robot.rrWheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            robot.rfWheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            robot.lrWheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            robot.lfWheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            robot.hangOne.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             firstAngleOffset = 0;
             robot.gyroInit();
         }
@@ -296,12 +282,16 @@ public class GOFTeleOp extends OpMode {
             tmy += "    lr: " + robot.lrWheel.getCurrentPosition() + "\n";
             tmy += "    lf: " + robot.lfWheel.getCurrentPosition() + "\n";
             tmy += "    h1: " + robot.hangOne.getCurrentPosition() + "\n";
-            tmy += "Robot angle: " + (robotAngle * (180 / Math.PI)) + "\n";
+            tmy += "Robot angle: " + getAngle() + "\n";
+            tmy += "Drive: " + drive + "\n";
+            tmy += "Turn: " + turn + "\n";
+            tmy += "Angle: " + angle + "\n";
             endTime = elapsedTime.time();
             timeDifference = endTime - startTime;
             tmy += "Cycle Time: " + timeDifference;
             telemetry.addData("", tmy);
-            /*telemetry.addData("Variables", "");
+            /*
+            telemetry.addData("Variables", "");
             telemetry.addData("  drive", "" + drive);
             telemetry.addData("  turn", "" + turn);
             telemetry.addData("  angle", "" + angle);
@@ -382,6 +372,28 @@ public class GOFTeleOp extends OpMode {
             varToAdjust = Math.sqrt(varToAdjust);
         }
         return varToAdjust;
+    }
+
+    private double getAngle() {
+        double robotAngle;
+        Orientation g0angles = null;
+        Orientation g1angles = null;
+        if (robot.gyro0 != null) {
+            g0angles = robot.gyro0.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES); // Get z axis angle from first gyro (in radians so that a conversion is unnecessary for proper employment of Java's Math class)
+        }
+        if (robot.gyro1 != null) {
+            g1angles = robot.gyro1.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES); // Get z axis angle from second gyro (in radians so that a conversion is unnecessary for proper employment of Java's Math class)
+        }
+        if (g0angles != null && g1angles != null) {
+            robotAngle = ((g0angles.firstAngle + g1angles.firstAngle) / 2); // Average angle measures to determine actual robot angle
+        } else if (g0angles != null) {
+            robotAngle = g0angles.firstAngle;
+        } else if (g1angles != null) {
+            robotAngle = g1angles.firstAngle;
+        } else {
+            robotAngle = 0;
+        }
+        return robotAngle;
     }
 
 } // End of class

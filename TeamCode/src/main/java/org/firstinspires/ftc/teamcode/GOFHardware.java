@@ -98,7 +98,7 @@ public class GOFHardware {
             lrWheel.setDirection(DcMotor.Direction.REVERSE);
             lrWheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
             lrWheel.setPower(0);
-            lrWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            lrWheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         }
         catch (Exception p_exception) {
             lrWheel = null;
@@ -109,7 +109,7 @@ public class GOFHardware {
             lfWheel.setDirection(DcMotor.Direction.REVERSE);
             lfWheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
             lfWheel.setPower(0);
-            lfWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            lfWheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         }
         catch (Exception p_exception) {
             lfWheel = null;
@@ -120,7 +120,7 @@ public class GOFHardware {
             rrWheel.setDirection(DcMotor.Direction.FORWARD);
             rrWheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
             rrWheel.setPower(0);
-            rrWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            rrWheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         }
         catch (Exception p_exception) {
             rrWheel = null;
@@ -131,7 +131,7 @@ public class GOFHardware {
             rfWheel.setDirection(DcMotor.Direction.FORWARD);
             rfWheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
             rfWheel.setPower(0);
-            rfWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            rfWheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         }
         catch (Exception p_exception) {
             rfWheel = null;

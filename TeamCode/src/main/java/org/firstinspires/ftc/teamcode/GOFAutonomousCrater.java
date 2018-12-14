@@ -56,6 +56,7 @@ public class GOFAutonomousCrater extends LinearOpMode {
     public void runOpMode() {
         /* Initialize hardware class */
         robot.init(hardwareMap);
+        robot.teamFlag.setPosition(0.25);
 
         /* Reset encoders */
         if (robot.rrWheel != null && robot.rfWheel != null && robot.lfWheel != null && robot.lrWheel != null) {
@@ -115,7 +116,8 @@ public class GOFAutonomousCrater extends LinearOpMode {
         robot.hangOne.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         robot.hangOne.setTargetPosition(8050);
         robot.setHangPower(-1);
-        encoderMovePreciseTimed(-525, -542, -516, -534, 0.5, 1);
+        turn(-getAngle(), 1);
+        encoderMovePreciseTimed(-711, -86, -333, -815, 0.5, 1);
         if (opModeIsActive()) {
             robot.setKickPower(kickReadyPos); // Move kicker out of the way
         }
@@ -152,7 +154,7 @@ public class GOFAutonomousCrater extends LinearOpMode {
     }
 
     private void centerCraterAuto() {
-        turn(-11.70938996, 1);
+        turn(-getAngle(), 1);
         while(!gamepad1.a && opModeIsActive()) {}
         while(opModeIsActive() && !robot.bottomSensor.isPressed() && robot.hangOne.isBusy()) {
             double oldPos = robot.hangOne.getCurrentPosition();
@@ -163,56 +165,39 @@ public class GOFAutonomousCrater extends LinearOpMode {
             }
         }
         robot.setInPower(0.5);
-        encoderMovePreciseTimed(-((int)((12 * Math.sqrt(Math.pow(1.049, 2) + Math.pow(1.049, 2)) - 7) * ticksPerInch)), 1, 0.75); // -784
+        encoderMovePreciseTimed(calculateMove(1.049, 1.049, 7), 1, 0.75); // -784
         while(!gamepad1.a && opModeIsActive()) {}
         robot.setInPower(0);
-        encoderMovePreciseTimed(((int)((12 * Math.sqrt(Math.pow(1.049, 2) + Math.pow(1.049, 2)) - 7) * ticksPerInch)), 1, 0.75); // 784
-        turn(90, 3);
+        encoderMovePreciseTimed(-calculateMove(1.049, 1.049, 7), 1, 0.75); // 784
+        turn(83.14375, 3);
+        encoderMovePreciseTimed(calculateMove(3, 3), 1, 1.5); // -1867
+        while(!gamepad1.a && opModeIsActive()) {}
+        turn(45, 2);
+        while(!gamepad1.a && opModeIsActive()) {}
+        encoderMovePreciseTimed(calculateMove(0, 4, 0), 1, 2); // -2139
+        robot.teamFlag.setPosition(0.614);
         while(!gamepad1.a && opModeIsActive()) {}
         if(doubleSample) {
-            encoderMovePreciseTimed((-((int)((12 * Math.sqrt(Math.pow(2, 2) + Math.pow(2, 2)) - 9) * ticksPerInch))), 1, 1.5); // -1759
+            turn(135 - 23.72, 3);
             while(!gamepad1.a && opModeIsActive()) {}
-            turn(90, 3);
+            robot.setInPower(0.5);
+            encoderMovePreciseTimed(calculateMove(2.466, 2.466), 1, 1); // -1463
+            robot.setInPower(0);
             while(!gamepad1.a && opModeIsActive()) {}
-            encoderMovePreciseTimed((-((int)((12 * Math.sqrt(Math.pow(2, 2) + Math.pow(2, 2)) - 9) * ticksPerInch))), 1, 1.5);
+            encoderMovePreciseTimed(-calculateMove(2.466, 2.466), 1, 1); // 1463
+            while(!gamepad1.a && opModeIsActive()){}
+            turn(45, 2);
             while(!gamepad1.a && opModeIsActive()) {}
-            turn(-90, 3);
-            while(!gamepad1.a && opModeIsActive()) {}
-            encoderMovePreciseTimed((-((int)((12 * Math.sqrt(Math.pow(3, 2) + Math.pow(3, 2)) - 9) * ticksPerInch))), 1, 1.5);
-            while(!gamepad1.a && opModeIsActive()) {}
-            robot.teamFlag.setPosition(0.65);
-            turn(-45, 3);
-            while(!gamepad1.a && opModeIsActive()) {}
-            encoderMovePreciseTimed((((int)((12 * Math.sqrt(Math.pow(0, 2) + Math.pow(7, 2)) - 9) * ticksPerInch))), 1, 3); // -3342
+            encoderMovePreciseTimed(calculateMove(0, 7.216), 1, 2.5); // -3457
         }
         else {
-            encoderMovePreciseTimed((-((int)((12 * Math.sqrt(Math.pow(3, 2) + Math.pow(3, 2)) - 9) * ticksPerInch))), 1, 1.5);
-            while(!gamepad1.a && opModeIsActive()) {}
-            turn(-45, 3);
-            while(!gamepad1.a && opModeIsActive()) {}
-            encoderMovePreciseTimed((-((int)((12 * Math.sqrt(Math.pow(0, 2) + Math.pow(4, 2)) - 9) * ticksPerInch))), 1, 1.5); // -1737
-            while(!gamepad1.a && opModeIsActive()) {}
-            encoderMovePreciseTimed((((int)((12 * Math.sqrt(Math.pow(0, 2) + Math.pow(7.25, 2)) - 9) * ticksPerInch))), 1, 2.5); // 3475
+            encoderMovePreciseTimed(-calculateMove(0, 7.216, -9), 1, 3); // 4259
         }
-        /*
-        encoderMovePreciseTimed(258, -392, -422, 358, 1, 1); // side to side
-        robot.hangOne.setTargetPosition(8058);
-        robot.setHangPower(-1);
-        if (opModeIsActive()) {
-            robot.setKickPower(kickReadyPos); // Move kicker out of the way
-        }
-        encoderMovePreciseTimed(-525, -542, -516, -534, 0.5, 1);
-        encoderMovePreciseTimed(43, 65, -41, -54, 0.8, 2);
-        robot.setInPower(0.5);
-        encoderMovePreciseTimed(-458, -510, -502, -539, 0.8, 2);
-        encoderMovePreciseTimed(-176, -205, -185, -216, 0.8, 2);
-        while(elapsedTime.time() < 30 && opModeIsActive() && robot.hangOne.isBusy()) {}
-        */
     }
 
     private void rightCraterAuto() {
         while(!gamepad1.a && opModeIsActive()) {}
-        turn(atan(-25) + 39, 3); // -32.70938995736148
+        turn(-(getAngle() - 39) + atan(-25), 3);
         while(opModeIsActive() && !robot.bottomSensor.isPressed() && robot.hangOne.isBusy()) {
             double oldPos = robot.hangOne.getCurrentPosition();
             sleep(100);
@@ -225,66 +210,25 @@ public class GOFAutonomousCrater extends LinearOpMode {
         robot.setHangPower(0);
         while(!gamepad1.a && opModeIsActive()) {}
         robot.setInPower(0.5);
-        encoderMovePreciseTimed((-((int)((12 * Math.sqrt(Math.pow(0.4, 2) + Math.pow(2, 2)) - 9) * ticksPerInch))), 1, 1); // -1338
+        encoderMovePreciseTimed(calculateMove(0.4, 2), 1, 1); // -1338
         while(!gamepad1.a && opModeIsActive()) {}
         robot.setInPower(0);
-        encoderMovePreciseTimed((((int)((12 * Math.sqrt(Math.pow(0.4, 2) + Math.pow(2, 2)) - 9) * ticksPerInch))), 1, 1); // 1338
+        encoderMovePreciseTimed(-calculateMove(0.4, 2), 1, 1); // 1338
         while(!gamepad1.a && opModeIsActive()) {}
-        turn(atan(25) - atan(-1), 3); // -136.65457618639903
+        turn(atan(1) - atan(-25), 3); // -136.65457618639903
         while(!gamepad1.a && opModeIsActive()) {}
-        encoderMovePreciseTimed((-((int)((12 * Math.sqrt(Math.pow(2, 2) + Math.pow(2, 2)) - 9) * ticksPerInch))), 1, 1.5); // -1759
+        encoderMovePreciseTimed(calculateMove(2, 2), 1, 1.5); // -1759
         while(!gamepad1.a && opModeIsActive()) {}
         turn(45, 3);
         while(!gamepad1.a && opModeIsActive()) {}
         robot.setInPower(0.5);
-        encoderMovePreciseTimed((-((int)((12 * Math.sqrt(Math.pow(0, 2) + Math.pow(4, 2)) - 9) * ticksPerInch))), 1, 3); // -4414
+        encoderMovePreciseTimed(calculateMove(0, 4), 1, 3); // -4414
         robot.setInPower(0);
-        robot.teamFlag.setPosition(0.65);
+        robot.teamFlag.setPosition(0.675);
         while(!gamepad1.a && opModeIsActive()) {}
         turn(atan(-7) + 94, 1.5); // -16.238841629692274
         while(!gamepad1.a && opModeIsActive()) {}
-        encoderMovePreciseTimed((((int)((12 * Math.sqrt(Math.pow(0.269, 2) + Math.pow(7.24, 2)) - 20) * ticksPerInch))), 1, 4.5); // 6946
-        /*
-        encoderMovePreciseTimed(258, -392, -422, 358, 1, 1); // side to side
-        encoderMovePreciseTimed(-525, -542, -516, -534, 0.5, 1);
-        robot.hangOne.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        robot.hangOne.setTargetPosition(8058);
-        robot.setHangPower(-1);
-        if (opModeIsActive()) {
-            robot.setKickPower(kickReadyPos); // Move kicker out of the way
-        }
-        encoderMovePreciseTimed(-979, 1009, 928, -961, 0.8, 2);
-        while(opModeIsActive() && !robot.bottomSensor.isPressed() && robot.hangOne.isBusy()) {
-            double oldPos = robot.hangOne.getCurrentPosition();
-            sleep(100);
-            double newPos = robot.hangOne.getCurrentPosition();
-            if(oldPos == newPos) {
-                break;
-            }
-        }
-        robot.setHangPower(0);
-        robot.setInPower(0.5);
-        encoderMovePreciseTimed(-546, -609, -491, -595, 0.5, 2);
-        adjustAngle(0.5);
-        robot.setInPower(0);
-        encoderMovePreciseTimed(514, 503, 529, 536, 1, 1);
-        encoderMovePreciseTimed(-849, -1035, 873, 933, 1, 1);
-        adjustAngle(0.5);
-        encoderMovePreciseTimed(-1982, -2015, -1971, -1967, 1, 1.5);
-        adjustAngle(0.5);
-        encoderMovePreciseTimed(-159, -164, 112, 204, 1, 2);
-        encoderMovePreciseTimed(-926, -951, -614, -564, 1, 1);
-        robot.setInPower(0.5);
-        encoderMovePreciseTimed(-1519, -1519, -1566, -1566, 1, 2);
-        robot.setInPower(0);
-        // DROP HERE
-        encoderMovePreciseTimed(731, 672, 690, 695, -1, 2);
-        encoderMovePreciseTimed(-494, 1951, 1753, -418, 1, 2);
-        encoderMovePreciseTimed(711, 698, 706, 696, -1, 2);
-        robot.hangOne.setTargetPosition(0);
-        robot.setHangPower(1);
-        while(elapsedTime.time() < 30 && opModeIsActive() && robot.hangOne.isBusy()) {}
-        */
+        encoderMovePreciseTimed(-calculateMove(0.269, 7.24, 15), 1, 4.5); // 6946
     }
 
     private void leftCraterAuto() {
@@ -301,40 +245,32 @@ public class GOFAutonomousCrater extends LinearOpMode {
         robot.hangOne.setPower(0);
         robot.hangOne.setTargetPosition(robot.hangOne.getCurrentPosition());
         robot.setInPower(0.5);
-        encoderMovePreciseTimed(-((int)((12 * Math.sqrt(Math.pow(0.133, 2) + Math.pow(2, 2)) - 9) * ticksPerInch)), 1, 1);
+        encoderMovePreciseTimed(calculateMove(0.133, 2), 1, 0.75); // -670
         while(!gamepad1.a && opModeIsActive()) {}
         robot.setInPower(0);
-        encoderMovePreciseTimed(((int)((12 * Math.sqrt(Math.pow(0.133, 2) + Math.pow(2, 2)) - 9) * ticksPerInch)), 1, 1);
+        encoderMovePreciseTimed(-calculateMove(0.133, 2), 1, 0.75); // 670
         turn(atan(1) - atan(-1.0/15.0), 3); // 48.81407483429035
         while (!gamepad1.a && opModeIsActive()) {}
+        encoderMovePreciseTimed(calculateMove(3, 3), 1, 1.5); // -1867
+        while (!gamepad1.a && opModeIsActive()) {}
+        turn(45, 3);
+        while (!gamepad1.a && opModeIsActive()) {}
+        encoderMovePreciseTimed(calculateMove(0, 3.6, 0), 1, 1.5); // -1925
+        robot.teamFlag.setPosition(0.614);
+        while (!gamepad1.a && opModeIsActive()) {}
         if(doubleSample) {
-            encoderMovePreciseTimed(-((int) ((12 * Math.sqrt(Math.pow(2, 2) + Math.pow(2, 2)) - 9) * ticksPerInch)), 1, 1); // -1111
-            while (!gamepad1.a && opModeIsActive()) {}
-            turn(90, 3);
-            while (!gamepad1.a && opModeIsActive()) {}
-            encoderMovePreciseTimed(-((int) ((12 * Math.sqrt(Math.pow(4, 2) + Math.pow(4, 2)) - 9) * ticksPerInch)), 1, 2); // -2623
-            while (!gamepad1.a && opModeIsActive()) {}
-            turn(atan(4.0 / 5.0) - atan(-1), 3);
+            turn(90 + atan(1.0/4.0), 3);
             while (!gamepad1.a && opModeIsActive()) {}
             robot.setInPower(0.5);
-            encoderMovePreciseTimed(-((int) ((12 * Math.sqrt(Math.pow(2, 2) + Math.pow(1.6, 2)) - 9) * ticksPerInch)), 1, 2);
+            encoderMovePreciseTimed(calculateMove(4, 1), 1, 1.5); // -1803
             robot.setInPower(0);
             while (!gamepad1.a && opModeIsActive()) {}
-            turn(-atan(4.0 / 5.0), 3);
+            turn(-atan(1.0/4.0) + atan(-1.0/2.0), 3);
             while (!gamepad1.a && opModeIsActive()) {}
-            encoderMovePreciseTimed(-((int) (15 * ticksPerInch)), 1, 0.75); // -668
-            robot.teamFlag.setPosition(0.65);
-            turn(-90, 3);
-            encoderMovePreciseTimed(-((int) ((12 * 6.9 - 9) * ticksPerInch)), 1, 2.5); // -3288
+            encoderMovePreciseTimed(calculateMove(0.8, 1.4), 1, 0.75); // -461
         }
         else {
-            encoderMovePreciseTimed(-((int)((12 * Math.sqrt(Math.pow(3, 2) + Math.pow(3, 2)) - 9) * ticksPerInch)), 1, 2); // -1867
-            while (!gamepad1.a && opModeIsActive()) {}
-            turn(45, 3);
-            while (!gamepad1.a && opModeIsActive()) {}
-            encoderMovePreciseTimed(-((int)((12 * Math.sqrt(Math.pow(3.5, 2)) - 9) * ticksPerInch)), 1, 1.25); // -1470
-            while (!gamepad1.a && opModeIsActive()) {}
-            encoderMovePreciseTimed(((int)((12 * Math.sqrt(Math.pow(6.8, 2)) - 9) * ticksPerInch)), 1, 1.25); // -3235
+            encoderMovePreciseTimed(-calculateMove(0, 6.9, -9), 1, 3); // 4259
         }
     }
 
@@ -345,11 +281,17 @@ public class GOFAutonomousCrater extends LinearOpMode {
     private void descend() {
         resetEncoders();
         robot.hangOne.setTargetPosition(-8058);
-        while (opModeIsActive() && robot.hangOne.getCurrentPosition() > -8058 && !robot.bottomSensor.isPressed()) {
+        while (opModeIsActive() && robot.hangOne.getCurrentPosition() > -8058) {
             telemetry.addData("h1: ", "" + robot.hangOne.getCurrentPosition());
             telemetry.addData("Current angle", (getAngle() - 45));
             telemetry.update();
             robot.setHangPower(-1);
+            double oldPos = robot.hangOne.getCurrentPosition();
+            sleep(100);
+            double newPos = robot.hangOne.getCurrentPosition();
+            if(oldPos == newPos) {
+                break;
+            }
         }
         robot.hangOne.setTargetPosition(robot.hangOne.getCurrentPosition()); // Set the target position to its current position to stop movement
         robot.setHangPower(0); // Stop sending power just in case
@@ -555,6 +497,14 @@ public class GOFAutonomousCrater extends LinearOpMode {
         }
     }
 
+    private int calculateMove(double xDiff, double yDiff) {
+        return((-((int)((12 * Math.sqrt(Math.pow(xDiff, 2) + Math.pow(yDiff, 2)) - 9) * ticksPerInch))));
+    }
+
+    private int calculateMove(double xDiff, double yDiff, int deviation) {
+        return((-((int)((12 * Math.sqrt(Math.pow(xDiff, 2) + Math.pow(yDiff, 2)) - deviation) * ticksPerInch))));
+    }
+
     /* Reset encoders and set modes to "Run to position" */
     private void resetEncoders() { // Reset encoder values and set encoders to "run to position" mode
         robot.rrWheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -571,7 +521,6 @@ public class GOFAutonomousCrater extends LinearOpMode {
     private void turn(double angle, double time) {
         turns += 1;
         angle += (angleOffset * Math.abs(angle) / angle);
-        double paramAngle = angle;
         double oldAngle;
         double angleIntended;
         double robotAngle;
@@ -607,7 +556,7 @@ public class GOFAutonomousCrater extends LinearOpMode {
                         error = lastError;
                     }
                 }
-                robot.setDrivePower(Math.min(-0.0075 * error, -0.05), Math.min(-0.0075 * error, -0.05), Math.max(0.0075 * error, 0.05), Math.max(0.0075 * error, 0.05));
+                robot.setDrivePower(Math.min(-0.0075 * error, -0.1), Math.min(-0.0075 * error, -0.1), Math.max(0.0075 * error, 0.1), Math.max(0.0075 * error, 0.1));
                 robotAngle = getAngle();
             }
             robot.setDrivePower(0, 0, 0, 0);
@@ -637,16 +586,21 @@ public class GOFAutonomousCrater extends LinearOpMode {
                         error = lastError;
                     }
                 }
-                robot.setDrivePower(Math.max(0.0075 * error, 0.05), Math.max(0.0075 * error, 0.05), Math.min(-0.0075 * error, -0.05), Math.min(-0.0075 * error, -0.05));
+                robot.setDrivePower(Math.max(0.0075 * error, 0.1), Math.max(0.0075 * error, 0.1), Math.min(-0.0075 * error, -0.1), Math.min(-0.0075 * error, -0.1));
                 robotAngle = getAngle();
             }
             robot.setDrivePower(0, 0, 0, 0);
         }
         resetEncoders();
-        angleIntended = oldAngle + paramAngle;
-        error = angleIntended - getAngle();
+        error = -getAngle() + angleIntended;
+        if(error > 180) {
+            error -= 180;
+        }
+        else if(error < -180) {
+            error += 180;
+        }
         if(Math.abs(error) > 0.1 && time - turnTime.time() > 0.75 && turns <= 1) {
-            turn(-error, time - turnTime.time());
+            turn(error, time - turnTime.time());
         }
         else {
             turns = 0;
@@ -738,7 +692,7 @@ public class GOFAutonomousCrater extends LinearOpMode {
 
     // Encoder move methods have been replaced with timed method to prevent an over-consumption of time
     // as encoders attempt to perfect some movements.  Former methods have been deprecated.
-
+/*
     @Deprecated
     public void encoderMove(int rr, int rf, int lr, int lf) {
         robot.rrWheel.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -781,6 +735,7 @@ public class GOFAutonomousCrater extends LinearOpMode {
     // of obtaining precise field distances and angular measurements, encoder counts appear to be the
     // more feasible solution.  These methods have thus been deprecated.
 
+    /*
     @Deprecated
     public void moveDistanceRight(double meters) {
         robot.rrWheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -894,7 +849,7 @@ public class GOFAutonomousCrater extends LinearOpMode {
         robot.setDrivePower(0, 0, 0, 0);
         resetEncoders();
     }
-
+/*
     @Deprecated
     public void moveDistanceBack(double meters) {
         robot.rrWheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -939,7 +894,7 @@ public class GOFAutonomousCrater extends LinearOpMode {
     // have been replaced with turn P control and experimental error correction.  The former methods,
     // which turn to the nearest multiple of the given number of degrees (which defaults to 45º using
     // method overloading) have been deprecated.
-
+/*
     @Deprecated
     public void adjustAngle() {
         robot.rrWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -1230,4 +1185,5 @@ public class GOFAutonomousCrater extends LinearOpMode {
         }
         resetEncoders();
     }
+    */
 }
