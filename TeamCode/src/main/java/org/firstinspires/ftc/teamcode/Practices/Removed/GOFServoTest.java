@@ -1,5 +1,6 @@
-package org.firstinspires.ftc.teamcode.Practices;
+package org.firstinspires.ftc.teamcode.Practices.Removed;
 
+/*
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -30,7 +31,7 @@ public class GOFServoTest extends LinearOpMode {
                 if (kickpow < 1) {
                     kickpow += 0.05;
                 }
-                robot.setKickPower(kickpow);
+                robot.teamFlag.setPosition(kickpow);
                 rightBumperPressed = false;
             }
 
@@ -42,11 +43,12 @@ public class GOFServoTest extends LinearOpMode {
                 if (kickpow > 0) {
                     kickpow -= 0.05;
                 }
-                robot.setKickPower(kickpow);
+                robot.teamFlag.setPosition(kickpow);
                 leftBumperPressed = false;
             }
-            telemetry.addData("Kicker position", "" + robot.kicker.getPosition());
+            telemetry.addData("Team marker deployer position", "" + robot.teamFlag.getPosition());
             telemetry.update();
         }
     }
 }
+*/

@@ -16,33 +16,20 @@ import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 public class GOFTeleOp extends OpMode {
 
     /* Declare OpMode members */
-    private     boolean         apressedtwo         = false;
     private     boolean         autoIntake          = false;
     private     boolean         bpressed            = false;
-    private     boolean         bpressedtwo         = false;
-    private     boolean         forcedOn            = false;
     private     boolean         ypressed            = false;
 
     private     double          angle;
     private     double          drive;
-    private     double          endTime;
     private     double          firstAngleOffset;
     private     double          kickOutPos          = 0.35;
     private     double          kickReadyPos        = 0.175;
     private     double          maxDriveSpeed;
-    private     double          robotAngle;
-    private     double          timeDifference;
     private     double          turn;
-
-    private     ElapsedTime     elapsedTime         = new ElapsedTime();
 
     public      GOFHardware     robot               = GOFHardware.getInstance(); // Use the GOFHardware class
 
-    private     int             inReady             = 0;
-    private     int             inRatioOne;
-    private     int             inRatioTwo;
-    private     int             frontCube           = 0;
-    private     int             backCube            = 0;
     private     int             driverMode          = 1;
 
     @Override
@@ -50,7 +37,7 @@ public class GOFTeleOp extends OpMode {
         msStuckDetectInit = 10000; // Allow gyros to calibrate
         robot.init(hardwareMap);
         robot.setKickPower(kickReadyPos);
-        robot.teamFlag.setPosition(0.043);
+        robot.teamFlag.setPosition(0.02);
 
         // Recommended: uncomment below code for field-oriented driving without a manual gyro reset
 
@@ -75,7 +62,6 @@ public class GOFTeleOp extends OpMode {
         double hangDrive = gamepad2.left_stick_y;
         turn = -gamepad1.right_stick_x;
         angle = -gamepad1.left_stick_x;
-        double startTime = elapsedTime.time();
 
         /* Precision vertical drive */
         if (gamepad1.dpad_down || gamepad1.dpad_up) {
@@ -104,34 +90,32 @@ public class GOFTeleOp extends OpMode {
         }
 
         /* Precision turn */
-        if(gamepad1.left_bumper) {
+        if (gamepad1.left_bumper) {
             turn = 0.1; // Slow left turn
         }
-        if(gamepad1.right_bumper) {
+        if (gamepad1.right_bumper) {
             turn = -0.1; // Slow right turn
         }
 
-        if(driverMode == 1) {
+        if (driverMode == 1) {
             drive = adjust(drive);
             turn = adjust(turn);
             angle = adjust(angle);
             double scaleFactor;
-            if(Math.max(Math.abs((drive + turn + angle)), Math.abs((drive - turn - angle))) > 1) {
+            if (Math.max(Math.abs((drive + turn + angle)), Math.abs((drive - turn - angle))) > 1) {
                 scaleFactor = maxDriveSpeed / (Math.max(Math.abs(drive + turn + angle), Math.abs(drive - turn - angle)));
-            }
-            else {
+            } else {
                 scaleFactor = 1;
             }
             robot.setDrivePower(scaleFactor * (drive + turn - angle), scaleFactor * (drive + turn + angle), scaleFactor * (drive - turn + angle), scaleFactor * (drive - turn - angle)); // Set motors to values based on gamepad
-        }
-        else {
+        } else {
             driveByField(drive, angle, turn);
         }
 
         if ((gamepad1.right_trigger - gamepad1.left_trigger) != 0) {
             robot.setInPower(gamepad1.right_trigger - gamepad1.left_trigger); // Set intake power based on the gamepad trigger values
         } else {
-            if(!autoIntake) {
+            if (!autoIntake) {
                 robot.setInPower(0);
             }
             try {
@@ -162,6 +146,7 @@ public class GOFTeleOp extends OpMode {
             robot.setKickPower(kickOutPos); // Eject
         }
 
+        /*
         if (gamepad2.b) {
             bpressedtwo = true;
         }
@@ -221,22 +206,23 @@ public class GOFTeleOp extends OpMode {
                 frontCube = 0; // the front cube should be not there
             }
         }
+        */
 
         /* Toggle intake auto-straighten */
-        if (gamepad2.b && !gamepad2.a) {
+        if (gamepad1.b && !gamepad1.a) {
             bpressed = true;
         }
 
-        if (bpressed && !gamepad2.b) {
+        if (bpressed && !gamepad1.b) {
             autoIntake = !autoIntake;
             bpressed = false;
         }
 
-        if(gamepad1.y) {
+        if (gamepad1.y) {
             ypressed = true;
         }
 
-        if(ypressed && !gamepad1.y) {
+        if (ypressed && !gamepad1.y) {
             ypressed = false;
             driverMode = driverMode * -1;
         }
@@ -274,7 +260,7 @@ public class GOFTeleOp extends OpMode {
         }
 
         robot.setHangPower(hangDrive + 0.25 * gamepad2.right_stick_y); // Move container based on gamepad positions
-        try {
+        /* try {
             String tmy = "Run Time: " + elapsedTime.toString() + "\n";
             tmy += "Motors" +"\n";
             tmy += "    rr: " + robot.rrWheel.getCurrentPosition() + "\n";
@@ -304,12 +290,12 @@ public class GOFTeleOp extends OpMode {
             telemetry.addData("  y acceleration", "" + ((robot.gyro0.getGravity().yAccel + robot.gyro1.getGravity().yAccel) / 2));
             telemetry.addData("  z acceleration", ((robot.gyro0.getGravity().zAccel + robot.gyro1.getGravity().zAccel) / 2));
             telemetry.addData("Cycle Time", timeDifference);
-            */
         }
         catch (Exception p_exception) {
             telemetry.addData("Uh oh: ", "The driver controller was unable to communicate via telemetry.  For help, please seek a better programmer.");
         }
         telemetry.update();
+    */
     }
 
     @Override
@@ -372,28 +358,6 @@ public class GOFTeleOp extends OpMode {
             varToAdjust = Math.sqrt(varToAdjust);
         }
         return varToAdjust;
-    }
-
-    private double getAngle() {
-        double robotAngle;
-        Orientation g0angles = null;
-        Orientation g1angles = null;
-        if (robot.gyro0 != null) {
-            g0angles = robot.gyro0.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES); // Get z axis angle from first gyro (in radians so that a conversion is unnecessary for proper employment of Java's Math class)
-        }
-        if (robot.gyro1 != null) {
-            g1angles = robot.gyro1.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES); // Get z axis angle from second gyro (in radians so that a conversion is unnecessary for proper employment of Java's Math class)
-        }
-        if (g0angles != null && g1angles != null) {
-            robotAngle = ((g0angles.firstAngle + g1angles.firstAngle) / 2); // Average angle measures to determine actual robot angle
-        } else if (g0angles != null) {
-            robotAngle = g0angles.firstAngle;
-        } else if (g1angles != null) {
-            robotAngle = g1angles.firstAngle;
-        } else {
-            robotAngle = 0;
-        }
-        return robotAngle;
     }
 
 } // End of class
