@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.eventloop.opmode.OpModeManager;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -10,54 +11,117 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
+import org.firstinspires.ftc.robotcore.internal.opmode.OpModeManagerImpl;
 
 @TeleOp(name="GOFTeleOp", group="GOF")
 
 public class GOFTeleOp extends OpMode {
 
     /* Declare OpMode members */
-    private     boolean         autoIntake          = false;
-    private     boolean         bpressed            = false;
-    private     boolean         ypressed            = false;
+    private     boolean             autoIntake          = false;
+    private     boolean             bpressed            = false;
+    private     boolean             ypressed            = false;
+    private     boolean             doTelemetry         = true;
 
-    private     double          angle;
-    private     double          drive;
-    private     double          firstAngleOffset;
-    private     double          kickOutPos          = 0.35;
-    private     double          kickReadyPos        = 0.175;
-    private     double          maxDriveSpeed;
-    private     double          turn;
+    private     double              angle;
+    private     double              drive;
+    private     double              endTime;
+    private     double              firstAngleOffset;
+    private     double              kickOutPos          = 0.35;
+    private     double              kickReadyPos        = 0.175;
+    private     double              maxDriveSpeed;
+    private     double              startingTime;
+    private     double              timeDifference;
+    private     double              turn;
 
-    public      GOFHardware     robot               = GOFHardware.getInstance(); // Use the GOFHardware class
+    private     ElapsedTime         elapsedTime         = new ElapsedTime();
 
-    private     int             driverMode          = 1;
+    public      GOFHardware         robot               = GOFHardware.getInstance(); // Use the GOFHardware class
+
+    private     int                 driverMode          = 1;
 
     @Override
     public void init() {
-        msStuckDetectInit = 10000; // Allow gyros to calibrate
-        robot.init(hardwareMap);
+        if(!robot.inited) {
+            msStuckDetectInit = 10000; // Allow gyros to calibrate
+            robot.init(hardwareMap);
+        }
         robot.setKickPower(kickReadyPos);
         robot.teamFlag.setPosition(0.02);
-
-        // Recommended: uncomment below code for field-oriented driving without a manual gyro reset
-
-        /*
-        File fileName = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "gof.txt");
-        try {
-            Scanner inFile = new Scanner(fileName);
-            firstAngleOffset = inFile.nextDouble();
-        }
-        catch(Exception p_exception) {
-            telemetry.addData("Reminder", "The gyros have to be manually reset as autonomous failed to create the text file");
-            firstAngleOffset = 0;
-        }
-        */
         maxDriveSpeed = robot.maxDriveSpeed;
         telemetry.addData("Status", "Initialized"); // Update phone
     }
 
     @Override
+    public void start() {
+        Thread update = new Thread() {
+            public synchronized void run() {
+                while(!doTelemetry) {
+                    try {
+                        sleep(100);
+                    }
+                    catch(Exception p_exception) {
+                        Thread.currentThread().interrupt();
+                    }
+                }
+                while(doTelemetry) {
+                    try {
+                        String tmy = "Run Time: " + elapsedTime.toString() + "\n";
+                        tmy += "Motors" + "\n";
+                        tmy += "    rr: " + robot.rrWheel.getCurrentPosition() + "\n";
+                        tmy += "    rf: " + robot.rfWheel.getCurrentPosition() + "\n";
+                        tmy += "    lr: " + robot.lrWheel.getCurrentPosition() + "\n";
+                        tmy += "    lf: " + robot.lfWheel.getCurrentPosition() + "\n";
+                        tmy += "    h1: " + robot.hangOne.getCurrentPosition() + "\n";
+                        tmy += driverMode == 1 ? "Drive Mode: Normal" : driverMode == -1 ? "Driver Mode: Field-Oriented" : "Drive Mode: Null";
+                        tmy += "Robot angle: " + getAngle() + "\n";
+                        tmy += "Drive: " + drive + "\n";
+                        tmy += "Turn: " + turn + "\n";
+                        tmy += "Angle: " + angle + "\n";
+                        tmy += "Intake: " + (gamepad1.right_trigger) + "\n";
+                        tmy += "Outtake: " + (gamepad1.left_trigger) + "\n";
+                        tmy += "X acceleration" + ((robot.gyro0.getGravity().xAccel + robot.gyro1.getGravity().xAccel) / 2) + "\n";
+                        tmy += "Y acceleration" + ((robot.gyro0.getGravity().yAccel + robot.gyro1.getGravity().yAccel) / 2) + "\n";
+                        tmy += "Z acceleration" + ((robot.gyro0.getGravity().zAccel + robot.gyro1.getGravity().zAccel) / 2) + "\n";
+                        endTime = elapsedTime.time();
+                        timeDifference = endTime - startingTime;
+                        tmy += "Cycle Time: " + timeDifference;
+                        telemetry.addData("", tmy);
+                    } catch (Exception p_exception) {
+                        telemetry.addData("Uh oh", "The driver controller was unable to communicate via telemetry.  For help, please seek a better programmer.");
+                    }
+                    telemetry.update();
+                }
+            }
+
+            private synchronized double getAngle() {
+                double robotAngle;
+                Orientation g0angles = null;
+                Orientation g1angles = null;
+                if (robot.gyro0 != null) {
+                    g0angles = robot.gyro0.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES); // Get z axis angle from first gyro (in radians so that a conversion is unnecessary for proper employment of Java's Math class)
+                }
+                if (robot.gyro1 != null) {
+                    g1angles = robot.gyro1.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES); // Get z axis angle from second gyro (in radians so that a conversion is unnecessary for proper employment of Java's Math class)
+                }
+                if (g0angles != null && g1angles != null) {
+                    robotAngle = ((g0angles.firstAngle + g1angles.firstAngle) / 2); // Average angle measures to determine actual robot angle
+                } else if (g0angles != null) {
+                    robotAngle = g0angles.firstAngle;
+                } else if (g1angles != null) {
+                    robotAngle = g1angles.firstAngle;
+                } else {
+                    robotAngle = 0;
+                }
+                return robotAngle;
+            }
+        };
+        update.start();
+    }
+
+    @Override
     public void loop() {
+        startingTime = elapsedTime.time();
         drive = gamepad1.left_stick_y;
         double hangDrive = gamepad2.left_stick_y;
         turn = -gamepad1.right_stick_x;
@@ -228,7 +292,7 @@ public class GOFTeleOp extends OpMode {
         }
 
         /* Reset encoders */
-        if (gamepad1.x) {
+        if (gamepad1.a && !gamepad1.start) {
             robot.rrWheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             robot.rfWheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             robot.lrWheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -258,48 +322,14 @@ public class GOFTeleOp extends OpMode {
                 }
             }
         }
-
-        robot.setHangPower(hangDrive + 0.25 * gamepad2.right_stick_y); // Move container based on gamepad positions
-        /* try {
-            String tmy = "Run Time: " + elapsedTime.toString() + "\n";
-            tmy += "Motors" +"\n";
-            tmy += "    rr: " + robot.rrWheel.getCurrentPosition() + "\n";
-            tmy += "    rf: " + robot.rfWheel.getCurrentPosition() + "\n";
-            tmy += "    lr: " + robot.lrWheel.getCurrentPosition() + "\n";
-            tmy += "    lf: " + robot.lfWheel.getCurrentPosition() + "\n";
-            tmy += "    h1: " + robot.hangOne.getCurrentPosition() + "\n";
-            tmy += "Robot angle: " + getAngle() + "\n";
-            tmy += "Drive: " + drive + "\n";
-            tmy += "Turn: " + turn + "\n";
-            tmy += "Angle: " + angle + "\n";
-            endTime = elapsedTime.time();
-            timeDifference = endTime - startTime;
-            tmy += "Cycle Time: " + timeDifference;
-            telemetry.addData("", tmy);
-            /*
-            telemetry.addData("Variables", "");
-            telemetry.addData("  drive", "" + drive);
-            telemetry.addData("  turn", "" + turn);
-            telemetry.addData("  angle", "" + angle);
-            telemetry.addData("  intake", "" + gamepad1.right_trigger);
-            telemetry.addData("  outtake", "" + gamepad1.left_trigger);
-            telemetry.addData("  driver mode", "" + driverMode);
-            telemetry.addData("Gyros", "");
-            telemetry.addData("  robot angle", "" + (robotAngle * (180 / Math.PI)));
-            telemetry.addData("  x acceleration", "" + ((robot.gyro0.getGravity().xAccel + robot.gyro1.getGravity().xAccel) / 2));
-            telemetry.addData("  y acceleration", "" + ((robot.gyro0.getGravity().yAccel + robot.gyro1.getGravity().yAccel) / 2));
-            telemetry.addData("  z acceleration", ((robot.gyro0.getGravity().zAccel + robot.gyro1.getGravity().zAccel) / 2));
-            telemetry.addData("Cycle Time", timeDifference);
-        }
-        catch (Exception p_exception) {
-            telemetry.addData("Uh oh: ", "The driver controller was unable to communicate via telemetry.  For help, please seek a better programmer.");
-        }
-        telemetry.update();
-    */
+        robot.setHangPower(hangDrive); // Move container based on gamepad positions
+        robot.setExtendPower((Math.abs(gamepad2.right_stick_x) < 0.05 ? gamepad2.dpad_right ? 0.25 : gamepad2.dpad_left ? -0.25 : gamepad1.right_stick_button ? 1 : gamepad1.left_stick_button ? -1 : 0 : gamepad2.dpad_right || gamepad2.dpad_left ? gamepad2.right_stick_x * 0.25 : gamepad2.right_stick_x));
+        robot.flipBox(gamepad1.b || gamepad2.right_trigger > 0.05 ? gamepad2.right_trigger > 0.05 ? gamepad2.right_trigger : 1 : gamepad1.x || gamepad2.left_trigger > 0.05 ? gamepad2.left_trigger > 0.05 ? -gamepad2.left_trigger : -1 : 0);
     }
 
     @Override
     public void stop() { // Run when "STOP" pressed
+        doTelemetry = false;
         robot.wheelBrake();
         robot.hangBrake();
         robot.setKickPower(kickReadyPos); // Move kick servo to "intake ready" position

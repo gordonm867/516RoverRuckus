@@ -6,6 +6,7 @@ import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.PIDCoefficients;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
@@ -47,6 +48,8 @@ public class GOFAutonomousCrater extends LinearOpMode {
     private                 double              angleOffset             = 3;
     private                 double              kickOutPos              = 0.35;
     private                 double              kickReadyPos            = 0.2;
+    private                 double              lastDistance            = 0;
+    private                 double[]            point                   = new double[2];
     private                 double              startTime               = elapsedTime.time();
     private                 double              ticksPerInch            = 560 / (4 * Math.PI);
     private                 double              turns                   = 0;
@@ -67,6 +70,9 @@ public class GOFAutonomousCrater extends LinearOpMode {
             robot.intake.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             robot.hangOne.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         }
+
+        point[0] = -2;
+        point[1] = 2;
 
         vuforiaInit(); // Initialize Vuforia
         detectInit(); // Initialize TensorFlwo
@@ -101,12 +107,10 @@ public class GOFAutonomousCrater extends LinearOpMode {
         detector.shutdown();
         //vuforia.close();
 
-        /*
         robot.playSound(goldPos);
         if (robot.soundError) {
             telemetry.addData("Error: ", "Unable to play sound.");
         }
-        */
 
         /* Descend */
         descend();
@@ -152,6 +156,7 @@ public class GOFAutonomousCrater extends LinearOpMode {
     }
 
     private void centerCraterAuto() {
+        /*
         turn(-getAngle(), 1);
         // while(!gamepad1.a && opModeIsActive()) {}
         while(opModeIsActive() && !robot.bottomSensor.isPressed() && robot.hangOne.isBusy()) {
@@ -192,7 +197,32 @@ public class GOFAutonomousCrater extends LinearOpMode {
         }
         else {
             encoderMovePreciseTimed(-calculateMove(0, 7.216), 1, 4); // -3457
+        } */
+        turn(-getAngle(), 1);
+        while(opModeIsActive() && !robot.bottomSensor.isPressed() && robot.hangOne.isBusy()) {
+            double oldPos = robot.hangOne.getCurrentPosition();
+            sleep(100);
+            double newPos = robot.hangOne.getCurrentPosition();
+            if(oldPos == newPos) {
+                break;
+            }
         }
+        robot.setInPower(1);
+        runToPoint(-3.049, 3.049, 7);
+        robot.setInPower(0);
+        runBackToPoint(-2, 2);
+        runToPoint(-5, -1);
+        runToPoint(-5, -4.5, 0);
+        robot.teamFlag.setPosition(0.98);
+        sleep(100);
+        runToPoint(-5, -5, 0);
+        if(doubleSample) {
+            robot.setInPower(1);
+            runToPoint(-2.534, -2.534);
+            robot.setInPower(0);
+            runBackToPoint(-5, -5);
+        }
+        runToPoint(-5, 2.2);
     }
 
     private void rightCraterAuto() {
@@ -278,8 +308,12 @@ public class GOFAutonomousCrater extends LinearOpMode {
         }
     }
 
-    private double atan(double num) { // Returns atan in degrees
-        return(Math.atan(num) * (180 / Math.PI));
+    private double atan(double num) {
+        return(Math.atan(num) * (180/Math.PI));
+    }
+
+    private double atan(double y, double x) { // Returns atan in degrees
+        return(Math.atan2(y, x) * (180 / Math.PI));
     }
 
     private void descend() {
@@ -436,6 +470,150 @@ public class GOFAutonomousCrater extends LinearOpMode {
         return goldPos;
     }
 
+    private void runToPoint(double newX, double newY) {
+        double angle;
+        try {
+            angle = atan(newY - point[1], newX - point[0]);
+        }
+        catch(Exception p_exception) {
+            angle = 90;
+        }
+        double turnDistance = -getAngle() + 45.0 + angle;
+        if(turnDistance != 0) {
+            turn(turnDistance, Math.abs(turnDistance) / 60.0);
+        }
+        int distance = calculateMove(Math.abs(newX - point[0]), Math.abs(newY - point[1]));
+        encoderMovePreciseTimed(distance, 1, distance / 1500.0);
+        point[0] = newX;
+        point[1] = newY;
+    }
+
+    private void runToPoint(double newX, double newY, int deviation) {
+        double angle;
+        try {
+            angle = atan(newY - point[1], newX - point[0]);
+        }
+        catch(Exception p_exception) {
+            angle = 90;
+        }
+        double turnDistance = -getAngle() + 45.0 + angle;
+        if(turnDistance != 0) {
+            turn(turnDistance, Math.abs(turnDistance) / 60.0);
+        }
+        int distance = calculateMove(Math.abs(newX - point[0]), Math.abs(newY - point[1]), deviation);
+        encoderMovePreciseTimed(distance, 1, Math.abs(distance) / 1500.0);
+        point[0] = newX;
+        point[1] = newY;
+    }
+
+    private void runToPoint(double newX, double newY, double angleError) {
+        double angle;
+        try {
+            angle = atan(newY - point[1], newX - point[0]) + angleError;
+        }
+        catch(Exception p_exception) {
+            angle = 90;
+        }
+        double turnDistance = -getAngle() + 45.0 + angle;
+        if(turnDistance != 0) {
+            turn(turnDistance, Math.abs(turnDistance) / 60.0);
+        }
+        int distance = calculateMove(Math.abs(newX - point[0]), Math.abs(newY - point[1]));
+        encoderMovePreciseTimed(distance, 1, Math.abs(distance) / 1500.0);
+        point[0] = newX;
+        point[1] = newY;
+    }
+
+    private void runToPoint(double newX, double newY, int deviation, double angleError) {
+        double angle;
+        try {
+            angle = atan(newY - point[1], newX - point[0]) + angleError;
+        }
+        catch(Exception p_exception) {
+            angle = 90;
+        }
+        double turnDistance = -getAngle() + 45.0 + angle;
+        if(turnDistance != 0) {
+            turn(turnDistance, Math.abs(turnDistance) / 60.0);
+        }
+        int distance = calculateMove(Math.abs(newX - point[0]), Math.abs(newY - point[1]), deviation);
+        encoderMovePreciseTimed(distance, 1, Math.abs(distance) / 1500);
+        point[0] = newX;
+        point[1] = newY;
+    }
+
+    private void runBackToPoint(double newX, double newY) {
+        double angle;
+        try {
+            angle = atan(newY - point[1], newX - point[0]);
+        }
+        catch(Exception p_exception) {
+            angle = -90;
+        }
+        double turnDistance = -getAngle() + 45.0 + angle;
+        if(turnDistance != 0) {
+            turn(turnDistance, Math.abs(turnDistance) / 60.0);
+        }
+        int distance = -calculateMove(Math.abs(newX - point[0]), Math.abs(newY - point[1]));
+        encoderMovePreciseTimed(distance, 1, Math.abs(distance) / 1500.0);
+        point[0] = newX;
+        point[1] = newY;
+    }
+
+    private void runBackToPoint(double newX, double newY, int deviation) {
+        double angle;
+        try {
+            angle = atan(newY - point[1], newX - point[0]) + 180;
+        }
+        catch(Exception p_exception) {
+            angle = -90;
+        }
+        double turnDistance = -getAngle() + 45.0 + angle;
+        if(turnDistance != 0) {
+            turn(turnDistance, Math.abs(turnDistance) / 60.0);
+        }
+        int distance = -calculateMove(Math.abs(newX - point[0]), Math.abs(newY - point[1]), deviation);
+        encoderMovePreciseTimed(distance, 1, Math.abs(distance) / 1500.0);
+        point[0] = newX;
+        point[1] = newY;
+    }
+
+    private void runBackToPoint(double newX, double newY, double angleError) {
+        double angle;
+        try {
+            angle = atan(newY - point[1], newX - point[0]) + 180 + angleError;
+        }
+        catch(Exception p_exception) {
+            angle = -90;
+        }
+        double turnDistance = -getAngle() + 45.0 + angle;
+        if(turnDistance != 0) {
+            turn(turnDistance, Math.abs(turnDistance) / 60.0);
+        }
+        int distance = -calculateMove(Math.abs(newX - point[0]), Math.abs(newY - point[1]));
+        encoderMovePreciseTimed(distance, 1, Math.abs(distance) / 1500.0);
+        point[0] = newX;
+        point[1] = newY;
+    }
+
+    private void runBackToPoint(double newX, double newY, int deviation, double angleError) {
+        double angle;
+        try {
+            angle = atan(newY - point[1], newX - point[0]) + 180 + angleError;
+        }
+        catch(Exception p_exception) {
+            angle = -90;
+        }
+        double turnDistance = -getAngle() + 45.0 + angle;
+        if(turnDistance != 0) {
+            turn(turnDistance, Math.abs(turnDistance) / 60.0);
+        }
+        int distance = -calculateMove(Math.abs(newX - point[0]), Math.abs(newY - point[1]), deviation);
+        encoderMovePreciseTimed(distance, 1, Math.abs(distance) / 1500.0);
+        point[0] = newX;
+        point[1] = newY;
+    }
+
     private void encoderMovePreciseTimed(int rr, int rf, int lr, int lf, double speed, double timeLimit) { // Move encoders towards target position until the position is reached, or the time limit expires
         if (opModeIsActive() && robot.rrWheel != null && robot.rfWheel != null && robot.lrWheel != null && robot.lfWheel != null && robot.hangOne != null) {
             robot.rrWheel.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -464,30 +642,51 @@ public class GOFAutonomousCrater extends LinearOpMode {
     }
 
     private void encoderMovePreciseTimed(int pos, double speed, double timeLimit) { // Move encoders towards target position until the position is reached, or the time limit expires
-        if (opModeIsActive() && robot.rrWheel != null && robot.rfWheel != null && robot.lrWheel != null && robot.lfWheel != null && robot.hangOne != null) {
-            robot.rrWheel.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            robot.rfWheel.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            robot.lfWheel.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            robot.lrWheel.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        double maxDrivePower = robot.maxDriveSpeed;
+        robot.maxDriveSpeed = speed;
+        if (opModeIsActive() && robot.rrWheel != null && robot.rfWheel != null && robot.lrWheel != null && robot.lfWheel != null) {
+            robot.rrWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            robot.rfWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            robot.lfWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            robot.lrWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             robot.rrWheel.setTargetPosition(pos);
             robot.rfWheel.setTargetPosition(pos);
             robot.lfWheel.setTargetPosition(pos);
             robot.lrWheel.setTargetPosition(pos);
-            robot.setDrivePower(-(pos / Math.abs(pos)) * speed, -(pos / Math.abs(pos)) * speed, -(pos / Math.abs(pos)) * speed, -(pos / Math.abs(pos)) * speed);
+            double startAngle = getAngle();
             ElapsedTime limitTest = new ElapsedTime();
-            // double startAngle = getAngle();
-            while ((robot.rrWheel.isBusy() || robot.rfWheel.isBusy() || robot.lrWheel.isBusy() || robot.lfWheel.isBusy()) && opModeIsActive() && limitTest.time() < timeLimit) {
+            try {
+                robot.setDrivePower(-(pos / Math.abs(pos)) * speed, -(pos / Math.abs(pos)) * speed, -(pos / Math.abs(pos)) * speed, -(pos / Math.abs(pos)) * speed);
+            }
+            catch(Exception p_exception) {
+                robot.setDrivePower(0, 0, 0, 0);
+            }
+            ElapsedTime delta = new ElapsedTime();
+            double Kp = 0.1;
+            double Ki = 0.01;
+            double Kd = 0.01;
+            double i = 0;
+            double lastError = 0;
+            while(Math.abs(((robot.rrWheel.getCurrentPosition() + robot.rfWheel.getCurrentPosition() + robot.lrWheel.getCurrentPosition() + robot.lfWheel.getCurrentPosition()) / 4)) > Math.abs(pos) && opModeIsActive() && limitTest.time() < timeLimit) {
+                delta.reset();
                 updateTelemetry();
-                /*
-                pos = pos - robot.rrWheel.getCurrentPosition();
-                if(Math.abs(startAngle - getAngle()) > 3) {
-                    robot.setDrivePower(0, 0, 0, 0);
-                    turn(startAngle - getAngle(), 0.25);
-                    robot.rrWheel.setTargetPosition(pos);
-                    robot.rfWheel.setTargetPosition(pos);
-                    robot.lfWheel.setTargetPosition(pos);
-                    robot.lrWheel.setTargetPosition(pos);
-                } */
+                double angleError = getAngle() - startAngle;
+                try {
+                    if (Math.abs(angleError) > 180 && (Math.abs(getAngle()) / getAngle()) != (Math.abs(startAngle) / startAngle)) {
+                        angleError += angleError > 0 ? -360 : 360;
+                    }
+                }
+                catch(Exception p_exception) {} // If an error happens, that means that either our current angle or initial angle was zero, so the error calculation should be accurate anyway
+                double right = getPower(robot.rrWheel);
+                double left = getPower(robot.lfWheel);
+                i += delta.time() * (angleError - lastError);
+                double changePower = (Kp * angleError) + (Ki * i) + (Kd * i != 0 ? 1.0/i : 0);
+                right -= changePower;
+                left += changePower;
+                double max = Math.max(Math.abs(right), Math.max(Math.abs(left), speed));
+                right /= max;
+                left /= max;
+                robot.setDrivePower(left, left, right, right);
             }
             if(limitTest.time() > timeLimit) {
                 robot.rrWheel.setTargetPosition((robot.rrWheel.getCurrentPosition()));
@@ -497,7 +696,26 @@ public class GOFAutonomousCrater extends LinearOpMode {
             }
             robot.setDrivePower(0, 0, 0, 0);
             resetEncoders();
+            robot.maxDriveSpeed = maxDrivePower;
             sleep(100);
+        }
+    }
+
+    private double getPower(DcMotor motor) {
+        try {
+            double power = (Math.abs(motor.getPower()) / motor.getPower()) * (Math.abs(motor.getTargetPosition()) - Math.abs(motor.getCurrentPosition())) / 200;
+            if(Math.abs(power) > 0.1) {
+                return(power);
+            }
+            else if(power != 0){
+                return(0.1 * power < 0 ? -1 : 1);
+            }
+            else {
+                return 0;
+            }
+        }
+        catch(Exception p_exception) {
+            return 0;
         }
     }
 

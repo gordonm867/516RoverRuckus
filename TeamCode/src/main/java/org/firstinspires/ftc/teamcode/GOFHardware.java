@@ -38,6 +38,7 @@ public class GOFHardware {
     public          BNO055IMU        gyro0;
     public          BNO055IMU        gyro1;
 
+    public          boolean          inited                  = false;
     public          boolean          leftFound;
     public          boolean          centerFound;
     public          boolean          rightFound;
@@ -52,18 +53,17 @@ public class GOFHardware {
     public          DcMotor          rrWheel;
     public          DcMotor          intake;
     public          DcMotor          hangOne;
+    public          DcMotor          box;
+    public          DcMotor          extend;
 
     public          DistanceSensor   frontDistanceSensor;
     public          DistanceSensor   backDistanceSensor;
 
-    public          double           maxDriveSpeed           = 0.8;
+    public          double           maxDriveSpeed           = 0.9;
 
     private static  GOFHardware     robot                    = null;
 
     public          HardwareMap     hwMap;
-
-    public          Orientation     g0angles;
-    public          Orientation     g1angles;
 
     public          Integer         rightId;
     public          Integer         centerId;
@@ -158,6 +158,30 @@ public class GOFHardware {
         }
         catch (Exception p_exception) {
             hangOne = null;
+        }
+
+
+        try { // Intake extension
+            extend = hwMap.get(DcMotor.class, "em");
+            extend.setDirection(DcMotor.Direction.FORWARD);
+            extend.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            extend.setPower(0);
+            extend.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        }
+        catch (Exception p_exception) {
+            extend = null;
+        }
+
+
+        try { // Box flipper
+            box = hwMap.get(DcMotor.class, "fm");
+            box.setDirection(DcMotor.Direction.FORWARD);
+            box.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            box.setPower(0);
+            box.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        }
+        catch (Exception p_exception) {
+            box = null;
         }
 
     /*
@@ -275,6 +299,7 @@ public class GOFHardware {
         catch (Exception p_exception) {
             bottomSensor = null;
         }
+        robot.inited = true;
     }
 
     /*
@@ -283,13 +308,6 @@ public class GOFHardware {
               M E T H O D S
 
          ======================
-    */
-
-    /*
-
-         ----------------------
-                 MOTORS
-         ----------------------
     */
 
     public void setDrivePower(double leftBackDrivePower, double leftFrontDrivePower, double rightBackDrivePower, double rightFrontDrivePower) { // Send power to wheels
@@ -349,6 +367,14 @@ public class GOFHardware {
             kickerPosition = Range.clip(kickerPosition, 0, 1);
             kicker.setPosition(kickerPosition);
         }
+    }
+
+    public void setExtendPower(double extendPower) {
+        extend.setPower(Range.clip(extendPower, -1, 1));
+    }
+
+    public void flipBox(double boxPower) {
+        box.setPower(Range.clip(boxPower, -1, 1));
     }
 
     public void playSound(double goldPos) { // Play sound
