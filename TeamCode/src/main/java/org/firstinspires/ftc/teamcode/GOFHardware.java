@@ -53,7 +53,6 @@ public class GOFHardware {
     public          DcMotor          rrWheel;
     public          DcMotor          intake;
     public          DcMotor          hangOne;
-    public          DcMotor          box;
     public          DcMotor          extend;
 
     public          DistanceSensor   frontDistanceSensor;
@@ -72,6 +71,7 @@ public class GOFHardware {
     public          RevTouchSensor  topSensor;
     public          RevTouchSensor  bottomSensor;
 
+    public          Servo           box;
     public          Servo           kicker;
     public          Servo           teamFlag;
 
@@ -172,23 +172,18 @@ public class GOFHardware {
             extend = null;
         }
 
-
-        try { // Box flipper
-            box = hwMap.get(DcMotor.class, "fm");
-            box.setDirection(DcMotor.Direction.FORWARD);
-            box.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-            box.setPower(0);
-            box.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        }
-        catch (Exception p_exception) {
-            box = null;
-        }
-
     /*
          ---------------------------------------
               SERVOS (Define and Initialize)
          ---------------------------------------
     */
+
+        try { // Box flipper
+            box = hwMap.get(Servo.class, "fm");
+        }
+        catch (Exception p_exception) {
+            box = null;
+        }
 
         try { // Container kicker servo
             kicker = hwMap.get(Servo.class, "s0");
@@ -349,7 +344,7 @@ public class GOFHardware {
     public void setInPower(double inPower) { // Set intake power
         if (intake != null) {
             intake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            inPower = Range.clip(inPower, -0.7, 0.7);
+            inPower = Range.clip(inPower, -1, 1);
             intake.setPower(inPower);
         }
     }
@@ -370,11 +365,15 @@ public class GOFHardware {
     }
 
     public void setExtendPower(double extendPower) {
-        extend.setPower(Range.clip(extendPower, -1, 1));
+        if(extend != null) {
+            extend.setPower(Range.clip(extendPower, -1, 1));
+        }
     }
 
-    public void flipBox(double boxPower) {
-        box.setPower(Range.clip(boxPower, -1, 1));
+    public void flipBox(double boxPos) {
+        if(box != null) {
+            box.setPosition(Range.clip(Math.abs(boxPos), 0, 1));
+        }
     }
 
     public void playSound(double goldPos) { // Play sound

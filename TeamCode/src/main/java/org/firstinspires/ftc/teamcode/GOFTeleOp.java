@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.eventloop.opmode.OpModeManager;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -9,19 +8,17 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
-import org.firstinspires.ftc.robotcore.internal.opmode.OpModeManagerImpl;
 
 @TeleOp(name="GOFTeleOp", group="GOF")
 
 public class GOFTeleOp extends OpMode {
 
     /* Declare OpMode members */
-    private     boolean             autoIntake          = false;
+    private     boolean             autoIntake          = true;
     private     boolean             bpressed            = false;
-    private     boolean             ypressed            = false;
     private     boolean             doTelemetry         = true;
+    private     boolean             ypressed            = false;
 
     private     double              angle;
     private     double              drive;
@@ -161,7 +158,7 @@ public class GOFTeleOp extends OpMode {
             turn = -0.1; // Slow right turn
         }
 
-        if (driverMode == 1) {
+        if(driverMode == 1) {
             drive = adjust(drive);
             turn = adjust(turn);
             angle = adjust(angle);
@@ -172,33 +169,41 @@ public class GOFTeleOp extends OpMode {
                 scaleFactor = 1;
             }
             robot.setDrivePower(scaleFactor * (drive + turn - angle), scaleFactor * (drive + turn + angle), scaleFactor * (drive - turn + angle), scaleFactor * (drive - turn - angle)); // Set motors to values based on gamepad
-        } else {
-            driveByField(drive, angle, turn);
+        }
+        else if(driverMode == -1) {
+            driveByField(drive, turn, angle);
+        }
+        else {
+            driverMode = 1;
         }
 
-        if ((gamepad1.right_trigger - gamepad1.left_trigger) != 0) {
+        if((gamepad1.right_trigger - gamepad1.left_trigger) != 0) {
             robot.setInPower(gamepad1.right_trigger - gamepad1.left_trigger); // Set intake power based on the gamepad trigger values
-        } else {
-            if (!autoIntake) {
+        }
+        else {
+            if(!autoIntake) {
                 robot.setInPower(0);
             }
-            try {
-                if (robot.intake.getCurrentPosition() % 1120 != 0 && !(robot.intake.isBusy()) && autoIntake) {
-                    if (robot.intake.getCurrentPosition() % 1120 < 560) {
-                        robot.setInPos((robot.intake.getCurrentPosition() - ((robot.intake.getCurrentPosition() % 1120))), (-0.75)); // Ensure straight tubing by setting intake position to nearest multiple of 1120
-                    } else {
-                        robot.setInPos((robot.intake.getCurrentPosition() - ((robot.intake.getCurrentPosition() % 1120)) + 1120), (0.75));
+            else {
+                try {
+                    if(robot.intake.getCurrentPosition() % 288 != 0 && !robot.intake.isBusy() && autoIntake) {
+                        if(robot.intake.getCurrentPosition() % 288 < 144) {
+                            robot.setInPos((robot.intake.getCurrentPosition() - ((robot.intake.getCurrentPosition() % 288))), (-1)); // Ensure straight tubing by setting intake position to nearest multiple of 1120
+                        }
+                        else {
+                            robot.setInPos((robot.intake.getCurrentPosition() - ((robot.intake.getCurrentPosition() % 288)) + 288), (1));
+                        }
                     }
+                } catch (Exception p_exception) {
+                    telemetry.addData("Note: ", "I hope you weren't planning on using intake, since it's not really working.");
                 }
-            } catch (Exception p_exception) {
-                telemetry.addData("Note: ", "I hope you weren't planning on using intake, since it's not really working.");
-            }
-            try {
-                if (robot.intake.getCurrentPosition() % 1120 == 0) {
-                    robot.intake.setPower(0);
+                try {
+                    if (robot.intake.getCurrentPosition() % 288 == 0) {
+                        robot.intake.setPower(0);
+                    }
+                } catch (Exception p_exception) {
+                    telemetry.addData("Note: ", "Intake null, good luck");
                 }
-            } catch (Exception p_exception) {
-                telemetry.addData("Note: ", "Intake null, good luck");
             }
         }
 
@@ -288,7 +293,7 @@ public class GOFTeleOp extends OpMode {
 
         if (ypressed && !gamepad1.y) {
             ypressed = false;
-            driverMode = driverMode * -1;
+            driverMode *= -1;
         }
 
         /* Reset encoders */
@@ -324,7 +329,7 @@ public class GOFTeleOp extends OpMode {
         }
         robot.setHangPower(hangDrive); // Move container based on gamepad positions
         robot.setExtendPower((Math.abs(gamepad2.right_stick_x) < 0.05 ? gamepad2.dpad_right ? 0.25 : gamepad2.dpad_left ? -0.25 : gamepad1.right_stick_button ? 1 : gamepad1.left_stick_button ? -1 : 0 : gamepad2.dpad_right || gamepad2.dpad_left ? gamepad2.right_stick_x * 0.25 : gamepad2.right_stick_x));
-        robot.flipBox(gamepad1.b || gamepad2.right_trigger > 0.05 ? gamepad2.right_trigger > 0.05 ? gamepad2.right_trigger : 1 : gamepad1.x || gamepad2.left_trigger > 0.05 ? gamepad2.left_trigger > 0.05 ? -gamepad2.left_trigger : -1 : 0);
+        robot.flipBox(gamepad1.b || gamepad2.right_trigger > 0.01 ? gamepad2.right_trigger > 0.01 ? robot.box.getPosition() + (gamepad2.right_trigger / 10) : robot.box.getPosition() + 0.05 : gamepad1.x || gamepad2.left_trigger > 0.01 ? gamepad2.left_trigger > 0.01 ? -(gamepad2.left_trigger / 10) + robot.box.getPosition() : robot.box.getPosition() - 0.05 : robot.box.getPosition());
     }
 
     @Override
@@ -335,7 +340,7 @@ public class GOFTeleOp extends OpMode {
         robot.setKickPower(kickReadyPos); // Move kick servo to "intake ready" position
     }
 
-    private void driveByField(double drive, double angle, double turn) { // Experimental field-oriented drive
+    private void driveByField(double drive, double turn, double angle) { // Experimental field-oriented drive
         try {
             if(Math.round(10 * drive) == 0 && Math.round(10 * angle) == 0) {
                 robot.setDrivePower(turn, turn, -turn, -turn);
@@ -352,26 +357,24 @@ public class GOFTeleOp extends OpMode {
                 double robotAngle;
                 if (g0angles != null && g1angles != null) {
                     robotAngle = ((g0angles.firstAngle + g1angles.firstAngle) / 2) + firstAngleOffset; // Average angle measures to determine actual robot angle
-                } else if (g0angles != null) {
+                }
+                else if (g0angles != null) {
                     robotAngle = g0angles.firstAngle + firstAngleOffset;
-                } else if (g1angles != null) {
+                }
+                else if (g1angles != null) {
                     robotAngle = g1angles.firstAngle + firstAngleOffset;
-                } else {
+                }
+                else {
                     telemetry.addData("Note", "As the gyros are not working, field-centric driving has been disabled, and direct drive will be used regardless of driver-controlled settings");
                     telemetry.update();
                     robot.setDrivePower(drive + turn - angle, drive + turn + angle, drive - turn + angle, drive - turn - angle);
                     return;
                 }
                 double x = Math.sqrt(Math.pow(drive, 2) + Math.pow(angle, 2)); // Hypotenuse for right triangle representing robot movement
-                double theta;
-                if (angle != 0) {
-                    theta = -robotAngle + Math.asin(angle / x); // Intended driving angle
-                } else {
-                    theta = -robotAngle + Math.acos(drive / x); // Intended driving angle
-                }
-                drive = x * Math.cos(theta); // Set forward speed dependent on the intended angle of movement, adjusting for the angle of the robot
-                angle = x * Math.sin(theta); // Set sideways speed dependent on the intended angle of movement, adjusting for the angle of the robot
-                double scaleFactor = maxDriveSpeed / Math.max(Math.max(Math.abs(drive + turn + angle), Math.abs(drive + turn - angle)), Math.max(Math.abs(drive - turn - angle), Math.abs(drive - turn + angle)));
+                double theta = -robotAngle + Math.atan2(drive, angle);
+                drive = x * Math.sin(theta); // Set forward speed dependent on the intended angle of movement, adjusting for the angle of the robot
+                angle = x * Math.cos(theta); // Set sideways speed dependent on the intended angle of movement, adjusting for the angle of the robot
+                double scaleFactor = maxDriveSpeed / Math.max(maxDriveSpeed, Math.max(Math.max(Math.abs(drive + turn + angle), Math.abs(drive + turn - angle)), Math.max(Math.abs(drive - turn - angle), Math.abs(drive - turn + angle))));
                 robot.setDrivePower(scaleFactor * (drive + turn - angle), scaleFactor * (drive + turn + angle), scaleFactor * (drive - turn + angle), scaleFactor * (drive - turn - angle)); // Send adjusted values to GOFHardware() class
             }
         }
