@@ -39,45 +39,29 @@
       <file leaf-file-name="GOFHardware.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/GOFHardware.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="377">
-              <caret line="70" column="46" lean-forward="true" selection-start-line="70" selection-start-column="46" selection-end-line="70" selection-end-column="46" />
-              <folding>
-                <element signature="e#13814#13815#0" expanded="true" />
-                <element signature="e#13868#13869#0" expanded="true" />
-                <element signature="e#13899#13900#0" expanded="true" />
-                <element signature="e#13952#13953#0" expanded="true" />
-              </folding>
+            <state relative-caret-position="870">
+              <caret line="70" column="46" selection-start-line="70" selection-start-column="46" selection-end-line="70" selection-end-column="46" />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="DcMotorImpl.java" pinned="false" current-in-tab="false">
-        <entry file="jar://$PROJECT_DIR$/libs/RobotCore-release-sources.jar!/com/qualcomm/robotcore/hardware/DcMotorImpl.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="270">
-              <caret line="54" column="23" lean-forward="true" selection-start-line="54" selection-start-column="23" selection-end-line="54" selection-end-column="23" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="GOFAutonomousCrater.java" pinned="false" current-in-tab="false">
+      <file leaf-file-name="GOFAutonomousCrater.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/GOFAutonomousCrater.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="9210">
-              <caret line="643" column="82" selection-start-line="643" selection-start-column="82" selection-end-line="643" selection-end-column="82" />
+            <state relative-caret-position="303">
+              <caret line="683" column="99" selection-start-line="683" selection-start-column="99" selection-end-line="683" selection-end-column="99" />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="GOFTeleOp.java" pinned="false" current-in-tab="true">
+      <file leaf-file-name="GOFTeleOp.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/GOFTeleOp.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="384">
-              <caret line="119" column="23" selection-start-line="119" selection-start-column="23" selection-end-line="119" selection-end-column="23" />
+            <state relative-caret-position="-2188">
+              <caret line="168" column="32" selection-start-line="168" selection-start-column="32" selection-end-line="168" selection-end-column="32" />
               <folding>
                 <element signature="method#init#0;class#GOFTeleOp#0" />
                 <element signature="method#start#0;class#GOFTeleOp#0" />
-                <element signature="method#loop#0;class#GOFTeleOp#0" />
                 <element signature="method#stop#0;class#GOFTeleOp#0" />
                 <element signature="method#driveByField#0;class#GOFTeleOp#0" />
                 <element signature="method#adjust#0;class#GOFTeleOp#0" />
@@ -3144,13 +3128,13 @@
         <option value="$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/GOFServoTest.java" />
         <option value="$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/Practices/Removed/GOFServoTest.java" />
         <option value="$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/GOFAutoTransitioner.java" />
-        <option value="$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/GOFAutonomousCrater.java" />
         <option value="$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/GOFHardware.java" />
         <option value="$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/GOFTeleOp.java" />
+        <option value="$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/GOFAutonomousCrater.java" />
       </list>
     </option>
   </component>
-  <component name="ProjectFrameBounds" extendedState="6">
+  <component name="ProjectFrameBounds" extendedState="1">
     <option name="y" value="23" />
     <option name="width" value="1366" />
     <option name="height" value="678" />
@@ -3160,6 +3144,7 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="PackagesPane" />
       <pane id="Scope" />
       <pane id="AndroidView">
         <subPane>
@@ -3183,7 +3168,6 @@
           <select />
         </subPane>
       </pane>
-      <pane id="PackagesPane" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -3394,7 +3378,7 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="0" y="23" width="1366" height="679" extended-state="6" />
+    <frame x="0" y="23" width="1366" height="678" extended-state="1" />
     <editor active="true" />
     <layout>
       <window_info anchor="bottom" id="Android Profiler" order="12" show_stripe_button="false" />
@@ -3773,13 +3757,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/GOFAutonomousCrater.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="9210">
-          <caret line="643" column="82" selection-start-line="643" selection-start-column="82" selection-end-line="643" selection-end-column="82" />
-        </state>
-      </provider>
-    </entry>
     <entry file="jar://$PROJECT_DIR$/libs/RobotCore-release-sources.jar!/com/qualcomm/robotcore/hardware/Servo.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="105">
@@ -3790,7 +3767,7 @@
     <entry file="jar://$PROJECT_DIR$/libs/RobotCore-release-sources.jar!/com/qualcomm/robotcore/hardware/DcMotorImpl.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="270">
-          <caret line="54" column="23" lean-forward="true" selection-start-line="54" selection-start-column="23" selection-end-line="54" selection-end-column="23" />
+          <caret line="54" column="23" selection-start-line="54" selection-start-column="23" selection-end-line="54" selection-end-column="23" />
         </state>
       </provider>
     </entry>
@@ -3803,29 +3780,29 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/GOFHardware.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="377">
-          <caret line="70" column="46" lean-forward="true" selection-start-line="70" selection-start-column="46" selection-end-line="70" selection-end-column="46" />
-          <folding>
-            <element signature="e#13814#13815#0" expanded="true" />
-            <element signature="e#13868#13869#0" expanded="true" />
-            <element signature="e#13899#13900#0" expanded="true" />
-            <element signature="e#13952#13953#0" expanded="true" />
-          </folding>
+        <state relative-caret-position="870">
+          <caret line="70" column="46" selection-start-line="70" selection-start-column="46" selection-end-line="70" selection-end-column="46" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/GOFTeleOp.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="384">
-          <caret line="119" column="23" selection-start-line="119" selection-start-column="23" selection-end-line="119" selection-end-column="23" />
+        <state relative-caret-position="-2188">
+          <caret line="168" column="32" selection-start-line="168" selection-start-column="32" selection-end-line="168" selection-end-column="32" />
           <folding>
             <element signature="method#init#0;class#GOFTeleOp#0" />
             <element signature="method#start#0;class#GOFTeleOp#0" />
-            <element signature="method#loop#0;class#GOFTeleOp#0" />
             <element signature="method#stop#0;class#GOFTeleOp#0" />
             <element signature="method#driveByField#0;class#GOFTeleOp#0" />
             <element signature="method#adjust#0;class#GOFTeleOp#0" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/GOFAutonomousCrater.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="303">
+          <caret line="683" column="99" selection-start-line="683" selection-start-column="99" selection-end-line="683" selection-end-column="99" />
         </state>
       </provider>
     </entry>

@@ -679,14 +679,16 @@ public class GOFAutonomousCrater extends LinearOpMode {
                 catch(Exception p_exception) {} // If an error happens, that means that either our current angle or initial angle was zero, so the error calculation should be accurate anyway
                 double right = getPower(robot.rrWheel);
                 double left = getPower(robot.lfWheel);
-                i += delta.time() * (angleError - lastError);
-                double changePower = (Kp * angleError) + (Ki * i) + (Kd * i != 0 ? 1.0/i : 0);
+                double deltaError = angleError - lastError;
+                i += delta.time() * deltaError;
+                double changePower = (Kp * angleError) + (Ki * i) + (Kd * deltaError / delta.time());
                 right -= changePower;
                 left += changePower;
                 double max = Math.max(Math.abs(right), Math.max(Math.abs(left), speed));
                 right /= max;
                 left /= max;
                 robot.setDrivePower(left, left, right, right);
+                lastError = angleError;
             }
             if(limitTest.time() > timeLimit) {
                 robot.rrWheel.setTargetPosition((robot.rrWheel.getCurrentPosition()));
