@@ -3,26 +3,26 @@ package org.firstinspires.ftc.teamcode;
 /*
 Device Directory:
 
-Motor Controller 0 Port 0 rrWheel           (rr)
-Motor Controller 0 Port 1 rfWheel           (rf)
-Motor Controller 1 Port 0 hangOne           (h1)
-Motor Controller 1 Port 1 intake            (inw)
-Motor Controller 1 Port 2 lfWheel           (lf)
-Motor Controller 1 Port 3 lrWheel           (lr)
+Motor Controller 1 Port 0 rrWheel           (rr)
+Motor Controller 1 Port 2 extender          (em)
+Motor Controller 1 Port 3 rfWheel           (rf)
+Motor Controller 2 Port 0 hangOne           (h1)
+Motor Controller 2 Port 1 lrWheel           (lr)
+Motor Controller 2 Port 2 lfWheel           (lf)
+Motor Controller 2 Port 3 intake            (in)
 
-Digital Controller 1 Port 0 topSensor       (tl)
-Digital Controller 1 Port 1 bottomSensor    (tb)
+Digital Controller 1 Port 0 bottomSensor    (ls)
 
-Servo Controller 1 Port 5 kicker            (s0)
-
-I2C Controller 0 Port 0 gyro0               (g0)
-I2C Controller 1 Port 0 gyro1               (g1)
+I2C Controller 1 Port 0 gyro0               (g0)
+I2C Controller 2 Port 0 gyro1               (g1)
 */
 
 import com.qualcomm.ftccommon.SoundPlayer;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
+import com.qualcomm.hardware.modernrobotics.ModernRoboticsTouchSensor;
 import com.qualcomm.hardware.rev.RevTouchSensor;
+import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
@@ -31,49 +31,48 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.util.Range;
 
-import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
-
+@SuppressWarnings({"WeakerAccess", "SpellCheckingInspection", "EmptyCatchBlock", "StatementWithEmptyBody", "SameParameterValue"})
 public class GOFHardware {
 
-    public          BNO055IMU        gyro0;
-    public          BNO055IMU        gyro1;
+    public          AnalogInput                 extenderSensor;
 
-    public          boolean          inited                  = false;
-    public          boolean          leftFound;
-    public          boolean          centerFound;
-    public          boolean          rightFound;
-    public          boolean          soundError;
+    public          BNO055IMU                   gyro0;
+    public          BNO055IMU                   gyro1;
 
-    public          ColorSensor      frontColorSensor;
-    public          ColorSensor      backColorSensor;
+    public          boolean                     leftFound;
+    public          boolean                     centerFound;
+    public          boolean                     rightFound;
+    public          boolean                     soundError;
 
-    public          DcMotor          lfWheel;
-    public          DcMotor          rfWheel;
-    public          DcMotor          lrWheel;
-    public          DcMotor          rrWheel;
-    public          DcMotor          intake;
-    public          DcMotor          hangOne;
-    public          DcMotor          extend;
+    public          ColorSensor                 frontColorSensor;
+    public          ColorSensor                 backColorSensor;
 
-    public          DistanceSensor   frontDistanceSensor;
-    public          DistanceSensor   backDistanceSensor;
+    public          DcMotor                     lfWheel;
+    public          DcMotor                     rfWheel;
+    public          DcMotor                     lrWheel;
+    public          DcMotor                     rrWheel;
+    public          DcMotor                     intake;
+    public          DcMotor                     hangOne;
+    public          DcMotor                     extend;
 
-    public          double           maxDriveSpeed           = 0.9;
+    public          DistanceSensor              frontDistanceSensor;
+    public          DistanceSensor              backDistanceSensor;
 
-    private static  GOFHardware     robot                    = null;
+    public          double                      maxDriveSpeed            = 0.9;
 
-    public          HardwareMap     hwMap;
+    private static  GOFHardware                 robot                    = null;
 
-    public          Integer         rightId;
-    public          Integer         centerId;
-    public          Integer         leftId;
+    public          HardwareMap                 hwMap;
 
-    public          RevTouchSensor  topSensor;
-    public          RevTouchSensor  bottomSensor;
+    public          Integer                     centerId;
+    public          Integer                     leftId;
+    public          Integer                     rightId;
 
-    public          Servo           box;
-    public          Servo           kicker;
-    public          Servo           teamFlag;
+    public          RevTouchSensor              bottomSensor;
+    public          RevTouchSensor              topSensor;
+
+    public          Servo                       box;
+    public          Servo                       teamFlag;
 
     /* Constructor */
     public static GOFHardware getInstance() {
@@ -185,12 +184,14 @@ public class GOFHardware {
             box = null;
         }
 
+        /*
         try { // Container kicker servo
             kicker = hwMap.get(Servo.class, "s0");
         }
         catch (Exception p_exception) {
             kicker = null;
         }
+        */
 
         try { // Team market servo
             teamFlag = hwMap.get(Servo.class, "tm");
@@ -289,12 +290,18 @@ public class GOFHardware {
         }
 
         try { // Lower limit switch
-            bottomSensor = hwMap.get(RevTouchSensor.class, "tb");
+            bottomSensor = hwMap.get(RevTouchSensor.class, "ls");
         }
         catch (Exception p_exception) {
             bottomSensor = null;
         }
-        robot.inited = true;
+
+        try { // Extender limit switch
+            extenderSensor = hwMap.get(AnalogInput.class, "es");
+        }
+        catch (Exception p_exception) {
+            extenderSensor = null;
+        }
     }
 
     /*
@@ -357,16 +364,14 @@ public class GOFHardware {
         }
     }
 
-    public void setKickPower(double kickerPosition) { // Move kicker servo
-        if(kicker != null) {
-            kickerPosition = Range.clip(kickerPosition, 0, 1);
-            kicker.setPosition(kickerPosition);
-        }
-    }
-
     public void setExtendPower(double extendPower) {
         if(extend != null) {
-            extend.setPower(Range.clip(extendPower, -1, 1));
+            if(extenderSensor != null && extendPower > 0 && extenderSensor.getVoltage() > 2) {
+                extend.setPower(0);
+            }
+            else {
+                extend.setPower(Range.clip(extendPower, -1, 1));
+            }
         }
     }
 

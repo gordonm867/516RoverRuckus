@@ -53,10 +53,6 @@ public class GOFCompetitionCheck extends LinearOpMode {
                 functional = false;
             }
         }
-        if(!checkServo(robot.kicker)) { // Moves servo to see if it is moving
-            telemetry.addData("Note", "Kicker servo is not working; please check general functionality");
-            functional = false;
-        }
 
         if(functional) {
             telemetry.addData("Note", "Everything is working fine!") ;
@@ -96,11 +92,6 @@ public class GOFCompetitionCheck extends LinearOpMode {
             servo.setPosition(servo.getPosition() + 0.05);
         }
         sleep(25);
-        if(servo.getPosition() == initPos) {
-            return false;
-        }
-        else {
-            return true;
-        }
+        return(servo.getPosition() == initPos);
     }
 }
