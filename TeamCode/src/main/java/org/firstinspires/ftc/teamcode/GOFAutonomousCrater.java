@@ -298,7 +298,7 @@ public class GOFAutonomousCrater extends LinearOpMode {
         runToPoint(-5.2, -4.5, (doubleSample ? 0 : 9));
         encoderMovePreciseTimed((int)(-560 * 0.75 / (4 * Math.PI)), (int)(560 * 0.75 / (4 * Math.PI)), (int)(560 * 0.75 / (4 * Math.PI)), (int)(-560 * 0.75 / (4 * Math.PI)), 0.5, 1);
         resetEncoders();
-        robot.extend.setTargetPosition(!doubleSample ? robot.extend.getCurrentPosition() : -2000);
+        robot.extend.setTargetPosition(doubleSample ? robot.extend.getCurrentPosition() : -2000);
         robot.extend.setPower(1);
         while(robot.extend.isBusy()) {}
         robot.teamFlag.setPosition(0.920);
