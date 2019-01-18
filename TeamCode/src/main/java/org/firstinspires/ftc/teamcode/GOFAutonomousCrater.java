@@ -172,14 +172,20 @@ public class GOFAutonomousCrater extends LinearOpMode {
             robot.extend.setPower(1);
             while(robot.extend.isBusy()) {}
             sleep(1000);
-            frontTurn(-90, 5);
-            runToPoint(-5.2, -4);
             robot.extend.setTargetPosition(0);
             while(robot.extend.isBusy()) {}
+            frontTurn(-90, 5);
+            runToPoint(-5.2, -4);
         }
+        robot.extend.setTargetPosition(-2000);
+        robot.extend.setPower(1);
+        while(robot.extend.isBusy()) {}
         robot.teamFlag.setPosition(0.920);
         sleep(500);
+        robot.extend.setTargetPosition(0);
+        while(robot.extend.isBusy()) {}
         encoderMovePreciseTimed((int)(-560 * 0.75 / (4 * Math.PI)), (int)(560 * 0.75 / (4 * Math.PI)), (int)(560 * 0.75 / (4 * Math.PI)), (int)(-560 * 0.75 / (4 * Math.PI)), 0.5, 1);
+        resetEncoders();
         runBackToPoint(-5.2, 0);
         runBackToPoint(-5.2, 2.25, (float)0.5);
         robot.hangOne.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -306,6 +312,18 @@ public class GOFAutonomousCrater extends LinearOpMode {
         robot.extend.setTargetPosition(0);
         while(robot.extend.isBusy()) {}
         robot.teamFlag.setPosition(0.420);
+        if(doubleSample) {
+            frontTurn(90, 5);
+            robot.flipBox(0.61);
+            robot.setInPower(1);
+            robot.extend.setTargetPosition(-2000);
+            robot.extend.setPower(1);
+            while(robot.extend.isBusy()) {}
+            sleep(1000);
+            robot.extend.setTargetPosition(0);
+            while(robot.extend.isBusy()) {}
+            frontTurn(-90, 5);
+        }
         encoderMovePreciseTimed((int)(-560 * 1.5 / (4 * Math.PI)), (int)(560 * 1.5 / (4 * Math.PI)), (int)(560 * 1.5 / (4 * Math.PI)), (int)(-560 * 1.5 / (4 * Math.PI)), 0.5, 1);
         resetEncoders();
         encoderMovePreciseTimed((int)(560 * 0.75 / (4 * Math.PI)), (int)(-560 * 0.75 / (4 * Math.PI)), (int)(-560 * 0.75 / (4 * Math.PI)), (int)(560 * 0.75 / (4 * Math.PI)), 0.5, 1);
