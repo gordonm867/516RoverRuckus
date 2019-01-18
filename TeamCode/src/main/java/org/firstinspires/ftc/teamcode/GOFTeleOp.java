@@ -9,6 +9,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
 // @SuppressWarnings({"WeakerAccess", "SpellCheckingInspection", "EmptyCatchBlock", "StatementWithEmptyBody", "SameParameterValue"})
@@ -85,6 +86,9 @@ public class GOFTeleOp extends OpMode {
                         tmy += "    Drive: " + drive + "\n";
                         tmy += "    Turn: " + turn + "\n";
                         tmy += "    Angle: " + angle + "\n";
+                        tmy += "Sensors" + "\n";
+                        tmy += "     MR Range Sensor: " + robot.rfSensor.cmUltrasonic() + "\n";
+                        tmy += "     REV 2m Distance Sensor: " + robot.centerSensor.getDistance(DistanceUnit.INCH) + "\n";
                         //tmy += "Extender limit switch voltage: " + robot.extenderSensor.getVoltage();
                         tmy += "Cycle Time: " + timeDifference;
                         telemetry.addData("", tmy);
@@ -314,19 +318,19 @@ public class GOFTeleOp extends OpMode {
         }
 
         if(gamepad2.left_trigger != 0) {
-            robot.flipBox(0.535);
+            robot.flipBox(0.456);
         }
         if(gamepad2.right_trigger != 0) {
-            robot.flipBox(0.59);
+            robot.flipBox(0.593);
         }
         if(gamepad2.right_bumper && !bumperPressed) {
-            robot.flipBox(0.414);
+            robot.flipBox(0.434);
         }
         if(bumperPressed && !(gamepad2.right_bumper || gamepad2.left_bumper)) {
             bumperPressed = false;
         }
         if(gamepad2.a && !aPressed) {
-            robot.flipBox(0.535);
+            robot.flipBox(0.456);
             aPressed = true;
             servoMove = true;
         }
@@ -339,7 +343,7 @@ public class GOFTeleOp extends OpMode {
         if(robot.extenderSensor.getVoltage() > 2 && servoMove) {
             robot.setExtendPower(0);
             servoMove = false;
-            robot.flipBox(0.414);
+            robot.flipBox(0.434);
         }
         double endingTime = elapsedTime.time();
         timeDifference = startingTime - endingTime;
@@ -349,6 +353,7 @@ public class GOFTeleOp extends OpMode {
     @Override
     public void stop() { // Run when "STOP" pressed
         doTelemetry = false;
+        robot.enabled = false;
         robot.wheelBrake();
         robot.hangBrake();
         // robot.setKickPower(kickReadyPos); // Move kick servo to "intake ready" position

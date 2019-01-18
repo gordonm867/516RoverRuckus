@@ -1,4 +1,4 @@
-#Fri Jan 11 19:18:59 EST 2019
+#Wed Jan 16 17:15:11 EST 2019
 base.0=/Users/mgordon/516-Gears-Of-Fire/TeamCode/build/intermediates/transforms/dexMerger/debug/0
 path.1=classes2.dex
 renamed.1=classes2.dex

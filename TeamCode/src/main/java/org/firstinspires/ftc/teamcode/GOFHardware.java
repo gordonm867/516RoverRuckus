@@ -20,7 +20,8 @@ I2C Controller 2 Port 0 gyro1               (g1)
 import com.qualcomm.ftccommon.SoundPlayer;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
-import com.qualcomm.hardware.modernrobotics.ModernRoboticsTouchSensor;
+import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cRangeSensor;
+import com.qualcomm.hardware.rev.Rev2mDistanceSensor;
 import com.qualcomm.hardware.rev.RevTouchSensor;
 import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.ColorSensor;
@@ -31,48 +32,54 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.util.Range;
 
-@SuppressWarnings({"WeakerAccess", "SpellCheckingInspection", "EmptyCatchBlock", "StatementWithEmptyBody", "SameParameterValue"})
+import org.firstinspires.ftc.robotcontroller.external.samples.SensorMRRangeSensor;
+
+// @SuppressWarnings({"WeakerAccess", "SpellCheckingInspection", "EmptyCatchBlock", "StatementWithEmptyBody", "SameParameterValue"})
 public class GOFHardware {
 
-    public          AnalogInput                 extenderSensor;
+    public          AnalogInput                  extenderSensor;
 
-    public          BNO055IMU                   gyro0;
-    public          BNO055IMU                   gyro1;
+    public          BNO055IMU                    gyro0;
+    public          BNO055IMU                    gyro1;
 
-    public          boolean                     leftFound;
-    public          boolean                     centerFound;
-    public          boolean                     rightFound;
-    public          boolean                     soundError;
+    public          boolean                      leftFound;
+    public          boolean                      centerFound;
+    public          boolean                      rightFound;
+    public          boolean                      soundError;
+    public volatile boolean                      enabled                   = true;
 
-    public          ColorSensor                 frontColorSensor;
-    public          ColorSensor                 backColorSensor;
+    public          ColorSensor                  frontColorSensor;
+    public          ColorSensor                  backColorSensor;
 
-    public          DcMotor                     lfWheel;
-    public          DcMotor                     rfWheel;
-    public          DcMotor                     lrWheel;
-    public          DcMotor                     rrWheel;
-    public          DcMotor                     intake;
-    public          DcMotor                     hangOne;
-    public          DcMotor                     extend;
+    public          DcMotor                      lfWheel;
+    public          DcMotor                      rfWheel;
+    public          DcMotor                      lrWheel;
+    public          DcMotor                      rrWheel;
+    public          DcMotor                      intake;
+    public          DcMotor                      hangOne;
+    public          DcMotor                      extend;
 
-    public          DistanceSensor              frontDistanceSensor;
-    public          DistanceSensor              backDistanceSensor;
+    public          DistanceSensor               centerSensor;
+    public          DistanceSensor               frontDistanceSensor;
+    public          DistanceSensor               backDistanceSensor;
 
-    public          double                      maxDriveSpeed            = 0.9;
+    public          double                       maxDriveSpeed            = 0.9;
 
-    private static  GOFHardware                 robot                    = null;
+    private static  GOFHardware                  robot                    = null;
 
-    public          HardwareMap                 hwMap;
+    public          HardwareMap                  hwMap;
 
-    public          Integer                     centerId;
-    public          Integer                     leftId;
-    public          Integer                     rightId;
+    public          Integer                      centerId;
+    public          Integer                      leftId;
+    public          Integer                      rightId;
 
-    public          RevTouchSensor              bottomSensor;
-    public          RevTouchSensor              topSensor;
+    public          ModernRoboticsI2cRangeSensor rfSensor;
 
-    public          Servo                       box;
-    public          Servo                       teamFlag;
+    public          RevTouchSensor               bottomSensor;
+    public          RevTouchSensor               topSensor;
+
+    public          Servo                        box;
+    public          Servo                        teamFlag;
 
     /* Constructor */
     public static GOFHardware getInstance() {
@@ -227,6 +234,20 @@ public class GOFHardware {
             frontDistanceSensor = null;
         }
 
+        try { // Distance sensor at center of robot
+            centerSensor = hwMap.get(DistanceSensor.class, "ds");
+        }
+        catch (Exception p_exception) {
+            centerSensor = null;
+        }
+
+        try { // Distance sensor at center of robot
+            rfSensor = hwMap.get(ModernRoboticsI2cRangeSensor.class, "uss");
+        }
+        catch (Exception p_exception) {
+            rfSensor = null;
+        }
+
         try { // Sound files
             rightId = hwMap.appContext.getResources().getIdentifier("right", "raw", hwMap.appContext.getPackageName());
             leftId = hwMap.appContext.getResources().getIdentifier("left", "raw", hwMap.appContext.getPackageName());
@@ -302,6 +323,7 @@ public class GOFHardware {
         catch (Exception p_exception) {
             extenderSensor = null;
         }
+
     }
 
     /*
@@ -377,7 +399,7 @@ public class GOFHardware {
 
     public void flipBox(double boxPos) {
         if(box != null) {
-            box.setPosition(Range.clip(Math.abs(boxPos), 0, 1));
+            box.setPosition(Range.clip(boxPos, 0.4, 0.7));
         }
     }
 
@@ -405,6 +427,8 @@ public class GOFHardware {
 
     public void hangBrake() { // Stop hang movement
         setHangPower(0);
+        setExtendPower(0);
+        enabled = false;
     }
 
     public void gyroInit() { // Re-initialize gyros
