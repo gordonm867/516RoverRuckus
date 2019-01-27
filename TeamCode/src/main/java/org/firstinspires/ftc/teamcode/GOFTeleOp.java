@@ -5,11 +5,9 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
 // @SuppressWarnings({"WeakerAccess", "SpellCheckingInspection", "EmptyCatchBlock", "StatementWithEmptyBody", "SameParameterValue"})
@@ -19,22 +17,19 @@ public class GOFTeleOp extends OpMode {
     private             boolean             aPressed            = false;
     private volatile    boolean             doTelemetry         = true;
     private             boolean             ypressed            = false;
+    private             boolean             useNeg              = false;
+    private             boolean             waitingForClick     = true;
     private             boolean             bumperPressed       = false;
     private             boolean             servoMove           = false;
-    private             boolean             hanging             = false;
+    private             boolean             hanging             = true;
 
-    private             double              angle;
-    private             double              drive;
     private             double              firstAngleOffset;
- // private             double              kickOutPos          = 0.35;
- // private             double              kickReadyPos        = 0.175;
+    private             double              triggerPressed      = 0;
     private             double              lastIntake          = 0;
     private             double              maxDriveSpeed;
-    private volatile    double              timeDifference;
-    private             double              turn;
 
-    private             ElapsedTime         elapsedTime         = new ElapsedTime();
     private             ElapsedTime         hangTime            = new ElapsedTime();
+    private             ElapsedTime         trigTime            = new ElapsedTime();
 
     public              GOFHardware         robot               = GOFHardware.getInstance(); // Use the GOFHardware class
 
@@ -65,7 +60,8 @@ public class GOFTeleOp extends OpMode {
                 }
                 while(doTelemetry) {
                     try {
-                        String tmy = "Run Time: " + elapsedTime.toString() + "\n";
+                        String tmy = "";
+                        // tmy += "Run Time: " + elapsedTime.toString() + "\n";
                         tmy += "Motors" + "\n";
                         tmy += "    em: " + robot.extend.getCurrentPosition() + "\n";
                         tmy += "    so: " + robot.passive.getCurrentPosition() + "\n";
@@ -87,11 +83,10 @@ public class GOFTeleOp extends OpMode {
 
     @Override
     public void loop() {
-        double startingTime = elapsedTime.time();
-        drive = gamepad1.left_stick_y;
+        double drive = gamepad1.left_stick_y;
         double hangDrive = -gamepad2.left_stick_y;
-        turn = -gamepad1.right_stick_x;
-        angle = -gamepad1.left_stick_x;
+        double turn = -gamepad1.right_stick_x;
+        double angle = -gamepad1.left_stick_x;
 
         /* Precision vertical drive */
         if (gamepad1.dpad_down || gamepad1.dpad_up) {
@@ -137,6 +132,9 @@ public class GOFTeleOp extends OpMode {
             } else {
                 scaleFactor = 1;
             }
+            if(gamepad1.right_trigger != 0) {
+                scaleFactor *= gamepad1.right_trigger;
+            }
             robot.setDrivePower(scaleFactor * (drive + turn - angle), scaleFactor * (drive + turn + angle), scaleFactor * (drive - turn + angle), scaleFactor * (drive - turn - angle)); // Set motors to values based on gamepad
         }
         else if(driverMode == -1) {
@@ -146,92 +144,34 @@ public class GOFTeleOp extends OpMode {
             driverMode = 1;
         }
 
-        if((gamepad1.right_trigger - gamepad1.left_trigger) != 0 || gamepad2.dpad_up || gamepad2.dpad_down) {
-            robot.setInPower(gamepad1.right_trigger + (gamepad2.dpad_up ? 1 : 0) - gamepad1.left_trigger - (gamepad2.dpad_down ? 1 : 0)); // Set intake power based on the gamepad trigger values
+        if(gamepad1.left_trigger != 0) {
+            triggerPressed = gamepad1.left_trigger * (useNeg ? -1 : 1);
+            trigTime.reset();
+        }
+        if(gamepad1.left_trigger == 0 && triggerPressed != 0) {
+            triggerPressed = 0;
+            if(!useNeg) {
+                waitingForClick = true;
+            }
+            else {
+                useNeg = false;
+            }
+        }
+        if(waitingForClick && trigTime.time() > 1) {
+            waitingForClick = false;
+        }
+        if(waitingForClick && gamepad1.left_trigger > 0.05) {
+            useNeg = true;
+        }
+
+        if((triggerPressed != 0 || gamepad2.dpad_up || gamepad2.dpad_down)) {
+            robot.setInPower((gamepad2.dpad_up ? 1 : 0) + triggerPressed - (gamepad2.dpad_down ? 1 : 0)); // Set intake power based on the gamepad trigger values
             lastIntake = (robot.intake.getCurrentPosition() - lastIntake);
             lastIntake /= (lastIntake == 0 ? 1 : Math.abs(lastIntake));
         }
         else {
             robot.setInPower(0);
-            /*
-            try {
-                if(lastIntake != 0 && robot.intake.getCurrentPosition() % 288 != 0 && !robot.intake.isBusy()) {
-                    try {
-                        robot.setInPos((int)((288 * (robot.intake.getCurrentPosition() / 288)) + (288 * lastIntake)), 1);
-                    }
-                    catch(Exception p_exception) {
-                        robot.setInPower(0);
-                    }
-                }
-                else {
-                    robot.setInPower(0);
-                }
-            }
-            catch (Exception p_exception) {
-                telemetry.addData("Note: ", "I hope you weren't planning on using intake, since it's not really working.");
-            } */
         }
-        /*
-        if (gamepad2.b) {
-            bpressedtwo = true;
-        }
-
-        if (bpressedtwo && !gamepad2.b) { // Toggle sorting system
-            inReady = Math.abs(inReady - 1); // If inReady = 0, set it to 1; otherwise, set it to 0
-            forcedOn = false;
-            bpressedtwo = false;
-        }
-
-        if (gamepad2.a) {
-            apressedtwo = true;
-        }
-
-        if (apressedtwo && !gamepad2.a) { // Force sorting system on until turned off manually
-            forcedOn = true;
-            bpressedtwo = false;
-        }
-
-        if (inReady == 1 && robot.frontDistanceSensor != null && robot.backDistanceSensor != null) {
-            // robot.setKickPower(kickReadyPos); // Move kicker out of the way
-            // robot.setDoorPower(doorOpenPos); // Open intake
-
-            if (robot.frontDistanceSensor != null && robot.frontDistanceSensor.getDistance(DistanceUnit.INCH) > 1) {
-                frontCube = 0;
-            } else {
-                try { // Possible division by zero error
-                    inRatioOne = robot.frontColorSensor.red() / robot.frontColorSensor.blue(); // GOLD: RED TO BLUE = 2:1, SILVER: RED TO BLUE = 1:1, PURPLE: RED TO BLUE 1:2
-                } catch (Exception p_exception) {
-                    inRatioOne = 0;
-                }
-                if (Math.abs((2 - inRatioOne)) > Math.abs((1 - inRatioOne))) { // Silver
-                    frontCube = 1;
-                } else { // Gold
-                    frontCube = 2;
-                }
-            }
-            if (robot.backDistanceSensor != null && robot.backDistanceSensor.getDistance(DistanceUnit.INCH) > 1) {
-                backCube = 0;
-            } else {
-                try {
-                    inRatioTwo = robot.backColorSensor.red() / robot.backColorSensor.blue();
-                } catch (Exception p_exception) {
-                    inRatioTwo = 0;
-                }
-                if (Math.abs((2 - inRatioTwo)) > Math.abs((1 - inRatioTwo))) { // Silver
-                    backCube = 1;
-                } else { // Gold
-                    backCube = 2;
-                }
-            }
-
-            if ((backCube * frontCube != 0) && (backCube == frontCube) && !forcedOn) {
-                inReady = 0;
-            } else if (backCube * frontCube != 0) {
-                // robot.setKickPower(kickOutPos); // Kick mineral out of container
-                frontCube = 0; // the front cube should be not there
-            }
-        }
-        */
 
         if (gamepad1.y) {
             ypressed = true;
@@ -336,9 +276,6 @@ public class GOFTeleOp extends OpMode {
         if(hangTime.time() >= 0.75) {
             hanging = true;
         }
-        double endingTime = elapsedTime.time();
-        timeDifference = startingTime - endingTime;
-        // doTelemetry();
     }
 
     @Override
