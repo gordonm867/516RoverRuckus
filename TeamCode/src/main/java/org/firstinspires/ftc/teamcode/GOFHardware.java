@@ -33,6 +33,7 @@ import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcontroller.external.samples.SensorMRRangeSensor;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 // @SuppressWarnings({"WeakerAccess", "SpellCheckingInspection", "EmptyCatchBlock", "StatementWithEmptyBody", "SameParameterValue"})
 public class GOFHardware {
@@ -58,12 +59,13 @@ public class GOFHardware {
     public          DcMotor                      intake;
     public          DcMotor                      hangOne;
     public          DcMotor                      extend;
+    public          DcMotor                      passive;
 
     public          DistanceSensor               centerSensor;
     public          DistanceSensor               frontDistanceSensor;
     public          DistanceSensor               backDistanceSensor;
 
-    public          double                       maxDriveSpeed            = 0.9;
+    public          double                       maxDriveSpeed            = 1;
 
     private static  GOFHardware                  robot                    = null;
 
@@ -176,6 +178,17 @@ public class GOFHardware {
         }
         catch (Exception p_exception) {
             extend = null;
+        }
+
+        try { // Intake extension
+            passive = hwMap.get(DcMotor.class, "so");
+            passive.setDirection(DcMotor.Direction.FORWARD);
+            passive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            passive.setPower(0);
+            passive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        }
+        catch (Exception p_exception) {
+            passive = null;
         }
 
     /*
@@ -459,6 +472,26 @@ public class GOFHardware {
         catch (Exception p_exception) {
             gyro1 = null;
         }
+    }
+
+    public double getUSDistance() {
+        double distance = rfSensor.cmUltrasonic();
+        int iterations = 1;
+        while((distance < 0.1 || distance > 200) && iterations < 15) {
+            distance = rfSensor.cmUltrasonic();
+            iterations++;
+        }
+        return distance;
+    }
+
+    public double getREVDistance() {
+        double distance = centerSensor.getDistance(DistanceUnit.INCH);
+        int iterations = 1;
+        while((distance < 0.1 || distance > 150) && iterations < 15) {
+            distance = centerSensor.getDistance(DistanceUnit.INCH);
+            iterations++;
+        }
+        return distance;
     }
 
     public double getBatteryVoltage() {

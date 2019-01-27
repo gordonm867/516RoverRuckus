@@ -4,6 +4,7 @@ import android.os.Environment;
 import android.util.Base64;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Gamepad;
@@ -26,7 +27,7 @@ import java.util.Iterator;
 import java.util.List;
 
 @Autonomous(name="AutoCreatorRunner",group="GOFTests")
-// @Disabled
+@Disabled
 
 public class AutoCreatorTestRunnable extends LinearOpMode {
     private                 boolean                 aPressed                = false;

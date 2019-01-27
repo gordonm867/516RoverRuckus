@@ -21,6 +21,7 @@ public class GOFTeleOp extends OpMode {
     private             boolean             ypressed            = false;
     private             boolean             bumperPressed       = false;
     private             boolean             servoMove           = false;
+    private             boolean             hanging             = false;
 
     private             double              angle;
     private             double              drive;
@@ -33,6 +34,7 @@ public class GOFTeleOp extends OpMode {
     private             double              turn;
 
     private             ElapsedTime         elapsedTime         = new ElapsedTime();
+    private             ElapsedTime         hangTime            = new ElapsedTime();
 
     public              GOFHardware         robot               = GOFHardware.getInstance(); // Use the GOFHardware class
 
@@ -65,60 +67,19 @@ public class GOFTeleOp extends OpMode {
                     try {
                         String tmy = "Run Time: " + elapsedTime.toString() + "\n";
                         tmy += "Motors" + "\n";
-                        tmy += "    rr: " + robot.rrWheel.getCurrentPosition() + "\n";
-                        tmy += "    rf: " + robot.rfWheel.getCurrentPosition() + "\n";
-                        tmy += "    lr: " + robot.lrWheel.getCurrentPosition() + "\n";
-                        tmy += "    lf: " + robot.lfWheel.getCurrentPosition() + "\n";
-                        tmy += "    h1: " + robot.hangOne.getCurrentPosition() + "\n";
                         tmy += "    em: " + robot.extend.getCurrentPosition() + "\n";
-                        tmy += "    intake: " + (gamepad1.right_trigger) + ", " + robot.intake.getCurrentPosition() + "\n";
-                        tmy += "    outtake: " + (gamepad1.left_trigger) + "\n";
+                        tmy += "    so: " + robot.passive.getCurrentPosition() + "\n";
                         tmy += "Servos" + "\n";
                         tmy += "    fm: " + robot.box.getPosition() + "\n";
-                        tmy += "    tm: " + robot.teamFlag.getPosition() + "\n";
-                        tmy += (driverMode == 1 ? "Drive Mode: Normal" : driverMode == -1 ? "Drive Mode: Field-Oriented" : "Drive Mode: Null") + "\n";
-                        tmy += "Gyro Data" + "\n";
-                        tmy += "    Robot angle: " + getAngle() + "\n";
-                        tmy += "    X acceleration" + ((robot.gyro0.getGravity().xAccel + robot.gyro1.getGravity().xAccel) / 2) + "\n";
-                        tmy += "    Y acceleration" + ((robot.gyro0.getGravity().yAccel + robot.gyro1.getGravity().yAccel) / 2) + "\n";
-                        tmy += "    Z acceleration" + ((robot.gyro0.getGravity().zAccel + robot.gyro1.getGravity().zAccel) / 2) + "\n";
-                        tmy += "Variables" + "\n";
-                        tmy += "    Drive: " + drive + "\n";
-                        tmy += "    Turn: " + turn + "\n";
-                        tmy += "    Angle: " + angle + "\n";
                         tmy += "Sensors" + "\n";
-                        tmy += "     MR Range Sensor: " + robot.rfSensor.cmUltrasonic() + "\n";
-                        tmy += "     REV 2m Distance Sensor: " + robot.centerSensor.getDistance(DistanceUnit.INCH) + "\n";
-                        //tmy += "Extender limit switch voltage: " + robot.extenderSensor.getVoltage();
-                        tmy += "Cycle Time: " + timeDifference;
+                        tmy += "     MR Range Sensor: " + robot.getUSDistance() + "\n";
+                        tmy += "     REV 2m Distance Sensor: " + robot.getREVDistance() + "\n";
                         telemetry.addData("", tmy);
                     } catch (Exception p_exception) {
                         telemetry.addData("Uh oh", "The driver controller was unable to communicate via telemetry.  For help, please seek a better programmer.");
                     }
                     telemetry.update();
                 }
-            }
-
-            private double getAngle() {
-                double robotAngle;
-                Orientation g0angles = null;
-                Orientation g1angles = null;
-                if (robot.gyro0 != null) {
-                    g0angles = robot.gyro0.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES); // Get z axis angle from first gyro (in radians so that a conversion is unnecessary for proper employment of Java's Math class)
-                }
-                if (robot.gyro1 != null) {
-                    g1angles = robot.gyro1.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES); // Get z axis angle from second gyro (in radians so that a conversion is unnecessary for proper employment of Java's Math class)
-                }
-                if (g0angles != null && g1angles != null) {
-                    robotAngle = ((g0angles.firstAngle + g1angles.firstAngle) / 2); // Average angle measures to determine actual robot angle
-                } else if (g0angles != null) {
-                    robotAngle = g0angles.firstAngle;
-                } else if (g1angles != null) {
-                    robotAngle = g1angles.firstAngle;
-                } else {
-                    robotAngle = 0;
-                }
-                return robotAngle;
             }
         };
         update.start();
@@ -308,7 +269,12 @@ public class GOFTeleOp extends OpMode {
                 }
             }
         }
-        robot.setHangPower(hangDrive); // Move container based on gamepad positions
+        if(hangDrive != 0) {
+            robot.flipBox(0.47);
+        }
+        if(!servoMove) {
+            robot.setHangPower(hanging ? hangDrive : 0); // Move container based on gamepad positions
+        }
         if(!servoMove) {
             robot.setExtendPower((Math.abs(gamepad2.right_stick_x) < 0.05 ? gamepad2.dpad_right ? 0.25 : gamepad2.dpad_left ? -0.25 : gamepad1.x ? -1 : gamepad1.b ? 1 : 0 : gamepad2.right_stick_x));
         }
@@ -318,19 +284,21 @@ public class GOFTeleOp extends OpMode {
         }
 
         if(gamepad2.left_trigger != 0) {
-            robot.flipBox(0.456);
+            robot.flipBox(0.47); // Neutral
         }
         if(gamepad2.right_trigger != 0) {
-            robot.flipBox(0.593);
+            robot.flipBox(0.61); // Intake
         }
         if(gamepad2.right_bumper && !bumperPressed) {
-            robot.flipBox(0.434);
+            robot.flipBox(0.414); // Dump
+            hangTime.reset();
+            hanging = false;
         }
         if(bumperPressed && !(gamepad2.right_bumper || gamepad2.left_bumper)) {
             bumperPressed = false;
         }
         if(gamepad2.a && !aPressed) {
-            robot.flipBox(0.456);
+            robot.flipBox(0.47);
             aPressed = true;
             servoMove = true;
         }
@@ -340,10 +308,33 @@ public class GOFTeleOp extends OpMode {
         if(servoMove && !(robot.extenderSensor.getVoltage() > 2)) {
             robot.setExtendPower(1);
         }
+        if(servoMove && !(robot.bottomSensor.isPressed())) {
+            robot.setHangPower(-1);
+        }
         if(robot.extenderSensor.getVoltage() > 2 && servoMove) {
             robot.setExtendPower(0);
+            if(robot.bottomSensor.isPressed()) {
+                robot.setHangPower(0);
+                servoMove = false;
+                robot.flipBox(0.414);
+            }
+        }
+        if(robot.bottomSensor.isPressed() && servoMove) {
+            robot.setHangPower(0);
+            if(robot.extenderSensor.getVoltage() > 2) {
+                servoMove = false;
+                robot.extend.setPower(0);
+                robot.flipBox(0.414);
+            }
+        }
+        if(servoMove && robot.bottomSensor.isPressed() && robot.extenderSensor.getVoltage() > 2) {
+            robot.setHangPower(0);
+            robot.setExtendPower(0);
             servoMove = false;
-            robot.flipBox(0.434);
+            robot.flipBox(0.414);
+        }
+        if(hangTime.time() >= 0.75) {
+            hanging = true;
         }
         double endingTime = elapsedTime.time();
         timeDifference = startingTime - endingTime;

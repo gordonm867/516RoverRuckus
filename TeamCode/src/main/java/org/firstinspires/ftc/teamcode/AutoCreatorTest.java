@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode;
 import android.os.Environment;
 import android.util.Base64;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.exception.RobotCoreException;
@@ -24,7 +25,7 @@ import java.util.Iterator;
 import java.util.List;
 
 @TeleOp(name="GOFAutoCreatorTest",group="GOFTests")
-// @Disabled
+@Disabled
 public class AutoCreatorTest extends LinearOpMode {
     private                 GOFTeleOp           driveControl = new GOFTeleOp();
 
