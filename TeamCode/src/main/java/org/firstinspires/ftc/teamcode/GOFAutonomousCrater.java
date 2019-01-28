@@ -464,7 +464,9 @@ public class GOFAutonomousCrater extends LinearOpMode {
     private void descend() {
         resetEncoders();
         robot.hangOne.setTargetPosition(1560);
-        while (opModeIsActive() && robot.hangOne.getCurrentPosition() < 1560) {
+        robot.extend.setTargetPosition(-3000);
+        robot.extend.setPower(1);
+        while (opModeIsActive() && robot.hangOne.getCurrentPosition() < 1560 && !robot.topSensor.isPressed()) {
             telemetry.addData("h1: ", "" + robot.hangOne.getCurrentPosition());
             telemetry.addData("Current angle", (getAngle() + 135));
             telemetry.update();
@@ -479,6 +481,9 @@ public class GOFAutonomousCrater extends LinearOpMode {
         robot.hangOne.setTargetPosition(robot.hangOne.getCurrentPosition()); // Set the target position to its current position to stop movement
         robot.setHangPower(0); // Stop sending power just in case
         resetEncoders();
+        if(goldPos == 0) {
+            robot.flipBox(0.61);
+        }
         robot.hangOne.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER); // Reset hang encoder
         robot.hangOne.setMode(DcMotor.RunMode.RUN_TO_POSITION); // Set hang wheel back to run to position mode
     }
