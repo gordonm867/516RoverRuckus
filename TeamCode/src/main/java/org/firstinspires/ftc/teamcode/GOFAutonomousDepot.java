@@ -39,7 +39,6 @@ public class GOFAutonomousDepot extends LinearOpMode {
 
     private volatile        boolean             doTelemetry             = true;
     private                 boolean             remove;
-    private                 boolean             score                   = false;
     private                 boolean             path                    = false;
     private                 double              angleOffset             = 3;
     private                 boolean             yPressed                = false;
@@ -232,27 +231,29 @@ public class GOFAutonomousDepot extends LinearOpMode {
         robot.setInPower(1);
         resetEncoders();
         turn(-getAngle(), 1);
-        runToPoint(-4, -4);
+        runToPoint(-4.5, -4.5, false);
         robot.extend.setTargetPosition(-1500);
         robot.extend.setPower(1);
         while(robot.extend.isBusy() && opModeIsActive()) {}
-        robot.teamFlag.setPosition(0.87);
+        robot.teamFlag.setPosition(0.920);
         robot.setInPower(0);
         sleep(500);
         robot.extend.setTargetPosition(0);
         while(!robot.extend.isBusy()) {}
-        runBackToPoint(-2.9, -2.9, 0);
         if(path) {
             robot.flipBox(0.414);
+            sleep(500);
+            robot.setInPower(-0.2);
             score();
         }
         else {
             robot.flipBox(0.456);
+            encoderMovePreciseTimed(0, 1, 2, true);
         }
-        runToPoint(-1, -5);
-        runToPoint(0.25,-5);
+        runToPoint(-1, -5, true);
+        runToPoint(0.25,-5, true);
         encoderMovePreciseTimed(-1700, 1700, 1700, -1700, 1, 2);
-        runToPoint(1.5, -5);
+        runToPoint(1.5, -5, true);
         robot.extend.setTargetPosition(-3000);
         robot.extend.setPower(1);
         while(opModeIsActive() && robot.extend.isBusy()) {}
@@ -310,7 +311,7 @@ public class GOFAutonomousDepot extends LinearOpMode {
         resetEncoders();
         robot.extend.setTargetPosition(0);
         while(robot.extend.isBusy()) {}
-        runToPoint(-2.9, -2.9);
+        runToPoint(-2.9, -2.9, true);
         turn(-getAngle(), 2);
         robot.extend.setTargetPosition(-3000);
         robot.extend.setPower(1);
@@ -327,10 +328,10 @@ public class GOFAutonomousDepot extends LinearOpMode {
         else {
             robot.flipBox(0.55);
         }
-        runToPoint(-1, -5);
-        runToPoint(0.25,-5);
+        runToPoint(-1, -5, true);
+        runToPoint(0.25,-5, true);
         encoderMovePreciseTimed(-1700, 1700, 1700, -1700, 1, 2);
-        runToPoint(1.5, -5);
+        runToPoint(1.5, -5, true);
         robot.extend.setTargetPosition(-3000);
         robot.extend.setPower(1);
         while(opModeIsActive() && robot.extend.isBusy()) {
@@ -407,7 +408,7 @@ public class GOFAutonomousDepot extends LinearOpMode {
         resetEncoders();
         robot.extend.setTargetPosition(0);
         while(robot.extend.isBusy()) {}
-        runToPoint(-2.9, -2.9);
+        runToPoint(-2.9, -2.9, true);
         turn(-getAngle(), 3);
         robot.extend.setTargetPosition(-3000);
         robot.extend.setPower(1);
@@ -424,10 +425,10 @@ public class GOFAutonomousDepot extends LinearOpMode {
         else {
             robot.flipBox(0.5);
         }
-        runToPoint(-1, -5);
-        runToPoint(0.25,-5);
+        runToPoint(-1, -5, true);
+        runToPoint(0.25,-5, true);
         encoderMovePreciseTimed(-1700, 1700, 1700, -1700, 1, 2);
-        runToPoint(1.5, -5);
+        runToPoint(1.5, -5, true);
         robot.extend.setTargetPosition(-3000);
         robot.extend.setPower(1);
         while(opModeIsActive() && robot.extend.isBusy()) {
@@ -676,7 +677,7 @@ public class GOFAutonomousDepot extends LinearOpMode {
         }
     }
 
-    private void runToPoint(double newX, double newY) {
+    private void runToPoint(double newX, double newY, boolean reset) {
         double angle;
         try {
             angle = atan(newY - point[1], newX - point[0]);
@@ -695,13 +696,13 @@ public class GOFAutonomousDepot extends LinearOpMode {
             turn(turnDistance, Math.abs(turnDistance) / 60.0);
         }
         int distance = calculateMove(Math.abs(newX - point[0]), Math.abs(newY - point[1]));
-        encoderMovePreciseTimed(distance, 1, Math.abs(distance / 1500.0));
+        encoderMovePreciseTimed(distance, 1, Math.abs(distance / 1500.0), reset);
         point[0] = newX;
         point[1] = newY;
         // while(!gamepad1.a && opModeIsActive()) {}
     }
 
-    private void runToPoint(double newX, double newY, int deviation) {
+    private void runToPoint(double newX, double newY, int deviation, boolean reset) {
         double angle;
         try {
             angle = atan(newY - point[1], newX - point[0]);
@@ -720,13 +721,13 @@ public class GOFAutonomousDepot extends LinearOpMode {
             turn(turnDistance, Math.abs(turnDistance) / 60.0);
         }
         int distance = calculateMove(Math.abs(newX - point[0]), Math.abs(newY - point[1]), deviation);
-        encoderMovePreciseTimed(distance, 1, Math.abs(distance) / 1500.0);
+        encoderMovePreciseTimed(distance, 1, Math.abs(distance) / 1500.0, reset);
         point[0] = newX;
         point[1] = newY;
         // while(!gamepad1.a && opModeIsActive()) {}
     }
 
-    private void runToPoint(double newX, double newY, double angleError) {
+    private void runToPoint(double newX, double newY, double angleError, boolean reset) {
         double angle;
         try {
             angle = atan(newY - point[1], newX - point[0]) + angleError;
@@ -745,13 +746,13 @@ public class GOFAutonomousDepot extends LinearOpMode {
             turn(turnDistance, Math.abs(turnDistance) / 60.0);
         }
         int distance = calculateMove(Math.abs(newX - point[0]), Math.abs(newY - point[1]));
-        encoderMovePreciseTimed(distance, 1, Math.abs(distance) / 1500.0);
+        encoderMovePreciseTimed(distance, 1, Math.abs(distance) / 1500.0, reset);
         point[0] = newX;
         point[1] = newY;
         // while(!gamepad1.a && opModeIsActive()) {}
     }
 
-    private void runToPoint(double newX, double newY, int deviation, double angleError) {
+    private void runToPoint(double newX, double newY, int deviation, double angleError, boolean reset) {
         double angle;
         try {
             angle = atan(newY - point[1], newX - point[0]) + angleError;
@@ -770,13 +771,13 @@ public class GOFAutonomousDepot extends LinearOpMode {
             turn(turnDistance, Math.abs(turnDistance) / 60.0);
         }
         int distance = calculateMove(Math.abs(newX - point[0]), Math.abs(newY - point[1]), deviation);
-        encoderMovePreciseTimed(distance, 1, Math.abs(distance) / 1500);
+        encoderMovePreciseTimed(distance, 1, Math.abs(distance) / 1500, reset);
         point[0] = newX;
         point[1] = newY;
         // while(!gamepad1.a && opModeIsActive()) {}
     }
 
-    private void runToPoint(double newX, double newY, float speed) {
+    private void runToPoint(double newX, double newY, float speed, boolean reset) {
         double angle;
         try {
             angle = atan(newY - point[1], newX - point[0]);
@@ -795,13 +796,13 @@ public class GOFAutonomousDepot extends LinearOpMode {
             turn(turnDistance, Math.abs(turnDistance) / 60.0);
         }
         int distance = calculateMove(Math.abs(newX - point[0]), Math.abs(newY - point[1]));
-        encoderMovePreciseTimed(distance, speed, Math.abs(distance / 1500.0));
+        encoderMovePreciseTimed(distance, speed, Math.abs(distance / 1500.0), reset);
         point[0] = newX;
         point[1] = newY;
         // while(!gamepad1.a && opModeIsActive()) {}
     }
 
-    private void runBackToPoint(double newX, double newY) {
+    private void runBackToPoint(double newX, double newY, boolean reset) {
         double angle;
         try {
             angle = atan(newY - point[1], newX - point[0]);
@@ -820,13 +821,13 @@ public class GOFAutonomousDepot extends LinearOpMode {
             turn(turnDistance, Math.abs(turnDistance) / 60.0);
         }
         int distance = -calculateMove(Math.abs(newX - point[0]), Math.abs(newY - point[1]));
-        encoderMovePreciseTimed(distance, 1, Math.abs(distance) / 1500.0);
+        encoderMovePreciseTimed(distance, 1, Math.abs(distance) / 1500.0, reset);
         point[0] = newX;
         point[1] = newY;
         // while(!gamepad1.a && opModeIsActive()) {}
     }
 
-    private void runBackToPoint(double newX, double newY, int deviation) {
+    private void runBackToPoint(double newX, double newY, int deviation, boolean reset) {
         double angle;
         try {
             angle = atan(newY - point[1], newX - point[0]) + 180;
@@ -845,13 +846,13 @@ public class GOFAutonomousDepot extends LinearOpMode {
             turn(turnDistance, Math.abs(turnDistance) / 60.0);
         }
         int distance = -calculateMove(Math.abs(newX - point[0]), Math.abs(newY - point[1]), deviation);
-        encoderMovePreciseTimed(distance, 1, Math.abs(distance) / 1500.0);
+        encoderMovePreciseTimed(distance, 1, Math.abs(distance) / 1500.0, reset);
         point[0] = newX;
         point[1] = newY;
         // while(!gamepad1.a && opModeIsActive()) {}
     }
 
-    private void runBackToPoint(double newX, double newY, double angleError) {
+    private void runBackToPoint(double newX, double newY, double angleError, boolean reset) {
         double angle;
         try {
             angle = atan(newY - point[1], newX - point[0]) + 180 + angleError;
@@ -870,13 +871,13 @@ public class GOFAutonomousDepot extends LinearOpMode {
             turn(turnDistance, Math.abs(turnDistance) / 60.0);
         }
         int distance = -calculateMove(Math.abs(newX - point[0]), Math.abs(newY - point[1]));
-        encoderMovePreciseTimed(distance, 1, Math.abs(distance) / 1500.0);
+        encoderMovePreciseTimed(distance, 1, Math.abs(distance) / 1500.0, reset);
         point[0] = newX;
         point[1] = newY;
         // while(!gamepad1.a && opModeIsActive()) {}
     }
 
-    private void runBackToPoint(double newX, double newY, int deviation, double angleError) {
+    private void runBackToPoint(double newX, double newY, int deviation, double angleError, boolean reset) {
         double angle;
         try {
             angle = atan(newY - point[1], newX - point[0]) + 180 + angleError;
@@ -895,7 +896,7 @@ public class GOFAutonomousDepot extends LinearOpMode {
             turn(turnDistance, Math.abs(turnDistance) / 60.0);
         }
         int distance = -calculateMove(Math.abs(newX - point[0]), Math.abs(newY - point[1]), deviation);
-        encoderMovePreciseTimed(distance, 1, Math.abs(distance) / 1500.0);
+        encoderMovePreciseTimed(distance, 1, Math.abs(distance) / 1500.0, reset);
         point[0] = newX;
         point[1] = newY;
         // while(!gamepad1.a && opModeIsActive()) {}
@@ -992,7 +993,7 @@ public class GOFAutonomousDepot extends LinearOpMode {
         }
     } */
 
-    private void encoderMovePreciseTimed(int pos, double speed, double timeLimit) { // Move encoders towards target position until the position is reached, or the time limit expires
+    private void encoderMovePreciseTimed(int pos, double speed, double timeLimit, boolean reset) { // Move encoders towards target position until the position is reached, or the time limit expires
         robot.rrWheel.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         robot.rfWheel.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         robot.lfWheel.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -1006,7 +1007,7 @@ public class GOFAutonomousDepot extends LinearOpMode {
             robot.setDrivePower(-(pos / Math.abs(pos)) * Math.abs(speed), -(pos / Math.abs(pos)) * Math.abs(speed), -(pos / Math.abs(pos)) * Math.abs(speed), -(pos / Math.abs(pos)) * Math.abs(speed));
         }
         catch(Exception p_exception) {
-            robot.setDrivePower(0, 0, 0, 0);
+            robot.setDrivePower(speed, speed, speed, speed);
         }
         double maxSpeed = speed;
         speed = Math.min(0.1, Math.abs(maxSpeed));
@@ -1022,7 +1023,7 @@ public class GOFAutonomousDepot extends LinearOpMode {
                 robot.setDrivePower(-(pos / Math.abs(pos)) * speed, -(pos / Math.abs(pos)) * speed, -(pos / Math.abs(pos)) * speed, -(pos / Math.abs(pos)) * speed);
             }
             catch(Exception p_exception) {
-                robot.setDrivePower(0, 0, 0, 0);
+                robot.setDrivePower(speed, speed, speed, speed);
             }
         }
         if(limitTest.time() > timeLimit) {
@@ -1032,7 +1033,7 @@ public class GOFAutonomousDepot extends LinearOpMode {
             robot.lfWheel.setTargetPosition((robot.lfWheel.getCurrentPosition()));
         }
         robot.setDrivePower(0, 0, 0, 0);
-        if(!score) {
+        if(reset) {
             resetEncoders();
         }
         sleep(100);
@@ -1083,11 +1084,15 @@ public class GOFAutonomousDepot extends LinearOpMode {
         if(!(robot.box.getPosition() == 0.414)) {
             robot.flipBox(0.414);
             sleep(500);
+            robot.setInPower(-0.2);
+        }
+        else {
+            robot.setInPower(0);
         }
         robot.hangOne.setTargetPosition(1400);
         robot.hangOne.setPower(1);
-        score = true;
-        runBackToPoint(-1.25, -1.25);
+        robot.setInPower(0);
+        runBackToPoint(-1.25, -1.25, true);
         robot.hangOne.setTargetPosition(1560);
         while(opModeIsActive() && robot.hangOne.isBusy()) {
             double oldPos = robot.hangOne.getCurrentPosition();
@@ -1099,10 +1104,7 @@ public class GOFAutonomousDepot extends LinearOpMode {
         }
         robot.hangOne.setPower(0);
         sleep(1000);
-        encoderMovePreciseTimed(0, 0, 0, 0, 1, 2);
-        point[0] = -2;
-        point[1] = -2;
-        score = false;
+        runToPoint(-2.9, -2.9, true);
         robot.hangOne.setTargetPosition(0);
         robot.hangOne.setPower(1);
     }
