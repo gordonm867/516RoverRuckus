@@ -28,16 +28,16 @@ import java.util.List;
 public class GOFAutonomousCrater extends LinearOpMode {
 
     /* Declare OpMode members */
-    private                 GOFHardware         robot                   = GOFHardware.getInstance(); // Use the GOFHardware class
     private                 ElapsedTime         elapsedTime             = new ElapsedTime(); // Measure timing
+    private                 GOFHardware         robot                   = GOFHardware.getInstance(); // Use the GOFHardware class
+    private                 GOFVuforiaLocalizer vuforia;
+    private volatile        OpModeManagerImpl   manager                 = (OpModeManagerImpl)this.internalOpModeServices;
 
     private static final    String              TFOD_MODEL_ASSET        = "RoverRuckus.tflite";
     private static final    String              LABEL_GOLD_MINERAL      = "Gold Mineral";
     private static final    String              LABEL_SILVER_MINERAL    = "Silver Mineral";
     private static final    String              VUFORIA_KEY             = "AWVhzQD/////AAABmWz790KTAURpmjOzox2azmML6FgjPO5DBf5SHQLIKvCsslmH9wp8b5zkCGfES8tt+8xslwaK7sd2h5H1jwmix26x+Eg5j60l00SlNiJMDAp5IOMWvhdJGZ8jJ8wFHCNkwERQG57JnrOXVSFDlc1sfum3oH68fEd8RrA570Y+WQda1fP8hYdZtbgG+ZDVG+9XyoDrToYU3FYl3W" + "M1iUphAbHJz1BMFFnWJdbZzOicvqah/RwXqtxRDNlem3JdT4W95kCY5bckg92oaFIBk9n01Gzg8w5mFTReYMVI3Fne72/KpPRPJwblO0W9OI3o7djg+iPjxkKOeHUWW+tmi6r3LRaKTrIUfLfazRu0QwLA8Bgw";
 
-    private                 GOFVuforiaLocalizer vuforia;
-    private volatile        OpModeManagerImpl   manager                 = (OpModeManagerImpl)this.internalOpModeServices;
     private                 TFObjectDetector    detector;
 
     private volatile        boolean             doTelemetry             = true;
@@ -96,11 +96,11 @@ public class GOFAutonomousCrater extends LinearOpMode {
                         tmy += "    lf: " + robot.lfWheel.getCurrentPosition() + "\n";
                         tmy += "    h1: " + robot.hangOne.getCurrentPosition() + "\n";
                         tmy += "    em: " + robot.extend.getCurrentPosition() + "\n";
-                        tmy += "    so: " + robot.passive.getCurrentPosition() + "\n";
+                        tmy += "    so: " + robot.box.getCurrentPosition() + "\n";
                         tmy += "    intake: " + (gamepad1.right_trigger) + ", " + robot.intake.getCurrentPosition() + "\n";
                         tmy += "    outtake: " + (gamepad1.left_trigger) + "\n";
                         tmy += "Servos" + "\n";
-                        tmy += "    fm: " + robot.box.getPosition() + "\n";
+                        tmy += "    fm: " + robot.boxPotentiometer.getVoltage() + "\n";
                         tmy += "    tm: " + robot.teamFlag.getPosition() + "\n";
                         tmy += "Gyro Data" + "\n";
                         tmy += "    Robot angle: " + getAngle() + "\n";
@@ -182,6 +182,9 @@ public class GOFAutonomousCrater extends LinearOpMode {
         robot.flipBox(0.5);
         robot.setInPos(72, 1);
         descend();
+        if(goldPos == 1) {
+            turn(45, 0);
+        }
         encoderMovePreciseTimed(258, -392, -422, 358, 0.75, 1); // side to side
         resetEncoders();
         robot.hangOne.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -211,8 +214,6 @@ public class GOFAutonomousCrater extends LinearOpMode {
     }
 
     private void centerCraterAuto() {
-        robot.setInPower(1);
-        robot.flipBox(0.61);
         robot.intake.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         robot.intake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         encoderMovePreciseTimed(-873, -646, -202, -846, 0.3, 1);
@@ -228,14 +229,6 @@ public class GOFAutonomousCrater extends LinearOpMode {
                 break;
             }
         }
-        robot.setHangPower(0);
-        multiplier = 0.05 / 0.0075;
-        turn(-11.6875, 5);
-        sample();
-        robot.setInPower(1);
-        resetEncoders();
-        multiplier = 1;
-        turn(-getAngle(), 1);
         runToPoint(-5.2, -1, (float)0.75);
         robot.setInPower(0);
         rearTurn(-getAngle() + 135, 5);
@@ -419,21 +412,21 @@ public class GOFAutonomousCrater extends LinearOpMode {
     }
 
     private void die() {
-        robot.passive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        robot.passive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.box.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.box.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         double roc = Double.MAX_VALUE;
         double doc = 0;
         double noc;
         while(roc > 10) {
             noc = doc;
-            double first = robot.passive.getCurrentPosition();
+            double first = robot.box.getCurrentPosition();
             robot.rrWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             robot.rfWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             robot.lrWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             robot.lfWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             robot.setDrivePower(0.75, -0.8, -0.75, 0.8);
             sleep(250);
-            double now = robot.passive.getCurrentPosition();
+            double now = robot.box.getCurrentPosition();
             roc = Math.abs(first - now);
             if(roc != 0) {
                 doc = (first - now) / roc;
@@ -444,9 +437,9 @@ public class GOFAutonomousCrater extends LinearOpMode {
         }
         robot.wheelBrake();
         sleep(150);
-        robot.passive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        robot.passive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        while(Math.abs(robot.passive.getCurrentPosition()) <= 1440 / (3 * Math.PI)) {
+        robot.box.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.box.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        while(Math.abs(robot.box.getCurrentPosition()) <= 1440 / (3 * Math.PI)) {
             robot.rrWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             robot.rfWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             robot.lrWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -466,6 +459,10 @@ public class GOFAutonomousCrater extends LinearOpMode {
         robot.hangOne.setTargetPosition(1560);
         robot.extend.setTargetPosition(-3000);
         robot.extend.setPower(1);
+        if(goldPos == 0) {
+            robot.flipBox(0.5);
+            robot.setInPower(1);
+        }
         while (opModeIsActive() && robot.hangOne.getCurrentPosition() < 1560 && !robot.topSensor.isPressed()) {
             telemetry.addData("h1: ", "" + robot.hangOne.getCurrentPosition());
             telemetry.addData("Current angle", (getAngle() + 135));
@@ -482,7 +479,10 @@ public class GOFAutonomousCrater extends LinearOpMode {
         robot.setHangPower(0); // Stop sending power just in case
         resetEncoders();
         if(goldPos == 0) {
-            robot.flipBox(0.61);
+            robot.extend.setTargetPosition(0);
+            robot.setInPower(0);
+            robot.flipBox(0.414);
+            while(opModeIsActive() && robot.extend.isBusy() || Math.abs(robot.box.getPower()) >= 0.09) {}
         }
         robot.hangOne.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER); // Reset hang encoder
         robot.hangOne.setMode(DcMotor.RunMode.RUN_TO_POSITION); // Set hang wheel back to run to position mode

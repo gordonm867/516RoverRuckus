@@ -26,15 +26,15 @@ public class GOFAutonomousDepot extends LinearOpMode {
 
     /* Declare OpMode members */
     private                 GOFHardware         robot                   = GOFHardware.getInstance(); // Use the GOFHardware class
+    private                 GOFVuforiaLocalizer vuforia;
     private                 ElapsedTime         elapsedTime             = new ElapsedTime(); // Measure timing
+    private volatile        OpModeManagerImpl   manager                 = (OpModeManagerImpl)this.internalOpModeServices;
 
     private static final    String              TFOD_MODEL_ASSET        = "RoverRuckus.tflite";
     private static final    String              LABEL_GOLD_MINERAL      = "Gold Mineral";
     private static final    String              LABEL_SILVER_MINERAL    = "Silver Mineral";
     private static final    String              VUFORIA_KEY             = "AWVhzQD/////AAABmWz790KTAURpmjOzox2azmML6FgjPO5DBf5SHQLIKvCsslmH9wp8b5zkCGfES8tt+8xslwaK7sd2h5H1jwmix26x+Eg5j60l00SlNiJMDAp5IOMWvhdJGZ8jJ8wFHCNkwERQG57JnrOXVSFDlc1sfum3oH68fEd8RrA570Y+WQda1fP8hYdZtbgG+ZDVG+9XyoDrToYU3FYl3WM1iUphAbHJz1BMFFnWJdbZzOicvqah/RwXqtxRDNlem3JdT4W95kCY5bckg92oaFIBk9n01Gzg8w5mFTReYMVI3Fne72/KpPRPJwblO0W9OI3o7djg+iPjxkKOeHUWW+tmi6r3LRaKTrIUfLfazRu0QwLA8Bgw";
 
-    private                 GOFVuforiaLocalizer vuforia;
-    private volatile        OpModeManagerImpl   manager                 = (OpModeManagerImpl)this.internalOpModeServices;
     private                 TFObjectDetector    detector;
 
     private volatile        boolean             doTelemetry             = true;
@@ -106,11 +106,11 @@ public class GOFAutonomousDepot extends LinearOpMode {
                         tmy += "    lf: " + robot.lfWheel.getCurrentPosition() + "\n";
                         tmy += "    h1: " + robot.hangOne.getCurrentPosition() + "\n";
                         tmy += "    em: " + robot.extend.getCurrentPosition() + "\n";
-                        tmy += "    so: " + robot.passive.getCurrentPosition() + "\n";
+                        tmy += "    so: " + robot.box.getCurrentPosition() + "\n";
                         tmy += "    intake: " + (gamepad1.right_trigger) + ", " + robot.intake.getCurrentPosition() + "\n";
                         tmy += "    outtake: " + (gamepad1.left_trigger) + "\n";
                         tmy += "Servos" + "\n";
-                        tmy += "    fm: " + robot.box.getPosition() + "\n";
+                        tmy += "    fm: " + robot.boxPotentiometer.getVoltage() + "\n";
                         tmy += "    tm: " + robot.teamFlag.getPosition() + "\n";
                         tmy += "Gyro Data" + "\n";
                         tmy += "    Robot angle: " + getAngle() + "\n";
@@ -192,23 +192,9 @@ public class GOFAutonomousDepot extends LinearOpMode {
 
     private void centerDepotAuto() {
         robot.setInPower(0);
-        // encoderMovePreciseTimed(-809, -143, -315, -1276, 0.3, 1);
         resetEncoders();
-        // runToPoint(-2.9, -2.9);
         point[0] = -2;
         point[1] = -2;
-        // encoderMovePreciseTimed(-229, 615, 427, -201, 0.3, 1);
-        robot.flipBox(0.5);
-        /*
-        double turns = 0;
-        while(robot.centerSensor.getDistance(DistanceUnit.INCH) >= 25) {
-            turn(turns < 2 ? -2 : 2, 1);
-            turns++;
-            if(turns > 4) {
-                break;
-            }
-        }
-        */
         turn(-getAngle(), 3);
         robot.extend.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         while(opModeIsActive() && !robot.bottomSensor.isPressed() && robot.hangOne.isBusy()) {
@@ -446,8 +432,8 @@ public class GOFAutonomousDepot extends LinearOpMode {
 
     private void descend() {
         resetEncoders();
-        robot.passive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        robot.passive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.box.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.box.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         robot.hangOne.setTargetPosition(1560);
         while (opModeIsActive() && robot.hangOne.getCurrentPosition() < 1560) {
             telemetry.addData("h1: ", "" + robot.hangOne.getCurrentPosition());
@@ -473,9 +459,9 @@ public class GOFAutonomousDepot extends LinearOpMode {
         robot.hangOne.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         turn(-getAngle(), 1);
         robot.flipBox(0.456);
-        double passiveError = robot.passive.getCurrentPosition();
-        robot.passive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        while(Math.abs((robot.passive.getCurrentPosition() - passiveError)) <= ((1.5 * 1440) / (3 * Math.PI))) {
+        double passiveError = robot.box.getCurrentPosition();
+        robot.box.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        while(Math.abs((robot.box.getCurrentPosition() - passiveError)) <= ((1.5 * 1440) / (3 * Math.PI))) {
             robot.rrWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             robot.rfWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             robot.lrWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -1081,7 +1067,7 @@ public class GOFAutonomousDepot extends LinearOpMode {
     }
 
     private void score() {
-        if(!(robot.box.getPosition() == 0.414)) {
+        if(!(robot.boxPos == 0.414)) {
             robot.flipBox(0.414);
             sleep(500);
             robot.setInPower(-0.2);

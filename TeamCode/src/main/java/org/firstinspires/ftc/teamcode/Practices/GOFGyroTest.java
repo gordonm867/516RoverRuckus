@@ -12,6 +12,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
+import org.firstinspires.ftc.robotcore.internal.opmode.OpModeManagerImpl;
 import org.firstinspires.ftc.teamcode.GOFHardware;
 
 @TeleOp(name="GyroTest",group="GOFTests")
@@ -21,7 +22,8 @@ public class GOFGyroTest extends LinearOpMode {
     BNO055IMU gyro0;
     BNO055IMU gyro1;
     BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
-    GOFHardware robot = GOFHardware.getInstance();
+    OpModeManagerImpl manager = (OpModeManagerImpl)this.internalOpModeServices;
+    GOFHardware robot = GOFHardware.getInstance(manager);
     ElapsedTime time = new ElapsedTime();
     Orientation g0angles;
     private double angleOffset = 0.1;

@@ -15,6 +15,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
+import org.firstinspires.ftc.robotcore.internal.opmode.OpModeManagerImpl;
 
 import java.util.Iterator;
 import java.util.List;
@@ -22,7 +23,6 @@ import java.util.List;
 @Autonomous
 @Disabled
 public class CurvedAutoTest extends LinearOpMode {
-
     private                 ElapsedTime         elapsedTime             = new ElapsedTime(); // Measure timing
     private                 GOFHardware         robot                   = GOFHardware.getInstance();
     private                 GOFVuforiaLocalizer vuforia;

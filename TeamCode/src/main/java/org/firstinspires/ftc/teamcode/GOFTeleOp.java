@@ -9,6 +9,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
+import org.firstinspires.ftc.robotcore.internal.opmode.OpModeManagerImpl;
 
 // @SuppressWarnings({"WeakerAccess", "SpellCheckingInspection", "EmptyCatchBlock", "StatementWithEmptyBody", "SameParameterValue"})
 @TeleOp(name="GOFTeleOp", group="GOF")
@@ -64,9 +65,9 @@ public class GOFTeleOp extends OpMode {
                         // tmy += "Run Time: " + elapsedTime.toString() + "\n";
                         tmy += "Motors" + "\n";
                         tmy += "    em: " + robot.extend.getCurrentPosition() + "\n";
-                        tmy += "    so: " + robot.passive.getCurrentPosition() + "\n";
+                        tmy += "    so: " + robot.box.getCurrentPosition() + "\n";
                         tmy += "Servos" + "\n";
-                        tmy += "    fm: " + robot.box.getPosition() + "\n";
+                        tmy += "    fm: " + robot.boxPotentiometer.getVoltage() + "\n";
                         tmy += "Sensors" + "\n";
                         tmy += "     MR Range Sensor: " + robot.getUSDistance() + "\n";
                         tmy += "     REV 2m Distance Sensor: " + robot.getREVDistance() + "\n";

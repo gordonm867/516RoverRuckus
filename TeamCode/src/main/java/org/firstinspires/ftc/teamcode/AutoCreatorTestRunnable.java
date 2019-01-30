@@ -19,6 +19,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
+import org.firstinspires.ftc.robotcore.internal.opmode.OpModeManagerImpl;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -30,30 +31,30 @@ import java.util.List;
 @Disabled
 
 public class AutoCreatorTestRunnable extends LinearOpMode {
-    private                 boolean                 aPressed                = false;
-    private volatile        boolean                 doTelemetry             = true;
-    private                 boolean                 doubleSample            = true;
-    private                 boolean                 crater                  = false;
-    private                 boolean                 ypressed                = false;
-    private                 boolean                 yPressedInit            = false;
-    private                 boolean                 bumperPressed           = false;
-    private                 boolean                 servoMove               = false;
-    private                 boolean                 remove;
+    private                 boolean             aPressed                = false;
+    private volatile        boolean             doTelemetry             = true;
+    private                 boolean             doubleSample            = true;
+    private                 boolean             crater                  = false;
+    private                 boolean             ypressed                = false;
+    private                 boolean             yPressedInit            = false;
+    private                 boolean             bumperPressed           = false;
+    private                 boolean             servoMove               = false;
+    private                 boolean             remove;
 
 
-    private                 double                  angle;
-    private                 double                  drive;
-    private                 double                  firstAngleOffset;
-    private                 double                  lastIntake              = 0;
-    private                 double                  maxDriveSpeed;
-    private                 double                  turn;
+    private                 double              angle;
+    private                 double              drive;
+    private                 double              firstAngleOffset;
+    private                 double              lastIntake              = 0;
+    private                 double              maxDriveSpeed;
+    private                 double              turn;
 
-    private                 ElapsedTime             elapsedTime             = new ElapsedTime();
+    private                 ElapsedTime         elapsedTime             = new ElapsedTime();
 
-    public                  GOFHardware             robot                   = GOFHardware.getInstance(); // Use the GOFHardware class
+    public                  GOFHardware         robot                   = GOFHardware.getInstance(); // Use the GOFHardware class
 
-    private                 int                     driverMode              = 1;
-    private                 int                     goldPos                 = -2;
+    private                 int                 driverMode              = 1;
+    private                 int                 goldPos                 = -2;
 
     private static final    String              TFOD_MODEL_ASSET            = "RoverRuckus.tflite";
     private static final    String              LABEL_GOLD_MINERAL          = "Gold Mineral";
@@ -140,7 +141,7 @@ public class AutoCreatorTestRunnable extends LinearOpMode {
                         tmy += "    intake: " + (gamepad1.right_trigger) + ", " + robot.intake.getCurrentPosition() + "\n";
                         tmy += "    outtake: " + (gamepad1.left_trigger) + "\n";
                         tmy += "Servos" + "\n";
-                        tmy += "    fm: " + robot.box.getPosition() + "\n";
+                        tmy += "    fm: " + robot.boxPotentiometer.getVoltage() + "\n";
                         tmy += "    tm: " + robot.teamFlag.getPosition() + "\n";
                         tmy += (driverMode == 1 ? "Drive Mode: Normal" : driverMode == -1 ? "Drive Mode: Field-Oriented" : "Drive Mode: Null") + "\n";
                         tmy += "Gyro Data" + "\n";
