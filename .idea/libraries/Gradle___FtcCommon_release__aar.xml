@@ -1,0 +1,12 @@
+<component name="libraryTable">
+  <library name="Gradle: :FtcCommon-release:@aar">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/app-master-RelicRecovery-master/app-master-RelicRecovery-master/gradle/wrapper/caches/transforms-1/files-1.1/FtcCommon-release.aar/350c014d230471094f29f203bc509b0e/jars/classes.jar!/" />
+      <root url="file://$USER_HOME$/app-master-RelicRecovery-master/app-master-RelicRecovery-master/gradle/wrapper/caches/transforms-1/files-1.1/FtcCommon-release.aar/350c014d230471094f29f203bc509b0e/res" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$PROJECT_DIR$/libs/FtcCommon-release-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

@@ -1,0 +1,12 @@
+<component name="libraryTable">
+  <library name="Gradle: :Blocks-release:@aar">
+    <CLASSES>
+      <root url="file://$USER_HOME$/app-master-RelicRecovery-master/app-master-RelicRecovery-master/gradle/wrapper/caches/transforms-1/files-1.1/Blocks-release.aar/191b139277fdb220563f86460d9b0d71/res" />
+      <root url="jar://$USER_HOME$/app-master-RelicRecovery-master/app-master-RelicRecovery-master/gradle/wrapper/caches/transforms-1/files-1.1/Blocks-release.aar/191b139277fdb220563f86460d9b0d71/jars/classes.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$PROJECT_DIR$/libs/Blocks-release-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

@@ -1,0 +1,12 @@
+<component name="libraryTable">
+  <library name="Gradle: :Inspection-release:@aar">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/app-master-RelicRecovery-master/app-master-RelicRecovery-master/gradle/wrapper/caches/transforms-1/files-1.1/Inspection-release.aar/c20b406c111dba85fb817de8030d2cb6/jars/classes.jar!/" />
+      <root url="file://$USER_HOME$/app-master-RelicRecovery-master/app-master-RelicRecovery-master/gradle/wrapper/caches/transforms-1/files-1.1/Inspection-release.aar/c20b406c111dba85fb817de8030d2cb6/res" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$PROJECT_DIR$/libs/Inspection-release-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

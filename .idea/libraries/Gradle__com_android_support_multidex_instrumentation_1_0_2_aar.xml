@@ -1,0 +1,10 @@
+<component name="libraryTable">
+  <library name="Gradle: com.android.support:multidex-instrumentation:1.0.2@aar">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/app-master-RelicRecovery-master/app-master-RelicRecovery-master/gradle/wrapper/caches/transforms-1/files-1.1/multidex-instrumentation-1.0.2.aar/2fea5472113d565bbb7c745716bfbfcc/jars/classes.jar!/" />
+      <root url="file://$USER_HOME$/app-master-RelicRecovery-master/app-master-RelicRecovery-master/gradle/wrapper/caches/transforms-1/files-1.1/multidex-instrumentation-1.0.2.aar/2fea5472113d565bbb7c745716bfbfcc/res" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
