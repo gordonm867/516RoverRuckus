@@ -49,9 +49,18 @@ public class statemach extends LinearOpMode {
     {
         STATE_INITIALIZE,
         STATE_LANDING,
-        STATE_SAMPLE,
-        STATE_MOVEMENTS,
-        STATE_TEAMMARKER,
+        STATE_SAMPLE_CENTER,
+        STATE_SAMPLE_RIGHT,
+        STATE_SAMPLE_LEFT,
+        STATE_MOVEMENTS_CENTER,
+        STATE_MOVEMENTS_RIGHT,
+        STATE_MOVEMENTS_LEFT,
+        STATE_DOUBLE_CENTER,
+        STATE_DOUBLE_RIGHT,
+        STATE_DOUBLE_LEFT,
+        STATE_NO_DOUBLE_CENTER,
+        STATE_NO_DOUBLE_RIGHT,
+        STATE_NO_DOUBLE_LEFT,
         STATE_PARKING,
         STATE_STOP,
     }
@@ -176,9 +185,9 @@ public class statemach extends LinearOpMode {
                     waitForStart(); // Wait for user to press "PLAY"
                     update.start();
 
-                    mCurrentState = state.STATE_LANDING;
+                mCurrentState = State.STATE_LANDING;
 
-                    case STATE_LANDING:
+                case STATE_LANDING:
                         elapsedTime.reset();
                         detector.shutdown();
                         //vuforia.close();
@@ -203,8 +212,228 @@ public class statemach extends LinearOpMode {
                         turn(-getAngle(), 1);
                         robot.flipBox(0.456);
 
-                        mCurrentState = State.STATE_SAMPLE
-                        case STATE_INITIALIZE:
+                mCurrentState = State.STATE_SAMPLE_CENTER
+                case STATE_SAMPLE_CENTER:
+                    robot.intake.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                    robot.intake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                    encoderMovePreciseTimed(-873, -646, -202, -846, 0.3, 1);
+                    resetEncoders();
+                    telemetry.addData("Status", "Turning " + -getAngle());
+                    telemetry.update();
+                    turn(-getAngle(), 1);
+                    while(opModeIsActive() && !robot.bottomSensor.isPressed() && robot.hangOne.isBusy()) {
+                        double oldPos = robot.hangOne.getCurrentPosition();
+                        sleep(100);
+                        double newPos = robot.hangOne.getCurrentPosition();
+                        if(oldPos == newPos) {
+                            break;
+                        }
+                    }
+                mCurrentState = State.STATE_SAMPLE_RIGHT
+                case STATE_SAMPLE_RIGHT:
+                    encoderMovePreciseTimed(-873, -646, -202, -846, 0.3, 1);
+                    resetEncoders();
+                    robot.intake.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                    telemetry.addData("Status", "Turning " + -getAngle());
+                    telemetry.update();
+                    turn(-getAngle(), 1);
+                    robot.setInPower(1);
+                    robot.intake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                    turn(-135 - atan(-2, -0.118), 5);
+                    while(opModeIsActive() && !robot.bottomSensor.isPressed() && robot.hangOne.isBusy()) {
+                        double oldPos = robot.hangOne.getCurrentPosition();
+                        sleep(100);
+                        double newPos = robot.hangOne.getCurrentPosition();
+                        if(oldPos == newPos) {
+                            break;
+                        }
+                    }
+                    robot.setHangPower(0);
+                    robot.flipBox(0.61);
+                    robot.extend.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    robot.extend.setTargetPosition(-1500);
+                    robot.extend.setPower(1);
+                    while(robot.extend.isBusy()) {}
+                    multiplier = 0.05 / 0.0075;
+                    turn(-5, 1);
+                    turn(10, 1);
+                    sample();
+                    robot.setInPower(1);
+                    robot.extend.setTargetPosition(-1800);
+                    robot.extend.setTargetPosition(0);
+                    while(robot.extend.isBusy()) {}
+                    multiplier = 1;
+                mCurrentState = State.STATE_SAMPLE_LEFT
+                case STATE_SAMPLE_LEFT:
+                    encoderMovePreciseTimed(-873, -646, -202, -846, 0.3, 1);
+                    resetEncoders();
+                    robot.intake.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                    telemetry.addData("Status", "Turning " + -getAngle());
+                    telemetry.update();
+                    turn(-getAngle(), 1);
+                    robot.setInPower(1);
+                    robot.intake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                    turn(-135 - atan(-2, -0.118), 5);
+                    while(opModeIsActive() && !robot.bottomSensor.isPressed() && robot.hangOne.isBusy()) {
+                        double oldPos = robot.hangOne.getCurrentPosition();
+                        sleep(100);
+                        double newPos = robot.hangOne.getCurrentPosition();
+                        if(oldPos == newPos) {
+                            break;
+                        }
+                    }
+                    robot.setHangPower(0);
+                    robot.flipBox(0.61);
+                    robot.extend.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    robot.extend.setTargetPosition(-1500);
+                    robot.extend.setPower(1);
+                    while(robot.extend.isBusy()) {}
+                    multiplier = 0.05 / 0.0075;
+                    turn(-5, 1);
+                    turn(10, 1);
+                    sample();
+                    robot.setInPower(1);
+                    robot.extend.setTargetPosition(-1800);
+                    robot.extend.setTargetPosition(0);
+                    while(robot.extend.isBusy()) {}
+                    multiplier = 1;
+                mCurrentState = State.STATE_MOVEMENTS_CENTER
+                case STATE_MOVEMENTS_CENTER:
+                    runToPoint(-5.2, -1, (float)0.75);
+                    robot.setInPower(0);
+                    rearTurn(-getAngle() + 135, 5);
+                    die();
+                    runToPoint(-5.2, -4);
+                mCurrentState = State.STATE_SAMPLE_RIGHT
+                case STATE_MOVEMENTS_RIGHT:
+                    runToPoint(-5.2, -1, (float)0.75);
+                    robot.setInPower(0);
+                    rearTurn(-getAngle() + 135, 5);
+                    die();
+                    runToPoint(-5.2, -4);
+                mCurrentState = State.STATE_MOVEMENTS_LEFT
+                case STATE_MOVEMENTS_LEFT:
+                    robot.flipBox(0.414);
+                    runToPoint(-5.2, -1, (float)0.75);
+                    robot.setInPower(0);
+                    rearTurn(-getAngle() + 135, 5);
+                    die();
+                    runToPoint(-5.2, -4, 0);
+
+
+                case STATE_DOUBLE_CENTER:
+                    if(doubleSample) {
+                        doubleSample();
+                        robot.teamFlag.setPosition(0.920);
+                        sleep(500);
+                        turn(90, 5);
+                        robot.flipBox(0.61);
+                        robot.setInPower(1);
+                        robot.extend.setTargetPosition(-1000);
+                        robot.extend.setPower(1);
+                        while(robot.extend.isBusy()) {}
+                        sleep(1000);
+                        robot.extend.setTargetPosition(0);
+                        while(robot.extend.isBusy()) {}
+                        robot.flipBox(0.456);
+                        turn(90, 5);
+                        point[0] = -5.2;
+                        point[1] = -3.64185;
+                        // while(opModeIsActive() && !gamepad1.a) {}
+                    }
+                case STATE_NO_DOUBLE_CENTER:
+                    if (!doubleSample) {
+                        robot.extend.setTargetPosition(-2000);
+                        robot.extend.setPower(1);
+                        while (robot.extend.isBusy()) {}
+                        robot.teamFlag.setPosition(0.920);
+                        sleep(500);
+                        robot.extend.setTargetPosition(0);
+                        while(robot.extend.isBusy()) {}
+                        robot.teamFlag.setPosition(0.420);
+                    }
+
+            if (doubleSample) {
+
+                mCurrentState = State.STATE_DOUBLE_CENTER;
+            }
+            else {
+                mCurrentState = State.STATE_NO_DOUBLE_CENTER;
+            }
+            switch (mCurrentState)
+
+                case STATE_DOUBLE_RIGHT:
+                    robot.extend.setTargetPosition(-3000);
+                    if(doubleSample) {
+                        doubleSample();
+                    }
+            if(doubleSample) {
+                mCurrentState = State.STATE_DOUBLE_RIGHT;
+            }
+
+            if(!doubleSample) {
+                mCurrentState = State.STATE_NO_DOUBLE_RIGHT;
+            }
+            switch(mCurrentState)
+
+                case STATE_DOUBLE_LEFT:
+                    if (!doubleSample) {
+                        robot.extend.setTargetPosition(-2000);
+                        robot.extend.setPower(1);
+                        while (robot.extend.isBusy()) {}
+                        robot.teamFlag.setPosition(0.920);
+                        sleep(500);
+                        robot.extend.setTargetPosition(0);
+                        while(robot.extend.isBusy()) {}
+                        robot.teamFlag.setPosition(0.420);
+                    }
+                case STATE_NO_DOUBLE_LEFT:
+                    else {
+                    doubleSample();
+                    robot.teamFlag.setPosition(0.920);
+                    sleep(500);
+                    turn(90, 5);
+                    robot.flipBox(0.61);
+                    robot.setInPower(1);
+                    robot.extend.setTargetPosition(-2000);
+                    robot.extend.setPower(1);
+                    while(robot.extend.isBusy()) {}
+                    sleep(1000);
+                    robot.extend.setTargetPosition(0);
+                    while(robot.extend.isBusy()) {}
+                    robot.flipBox(0.456);
+                    turn(90, 5);
+                    robot.teamFlag.setPosition(0.420);
+                    point[0] = -5.2;
+                    point[1] = -4.521;
+                    // while(opModeIsActive() && !gamepad1.a) {}
+                }
+
+                if (doubleSample) {
+                    mCurrentState = State.STATE_DOUBLE_LEFT;
+                }
+                if(!doubleSample) {
+                    mCurrentState = State.STATE_NO_DOUBLE_LEFT;
+                }
+
+                mCurrentState = State.STATE_PARKING
+                case STATE_PARKING:
+                    park();
+
+
+
+
+
+
+
+            
+
+
+
+
+
+
+
 
 
 
