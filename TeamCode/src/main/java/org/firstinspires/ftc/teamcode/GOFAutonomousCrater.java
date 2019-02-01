@@ -463,10 +463,7 @@ public class GOFAutonomousCrater extends LinearOpMode {
             robot.flipBox(0.5);
             robot.setInPower(1);
         }
-        while (opModeIsActive() && robot.hangOne.getCurrentPosition() < 1560 && !robot.topSensor.isPressed()) {
-            telemetry.addData("h1: ", "" + robot.hangOne.getCurrentPosition());
-            telemetry.addData("Current angle", (getAngle() + 135));
-            telemetry.update();
+        while (opModeIsActive() && robot.hangOne.getCurrentPosition() < (goldPos != 0 ? 1560 : 200) && !robot.topSensor.isPressed()) {
             robot.setHangPower(1);
             double oldPos = robot.hangOne.getCurrentPosition();
             sleep(100);
@@ -475,13 +472,27 @@ public class GOFAutonomousCrater extends LinearOpMode {
                 break;
             }
         }
+        if(goldPos == 0) {
+            while(opModeIsActive() && robot.extend.isBusy()) {}
+            robot.flipBox(0.61);
+            while(Math.abs(robot.box.getPower()) > 0.1) {}
+            sleep(500);
+            robot.extend.setTargetPosition(0);
+            robot.setInPower(0.3);
+            while (opModeIsActive() && robot.hangOne.getCurrentPosition() < 1560 && !robot.topSensor.isPressed()) {
+                robot.setHangPower(1);
+                double oldPos = robot.hangOne.getCurrentPosition();
+                sleep(100);
+                double newPos = robot.hangOne.getCurrentPosition();
+                if(oldPos == newPos) {
+                    break;
+                }
+            }
+        }
         robot.hangOne.setTargetPosition(robot.hangOne.getCurrentPosition()); // Set the target position to its current position to stop movement
         robot.setHangPower(0); // Stop sending power just in case
         resetEncoders();
         if(goldPos == 0) {
-            robot.extend.setTargetPosition(0);
-            robot.setInPower(0);
-            robot.flipBox(0.414);
             while(opModeIsActive() && robot.extend.isBusy() || Math.abs(robot.box.getPower()) >= 0.09) {}
         }
         robot.hangOne.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER); // Reset hang encoder

@@ -41,7 +41,7 @@ import org.firstinspires.ftc.robotcore.internal.opmode.OpModeServices;
 // @SuppressWarnings({"WeakerAccess", "SpellCheckingInspection", "EmptyCatchBlock", "StatementWithEmptyBody", "SameParameterValue"})
 public class GOFHardware {
 
-    public          AnalogInput                  boxPotentiometer;
+    public volatile AnalogInput                  boxPotentiometer;
     public          AnalogInput                  extenderSensor;
 
     public          BNO055IMU                    gyro0;
@@ -417,9 +417,11 @@ public class GOFHardware {
         }
     }
 
-    public void flipBox(double angle) {
+    public void flipBox(final double angle) {
         box.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        final double newBoxPos = boxPos * 3.3;
+        if(currentThread.isAlive()) {
+            currentThread.interrupt();
+        }
         currentThread = new Thread() {
             public void run() {
                 double negate = 1;
@@ -428,16 +430,22 @@ public class GOFHardware {
                 if(voltage >= 3.3) {
                     voltage = 3.3;
                 }
-                while(!((voltage + 0.03 >= newBoxPos) && (voltage - 0.03 <= newBoxPos))) {
+                double targetVoltage = 3.3 * (angle / 180);
+                while(!Thread.currentThread().isInterrupted() && !((voltage + 0.03 >= targetVoltage) && (voltage - 0.03 <= targetVoltage))) {
                     voltage = boxPotentiometer.getVoltage();
-                    double error = newBoxPos - boxPotentiometer.getVoltage();
+                    double error = targetVoltage - boxPotentiometer.getVoltage();
                     if(Math.abs(error) > Math.abs(lastError) && lastError != 0) {
                         negate *= -1;
                     }
                     error *= negate;
                     box.setPower(Range.clip(error, -maxBoxSpeed, maxBoxSpeed));
                     lastError = error;
-
+                    try {
+                        sleep(0);
+                    }
+                    catch(Exception p_exception) {
+                        break;
+                    }
                 }
             }
         };

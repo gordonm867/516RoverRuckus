@@ -22,8 +22,7 @@ public class GOFGyroTest extends LinearOpMode {
     BNO055IMU gyro0;
     BNO055IMU gyro1;
     BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
-    OpModeManagerImpl manager = (OpModeManagerImpl)this.internalOpModeServices;
-    GOFHardware robot = GOFHardware.getInstance(manager);
+    GOFHardware robot = GOFHardware.getInstance();
     ElapsedTime time = new ElapsedTime();
     Orientation g0angles;
     private double angleOffset = 0.1;

@@ -10,8 +10,7 @@ import org.firstinspires.ftc.robotcore.internal.opmode.OpModeManagerImpl;
 @TeleOp(name="GOFCompetitionCheck",group="GOFPreparation")
 public class GOFCompetitionCheck extends LinearOpMode {
 
-    private OpModeManagerImpl manager = (OpModeManagerImpl)this.internalOpModeServices;
-    private GOFHardware       robot   = GOFHardware.getInstance(manager);
+    private GOFHardware       robot   = GOFHardware.getInstance();
 
     public void runOpMode() {
 
