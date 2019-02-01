@@ -1,10 +1,10 @@
 {
     "logs": [
         {
-            "outputFile": "C:\\Users\\516\\Documents\\GitHub\\516-Gears-Of-Fire\\TeamCode\\build\\intermediates\\incremental\\mergeDebugResources\\merged.dir\\values-v11\\values-v11.xml",
+            "outputFile": "C:\\Users\\ayush\\Documents\\GitHub\\516-Gears-Of-Fire\\TeamCode\\build\\intermediates\\incremental\\mergeDebugResources\\merged.dir\\values-v11\\values-v11.xml",
             "map": [
                 {
-                    "source": "C:\\Users\\516\\app-master-RelicRecovery-master\\app-master-RelicRecovery-master\\gradle\\wrapper\\caches\\transforms-1\\files-1.1\\RobotCore-release.aar\\c6a97dda30b3dbad31516fded19ff9f5\\res\\values-v11\\values-v11.xml",
+                    "source": "C:\\Users\\ayush\\.gradle\\caches\\transforms-1\\files-1.1\\RobotCore-release.aar\\40a9c419416fc1264c1a5d7ba7bee473\\res\\values-v11\\values-v11.xml",
                     "from": {
                         "startLines": "2",
                         "startColumns": "4",

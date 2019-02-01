@@ -1,0 +1,14 @@
+[
+    {
+        "merged": "C:\\Users\\ayush\\Documents\\GitHub\\516-Gears-Of-Fire\\FtcRobotController\\build\\intermediates\\res\\merged\\release\\menu\\menu_server.xml",
+        "source": "C:\\Users\\ayush\\.gradle\\caches\\transforms-1\\files-1.1\\Blocks-release.aar\\2aecfd8c0a70ced0b7a2ce9161f86fd6\\res\\menu\\menu_server.xml"
+    },
+    {
+        "merged": "C:\\Users\\ayush\\Documents\\GitHub\\516-Gears-Of-Fire\\FtcRobotController\\build\\intermediates\\res\\merged\\release\\menu\\main_menu.xml",
+        "source": "C:\\Users\\ayush\\.gradle\\caches\\transforms-1\\files-1.1\\Inspection-release.aar\\aa8515719ca379113551cfad4806110f\\res\\menu\\main_menu.xml"
+    },
+    {
+        "merged": "C:\\Users\\ayush\\Documents\\GitHub\\516-Gears-Of-Fire\\FtcRobotController\\build\\intermediates\\res\\merged\\release\\menu\\ftc_robot_controller.xml",
+        "source": "C:\\Users\\ayush\\Documents\\GitHub\\516-Gears-Of-Fire\\FtcRobotController\\src\\main\\res\\menu\\ftc_robot_controller.xml"
+    }
+]

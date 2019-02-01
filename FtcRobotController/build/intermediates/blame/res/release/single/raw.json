@@ -1,0 +1,58 @@
+[
+    {
+        "merged": "C:\\Users\\ayush\\Documents\\GitHub\\516-Gears-Of-Fire\\FtcRobotController\\build\\intermediates\\res\\merged\\release\\raw\\gold.wav",
+        "source": "C:\\Users\\ayush\\Documents\\GitHub\\516-Gears-Of-Fire\\FtcRobotController\\src\\main\\res\\raw\\gold.wav"
+    },
+    {
+        "merged": "C:\\Users\\ayush\\Documents\\GitHub\\516-Gears-Of-Fire\\FtcRobotController\\build\\intermediates\\res\\merged\\release\\raw\\texture_fragment_shader.glsl",
+        "source": "C:\\Users\\ayush\\.gradle\\caches\\transforms-1\\files-1.1\\RobotCore-release.aar\\40a9c419416fc1264c1a5d7ba7bee473\\res\\raw\\texture_fragment_shader.glsl"
+    },
+    {
+        "merged": "C:\\Users\\ayush\\Documents\\GitHub\\516-Gears-Of-Fire\\FtcRobotController\\build\\intermediates\\res\\merged\\release\\raw\\errormessage.wav",
+        "source": "C:\\Users\\ayush\\.gradle\\caches\\transforms-1\\files-1.1\\FtcCommon-release.aar\\208e399c6ec8f8d73533d7113b20b944\\res\\raw\\errormessage.wav"
+    },
+    {
+        "merged": "C:\\Users\\ayush\\Documents\\GitHub\\516-Gears-Of-Fire\\FtcRobotController\\build\\intermediates\\res\\merged\\release\\raw\\format_convert.bc",
+        "source": "C:\\Users\\ayush\\.gradle\\caches\\transforms-1\\files-1.1\\RobotCore-release.aar\\40a9c419416fc1264c1a5d7ba7bee473\\res\\raw\\format_convert.bc"
+    },
+    {
+        "merged": "C:\\Users\\ayush\\Documents\\GitHub\\516-Gears-Of-Fire\\FtcRobotController\\build\\intermediates\\res\\merged\\release\\raw\\texture_vertex_shader.glsl",
+        "source": "C:\\Users\\ayush\\.gradle\\caches\\transforms-1\\files-1.1\\RobotCore-release.aar\\40a9c419416fc1264c1a5d7ba7bee473\\res\\raw\\texture_vertex_shader.glsl"
+    },
+    {
+        "merged": "C:\\Users\\ayush\\Documents\\GitHub\\516-Gears-Of-Fire\\FtcRobotController\\build\\intermediates\\res\\merged\\release\\raw\\cube_mesh_fragment_shader.glsl",
+        "source": "C:\\Users\\ayush\\.gradle\\caches\\transforms-1\\files-1.1\\RobotCore-release.aar\\40a9c419416fc1264c1a5d7ba7bee473\\res\\raw\\cube_mesh_fragment_shader.glsl"
+    },
+    {
+        "merged": "C:\\Users\\ayush\\Documents\\GitHub\\516-Gears-Of-Fire\\FtcRobotController\\build\\intermediates\\res\\merged\\release\\raw\\chimeconnect.wav",
+        "source": "C:\\Users\\ayush\\.gradle\\caches\\transforms-1\\files-1.1\\FtcCommon-release.aar\\208e399c6ec8f8d73533d7113b20b944\\res\\raw\\chimeconnect.wav"
+    },
+    {
+        "merged": "C:\\Users\\ayush\\Documents\\GitHub\\516-Gears-Of-Fire\\FtcRobotController\\build\\intermediates\\res\\merged\\release\\raw\\silver.wav",
+        "source": "C:\\Users\\ayush\\Documents\\GitHub\\516-Gears-Of-Fire\\FtcRobotController\\src\\main\\res\\raw\\silver.wav"
+    },
+    {
+        "merged": "C:\\Users\\ayush\\Documents\\GitHub\\516-Gears-Of-Fire\\FtcRobotController\\build\\intermediates\\res\\merged\\release\\raw\\nxtstartupsound.wav",
+        "source": "C:\\Users\\ayush\\.gradle\\caches\\transforms-1\\files-1.1\\FtcCommon-release.aar\\208e399c6ec8f8d73533d7113b20b944\\res\\raw\\nxtstartupsound.wav"
+    },
+    {
+        "merged": "C:\\Users\\ayush\\Documents\\GitHub\\516-Gears-Of-Fire\\FtcRobotController\\build\\intermediates\\res\\merged\\release\\raw\\warningmessage.wav",
+        "source": "C:\\Users\\ayush\\.gradle\\caches\\transforms-1\\files-1.1\\FtcCommon-release.aar\\208e399c6ec8f8d73533d7113b20b944\\res\\raw\\warningmessage.wav"
+    },
+    {
+        "merged": "C:\\Users\\ayush\\Documents\\GitHub\\516-Gears-Of-Fire\\FtcRobotController\\build\\intermediates\\res\\merged\\release\\raw\\chimedisconnect.wav",
+        "source": "C:\\Users\\ayush\\.gradle\\caches\\transforms-1\\files-1.1\\FtcCommon-release.aar\\208e399c6ec8f8d73533d7113b20b944\\res\\raw\\chimedisconnect.wav"
+    },
+    {
+        "merged": "C:\\Users\\ayush\\Documents\\GitHub\\516-Gears-Of-Fire\\FtcRobotController\\build\\intermediates\\res\\merged\\release\\raw\\cube_mesh_vertex_shader.glsl",
+        "source": "C:\\Users\\ayush\\.gradle\\caches\\transforms-1\\files-1.1\\RobotCore-release.aar\\40a9c419416fc1264c1a5d7ba7bee473\\res\\raw\\cube_mesh_vertex_shader.glsl"
+    },
+    {
+        "merged": "C:\\Users\\ayush\\Documents\\GitHub\\516-Gears-Of-Fire\\FtcRobotController\\build\\intermediates\\res\\merged\\release\\raw\\color_fragment_shader.glsl",
+        "source": "C:\\Users\\ayush\\.gradle\\caches\\transforms-1\\files-1.1\\RobotCore-release.aar\\40a9c419416fc1264c1a5d7ba7bee473\\res\\raw\\color_fragment_shader.glsl"
+    },
+    {
+        "merged": "C:\\Users\\ayush\\Documents\\GitHub\\516-Gears-Of-Fire\\FtcRobotController\\build\\intermediates\\res\\merged\\release\\raw\\simple_vertex_shader.glsl",
+        "source": "C:\\Users\\ayush\\.gradle\\caches\\transforms-1\\files-1.1\\RobotCore-release.aar\\40a9c419416fc1264c1a5d7ba7bee473\\res\\raw\\simple_vertex_shader.glsl"
+    }
+]

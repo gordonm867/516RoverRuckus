@@ -49,7 +49,9 @@ public class statemach extends LinearOpMode {
     {
         STATE_INITIALIZE,
         STATE_LANDING,
-        STATE_SAMPLE,
+        STATE_SAMPLE_CENTER,
+        STATE_SAMPLE_RIGHT,
+        STATE_SAMPLE_LEFT,
         STATE_MOVEMENTS,
         STATE_TEAMMARKER,
         STATE_PARKING,
@@ -176,9 +178,9 @@ public class statemach extends LinearOpMode {
                     waitForStart(); // Wait for user to press "PLAY"
                     update.start();
 
-                    mCurrentState = state.STATE_LANDING;
+                mCurrentState = state.STATE_LANDING;
+                case STATE_LANDING:
 
-                    case STATE_LANDING:
                         elapsedTime.reset();
                         detector.shutdown();
                         //vuforia.close();
@@ -203,8 +205,12 @@ public class statemach extends LinearOpMode {
                         turn(-getAngle(), 1);
                         robot.flipBox(0.456);
 
-                        mCurrentState = State.STATE_SAMPLE
-                        case STATE_INITIALIZE:
+                mCurrentState = State.STATE_SAMPLE_CENTER;
+                case STATE_SAMPLE_CENTER:
+
+
+
+
 
 
 
@@ -223,6 +229,12 @@ public class statemach extends LinearOpMode {
         }
 
     }
+
+
+
+
+
+
     private void die() {
         robot.box.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         robot.box.setMode(DcMotor.RunMode.RUN_USING_ENCODER);

@@ -1,0 +1,23 @@
+---
+poses:
+- x: 25.0
+  y: 25.0
+  heading: 0.7853981633974483
+- x: 28.0
+  y: 47.0
+  heading: 1.9198621771937625
+- x: -62.0
+  y: 57.0
+  heading: 2.96705972839036
+- x: -43.0
+  y: 27.0
+  heading: 3.141592653589793
+- x: 30.0
+  y: 57.0
+  heading: 3.6651914291880923
+constraints:
+  maximumVelocity: 12.5
+  maximumAcceleration: 20.0
+  maximumAngularVelocity: 1.5707963267948966
+  maximumAngularAcceleration: 0.7853981633974483
+resolution: 250

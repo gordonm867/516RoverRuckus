@@ -1,0 +1,10 @@
+[
+    {
+        "merged": "C:\\Users\\ayush\\Documents\\GitHub\\516-Gears-Of-Fire\\FtcRobotController\\build\\intermediates\\res\\merged\\release\\drawable-hdpi-v4\\ic_launcher.png",
+        "source": "C:\\Users\\ayush\\Documents\\GitHub\\516-Gears-Of-Fire\\FtcRobotController\\src\\main\\res\\drawable-hdpi\\ic_launcher.png"
+    },
+    {
+        "merged": "C:\\Users\\ayush\\Documents\\GitHub\\516-Gears-Of-Fire\\FtcRobotController\\build\\intermediates\\res\\merged\\release\\drawable-hdpi-v4\\button_shape.xml",
+        "source": "C:\\Users\\ayush\\.gradle\\caches\\transforms-1\\files-1.1\\FtcCommon-release.aar\\208e399c6ec8f8d73533d7113b20b944\\res\\drawable-hdpi-v4\\button_shape.xml"
+    }
+]
