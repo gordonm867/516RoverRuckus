@@ -10,7 +10,6 @@ import org.firstinspires.ftc.robotcore.internal.opmode.OpModeManagerImpl;
 // @Disabled
 public class GOFBoxPotentiometerPoses extends LinearOpMode {
     private GOFHardware robot = GOFHardware.getInstance();
-    private volatile OpModeManagerImpl manager = (OpModeManagerImpl) this.internalOpModeServices;
     private boolean doTelemetry = true;
     public void runOpMode() {
         robot.init(hardwareMap);
@@ -27,8 +26,7 @@ public class GOFBoxPotentiometerPoses extends LinearOpMode {
                         Thread.currentThread().interrupt();
                     }
                 }
-                String active = manager.getActiveOpModeName();
-                while(doTelemetry && manager.getActiveOpModeName().equalsIgnoreCase(active)) {
+                while(doTelemetry) {
                     try {
                         telemetry.addData("Potentiometer", robot.boxPotentiometer.getVoltage());
                         telemetry.addData("Angle", (robot.boxPotentiometer.getVoltage() / 3.3) * 180);

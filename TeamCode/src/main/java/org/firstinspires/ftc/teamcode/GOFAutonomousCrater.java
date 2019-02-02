@@ -179,7 +179,7 @@ public class GOFAutonomousCrater extends LinearOpMode {
         }
 
         /* Descend */
-        robot.flipBox(0.5);
+        robot.flipBox(71);
         robot.setInPos(72, 1);
         descend();
         if(goldPos == 1) {
@@ -191,7 +191,7 @@ public class GOFAutonomousCrater extends LinearOpMode {
         robot.hangOne.setTargetPosition(-1560);
         robot.setHangPower(-1);
         turn(-getAngle(), 1);
-        robot.flipBox(0.456);
+        robot.flipBox(71);
 
         /* Move to gold */
         if (robot.rrWheel != null && robot.rfWheel != null && robot.lfWheel != null && robot.lrWheel != null && opModeIsActive()) {
@@ -248,7 +248,7 @@ public class GOFAutonomousCrater extends LinearOpMode {
             robot.teamFlag.setPosition(0.920);
             sleep(500);
             turn(90, 5);
-            robot.flipBox(0.61);
+            robot.flipBox(170);
             robot.setInPower(1);
             robot.extend.setTargetPosition(-1000);
             robot.extend.setPower(1);
@@ -256,7 +256,7 @@ public class GOFAutonomousCrater extends LinearOpMode {
             sleep(1000);
             robot.extend.setTargetPosition(0);
             while(robot.extend.isBusy()) {}
-            robot.flipBox(0.456);
+            robot.flipBox(71);
             turn(90, 5);
             point[0] = -5.2;
             point[1] = -3.64185;
@@ -284,7 +284,7 @@ public class GOFAutonomousCrater extends LinearOpMode {
             }
         }
         robot.setHangPower(0);
-        robot.flipBox(0.61);
+        robot.flipBox(170);
         robot.extend.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         robot.extend.setTargetPosition(-1500);
         robot.extend.setPower(1);
@@ -359,7 +359,7 @@ public class GOFAutonomousCrater extends LinearOpMode {
         }
         robot.setHangPower(0);
         multiplier = 0.05 / 0.0075;
-        robot.flipBox(0.61);
+        robot.flipBox(170);
         robot.setInPower(1);
         robot.extend.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         robot.extend.setTargetPosition(-800);
@@ -372,8 +372,9 @@ public class GOFAutonomousCrater extends LinearOpMode {
         robot.extend.setTargetPosition(0);
         while(robot.extend.isBusy()) {}
         multiplier = 1;
-        robot.flipBox(0.414);
+        robot.flipBox(51);
         runToPoint(-5.2, -1, (float)0.75);
+        robot.flipBox(71);
         robot.setInPower(0);
         rearTurn(-getAngle() + 135, 5);
         die();
@@ -393,7 +394,7 @@ public class GOFAutonomousCrater extends LinearOpMode {
             robot.teamFlag.setPosition(0.920);
             sleep(500);
             turn(90, 5);
-            robot.flipBox(0.61);
+            robot.flipBox(170);
             robot.setInPower(1);
             robot.extend.setTargetPosition(-2000);
             robot.extend.setPower(1);
@@ -401,7 +402,7 @@ public class GOFAutonomousCrater extends LinearOpMode {
             sleep(1000);
             robot.extend.setTargetPosition(0);
             while(robot.extend.isBusy()) {}
-            robot.flipBox(0.456);
+            robot.flipBox(71);
             turn(90, 5);
             robot.teamFlag.setPosition(0.420);
             point[0] = -5.2;
@@ -460,10 +461,10 @@ public class GOFAutonomousCrater extends LinearOpMode {
         robot.extend.setTargetPosition(-3000);
         robot.extend.setPower(1);
         if(goldPos == 0) {
-            robot.flipBox(0.5);
+            robot.flipBox(170);
             robot.setInPower(1);
         }
-        while (opModeIsActive() && robot.hangOne.getCurrentPosition() < (goldPos != 0 ? 1560 : 200) && !robot.topSensor.isPressed()) {
+        while (opModeIsActive() && robot.hangOne.getCurrentPosition() < (goldPos != 0 ? 1560 : 200) && !robot.topSensor.getState()) {
             robot.setHangPower(1);
             double oldPos = robot.hangOne.getCurrentPosition();
             sleep(100);
@@ -474,12 +475,11 @@ public class GOFAutonomousCrater extends LinearOpMode {
         }
         if(goldPos == 0) {
             while(opModeIsActive() && robot.extend.isBusy()) {}
-            robot.flipBox(0.61);
             while(Math.abs(robot.box.getPower()) > 0.1) {}
             sleep(500);
             robot.extend.setTargetPosition(0);
             robot.setInPower(0.3);
-            while (opModeIsActive() && robot.hangOne.getCurrentPosition() < 1560 && !robot.topSensor.isPressed()) {
+            while (opModeIsActive() && robot.hangOne.getCurrentPosition() < 1560 && !robot.topSensor.getState()) {
                 robot.setHangPower(1);
                 double oldPos = robot.hangOne.getCurrentPosition();
                 sleep(100);
@@ -493,6 +493,7 @@ public class GOFAutonomousCrater extends LinearOpMode {
         robot.setHangPower(0); // Stop sending power just in case
         resetEncoders();
         if(goldPos == 0) {
+            robot.flipBox(71);
             while(opModeIsActive() && robot.extend.isBusy() || Math.abs(robot.box.getPower()) >= 0.09) {}
         }
         robot.hangOne.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER); // Reset hang encoder
@@ -677,14 +678,16 @@ public class GOFAutonomousCrater extends LinearOpMode {
             robot.intake.setPower(0);
             robot.intake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         }
-        robot.flipBox(0.61);
+        robot.flipBox(170);
         sleep(500);
         robot.setInPower(1);
         sleep(1000);
         if(!(doubleSample && goldPos == 0 && elapsedTime.time() > 15)) {
             robot.setInPower(0);
-            robot.flipBox(0.456);
+            robot.flipBox(51);
         }
+        while(Math.abs(robot.box.getPower()) >= 0.09) {}
+        robot.flipBox(71);
     }
 
     private void park() {

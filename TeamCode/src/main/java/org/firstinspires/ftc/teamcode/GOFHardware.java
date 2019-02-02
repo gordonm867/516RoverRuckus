@@ -27,6 +27,7 @@ import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -70,8 +71,8 @@ public class GOFHardware {
     public          DistanceSensor               backDistanceSensor;
 
     public          double                       maxDriveSpeed            = 1;
-    public          double                       maxBoxSpeed              = 0.2;
-    public          double                       boxPos                   = 0.414;
+    public          double                       maxBoxSpeed              = 0.8;
+    public          double                       boxPos                   = 0;
 
     private static  GOFHardware                  robot                    = null;
 
@@ -84,7 +85,7 @@ public class GOFHardware {
     public          ModernRoboticsI2cRangeSensor rfSensor;
 
     public          RevTouchSensor               bottomSensor;
-    public          RevTouchSensor               topSensor;
+    public          DigitalChannel               topSensor;
 
     public          Servo                        teamFlag;
 
@@ -324,7 +325,7 @@ public class GOFHardware {
         }
 
         try { // Upper limit switch
-            topSensor = hwMap.get(RevTouchSensor.class, "tl");
+            topSensor = hwMap.get(DigitalChannel.class, "tl");
         }
         catch (Exception p_exception) {
             topSensor = null;
@@ -377,7 +378,7 @@ public class GOFHardware {
         if(hangOne != null) {
             hangPower = Range.clip(hangPower, -1, 1);
             if(topSensor != null) {
-                if(topSensor.isPressed() && hangPower > 0 && !(hangOne.getMode() == DcMotor.RunMode.RUN_TO_POSITION && hangOne.getTargetPosition() < hangOne.getCurrentPosition())) { // If the top sensor is being pressed but the intended hang power is positive, stop
+                if(topSensor.getState() && hangPower > 0 && !(hangOne.getMode() == DcMotor.RunMode.RUN_TO_POSITION && hangOne.getTargetPosition() < hangOne.getCurrentPosition())) { // If the top sensor is being pressed but the intended hang power is positive, stop
                     hangPower = 0;
                 }
             }
@@ -418,28 +419,28 @@ public class GOFHardware {
     }
 
     public void flipBox(final double angle) {
+        boxPos = angle;
         box.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        if(currentThread.isAlive()) {
-            currentThread.interrupt();
+        try {
+            if(currentThread.isAlive()) {
+                currentThread.interrupt();
+                while(currentThread.isAlive()) {
+                    currentThread.interrupt();
+                }
+            }
         }
+        catch(Exception p_exception) {} // If an exception is thrown, there can't be an active Thread anyway
         currentThread = new Thread() {
             public void run() {
-                double negate = 1;
-                double lastError = 0;
                 double voltage = boxPotentiometer.getVoltage();
                 if(voltage >= 3.3) {
                     voltage = 3.3;
                 }
                 double targetVoltage = 3.3 * (angle / 180);
-                while(!Thread.currentThread().isInterrupted() && !((voltage + 0.03 >= targetVoltage) && (voltage - 0.03 <= targetVoltage))) {
+                while(!Thread.currentThread().isInterrupted() && !((voltage + 0.1 >= targetVoltage) && (voltage - 0.1 <= targetVoltage))) {
                     voltage = boxPotentiometer.getVoltage();
-                    double error = targetVoltage - boxPotentiometer.getVoltage();
-                    if(Math.abs(error) > Math.abs(lastError) && lastError != 0) {
-                        negate *= -1;
-                    }
-                    error *= negate;
+                    double error = boxPotentiometer.getVoltage() - targetVoltage;
                     box.setPower(Range.clip(error, -maxBoxSpeed, maxBoxSpeed));
-                    lastError = error;
                     try {
                         sleep(0);
                     }
@@ -447,6 +448,7 @@ public class GOFHardware {
                         break;
                     }
                 }
+                box.setPower(0);
             }
         };
         currentThread.start();
@@ -472,6 +474,7 @@ public class GOFHardware {
 
     public void wheelBrake() { // Stop driving
         setDrivePower(0,0,0,0);
+        currentThread.interrupt();
     }
 
     public void hangBrake() { // Stop hang movement
