@@ -66,12 +66,14 @@ public class GOFHardware {
     public          DcMotor                      hangOne;
     public          DcMotor                      extend;
 
+    public          DigitalChannel               topSensor;
+
     public          DistanceSensor               centerSensor;
     public          DistanceSensor               frontDistanceSensor;
     public          DistanceSensor               backDistanceSensor;
 
     public          double                       maxDriveSpeed            = 1;
-    public          double                       maxBoxSpeed              = 0.8;
+    public          double                       maxBoxSpeed              = 1;
     public          double                       boxPos                   = 0;
 
     private static  GOFHardware                  robot                    = null;
@@ -85,7 +87,6 @@ public class GOFHardware {
     public          ModernRoboticsI2cRangeSensor rfSensor;
 
     public          RevTouchSensor               bottomSensor;
-    public          DigitalChannel               topSensor;
 
     public          Servo                        teamFlag;
 
@@ -326,6 +327,7 @@ public class GOFHardware {
 
         try { // Upper limit switch
             topSensor = hwMap.get(DigitalChannel.class, "tl");
+            topSensor.setMode(DigitalChannel.Mode.INPUT);
         }
         catch (Exception p_exception) {
             topSensor = null;
@@ -378,7 +380,7 @@ public class GOFHardware {
         if(hangOne != null) {
             hangPower = Range.clip(hangPower, -1, 1);
             if(topSensor != null) {
-                if(topSensor.getState() && hangPower > 0 && !(hangOne.getMode() == DcMotor.RunMode.RUN_TO_POSITION && hangOne.getTargetPosition() < hangOne.getCurrentPosition())) { // If the top sensor is being pressed but the intended hang power is positive, stop
+                if(!topSensor.getState() && hangPower > 0 && !(hangOne.getMode() == DcMotor.RunMode.RUN_TO_POSITION && hangOne.getTargetPosition() < hangOne.getCurrentPosition())) { // If the top sensor is being pressed but the intended hang power is positive, stop
                     hangPower = 0;
                 }
             }
@@ -474,7 +476,6 @@ public class GOFHardware {
 
     public void wheelBrake() { // Stop driving
         setDrivePower(0,0,0,0);
-        currentThread.interrupt();
     }
 
     public void hangBrake() { // Stop hang movement

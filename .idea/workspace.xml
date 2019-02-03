@@ -40,19 +40,19 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="GOFAutonomousCrater.java" pinned="false" current-in-tab="false">
+      <file leaf-file-name="GOFAutonomousCrater.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/GOFAutonomousCrater.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="122">
-              <caret line="680" column="27" selection-start-line="680" selection-start-column="27" selection-end-line="680" selection-end-column="27" />
+            <state relative-caret-position="906">
+              <caret line="1270" column="54" selection-start-line="1270" selection-start-column="54" selection-end-line="1270" selection-end-column="54" />
               <folding>
-                <element signature="e#3561#11139#0" expanded="true" />
-                <element signature="class#4564:8832" />
-                <element signature="method#run#0;class#4564:8832" expanded="true" />
-                <element signature="e#11145#13300#0" expanded="true" />
-                <element signature="e#13306#15598#0" expanded="true" />
-                <element signature="e#15604#18664#0" expanded="true" />
-                <element signature="e#20482#21769#0" expanded="true" />
+                <element signature="e#3633#14009#0" expanded="true" />
+                <element signature="method#run#0;class#4556:8936" expanded="true" />
+                <element signature="class#9091:13596" />
+                <element signature="method#run#0;class#9091:13596" expanded="true" />
+                <element signature="e#18191#21270#0" expanded="true" />
+                <element signature="e#23060#25044#0" expanded="true" />
+                <element signature="e#50394#54764#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -80,17 +80,29 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="GOFTeleOp.java" pinned="false" current-in-tab="true">
+      <file leaf-file-name="GOFTeleOp.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/GOFTeleOp.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="630">
-              <caret line="376" column="36" lean-forward="true" selection-start-line="376" selection-start-column="36" selection-end-line="376" selection-end-column="36" />
+            <state relative-caret-position="115">
+              <caret line="419" column="28" selection-start-line="419" selection-start-column="28" selection-end-line="419" selection-end-column="28" />
               <folding>
                 <element signature="method#init#0;class#GOFTeleOp#0" expanded="true" />
+                <element signature="method#start#0;class#GOFTeleOp#0" expanded="true" />
                 <element signature="method#run#0;class#2439:3931" expanded="true" />
                 <element signature="method#loop#0;class#GOFTeleOp#0" expanded="true" />
-                <element signature="e#15839#15840#0" expanded="true" />
-                <element signature="e#15869#15870#0" expanded="true" />
+                <element signature="method#stop#0;class#GOFTeleOp#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="PushbotAutoDriveByEncoder_Linear.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/FtcRobotController/src/main/java/org/firstinspires/ftc/robotcontroller/external/samples/PushbotAutoDriveByEncoder_Linear.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="149">
+              <caret line="132" column="46" selection-start-line="132" selection-start-column="46" selection-end-line="132" selection-end-column="46" />
+              <folding>
+                <element signature="method#encoderDrive#0;class#PushbotAutoDriveByEncoder_Linear#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -99,16 +111,28 @@
       <file leaf-file-name="GOFHardware.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/GOFHardware.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="138">
-              <caret line="439" column="136" selection-start-line="439" selection-start-column="65" selection-end-line="439" selection-end-column="136" />
+            <state relative-caret-position="272">
+              <caret line="75" column="77" selection-start-line="75" selection-start-column="77" selection-end-line="75" selection-end-column="77" />
               <folding>
                 <element signature="e#4034#4266#0" expanded="true" />
                 <element signature="e#4272#13688#0" expanded="true" />
+                <element signature="e#13803#14732#0" expanded="true" />
                 <element signature="e#14738#15446#0" expanded="true" />
+                <element signature="e#15690#17127#0" expanded="true" />
                 <element signature="e#16184#17089#0" expanded="true" />
                 <element signature="e#17088#17089#0" expanded="true" />
-                <element signature="e#18200#18289#0" expanded="true" />
+                <element signature="e#17793#17794#0" expanded="true" />
+                <element signature="e#17847#17848#0" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="SensorDigitalTouch.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/FtcRobotController/src/main/java/org/firstinspires/ftc/robotcontroller/external/samples/SensorDigitalTouch.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="435">
+              <caret line="67" column="56" selection-start-line="67" selection-start-column="8" selection-end-line="67" selection-end-column="56" />
             </state>
           </provider>
         </entry>
@@ -124,18 +148,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>void die()</find>
-      <find>gof</find>
-      <find>manager =</find>
-      <find>elapsedTime</find>
-      <find>/ 1500.0)</find>
-      <find>Math.abs(distance) / 1500)</find>
-      <find>Math.abs(distance) / 1500.0)</find>
-      <find>g0</find>
-      <find>multiplier</find>
-      <find>reverse</find>
-      <find>topsensor</find>
-      <find>tl</find>
       <find>flipbox</find>
       <find>flipbox(0.5)</find>
       <find>flipBox(0.414)</find>
@@ -144,7 +156,6 @@
       <find>flipBox(0.71</find>
       <find>flipBox(51)</find>
       <find>flipBox(182</find>
-      <find>left_trigger</find>
       <find>right_trigger</find>
       <find>flipBox(0.5)</find>
       <find>flipBox(0.414</find>
@@ -153,7 +164,20 @@
       <find>(182</find>
       <find>182</find>
       <find>(182)</find>
+      <find>elapsedTime</find>
+      <find>0.0075 * error</find>
+      <find>0.00016</find>
+      <find>robot.box.getPower</find>
+      <find>topSensor.getState()</find>
+      <find>topSensor</find>
       <find>robot.flipBox</find>
+      <find>0.00025 * Math.pow(error, 2)</find>
+      <find>flipBox(51</find>
+      <find>37</find>
+      <find>getVoltage()</find>
+      <find>right_bumper</find>
+      <find>left_trigger</find>
+      <find>box(71</find>
     </findStrings>
   </component>
   <component name="GradleLocalSettings">
@@ -3186,8 +3210,10 @@
         <option value="$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/GOFCompetitionCheck.java" />
         <option value="$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/Practices/GOFGyroTest.java" />
         <option value="$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/GOFAutonomousDepot.java" />
-        <option value="$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/GOFAutonomousCrater.java" />
         <option value="$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/GOFBoxPotentiometerPoses.java" />
+        <option value="$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/State.java" />
+        <option value="$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/statemach.java" />
+        <option value="$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/GOFAutonomousCrater.java" />
         <option value="$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/GOFHardware.java" />
         <option value="$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/GOFTeleOp.java" />
       </list>
@@ -3199,7 +3225,7 @@
     <option name="height" value="678" />
   </component>
   <component name="ProjectView">
-    <navigator currentView="ProjectPane" proportions="" version="1">
+    <navigator proportions="" version="1">
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
@@ -3211,11 +3237,6 @@
             <path>
               <item name="516-Gears-Of-Fire" type="b2602c69:ProjectViewProjectNode" />
               <item name="516-Gears-Of-Fire" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-            </path>
-            <path>
-              <item name="516-Gears-Of-Fire" type="b2602c69:ProjectViewProjectNode" />
-              <item name="516-Gears-Of-Fire" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="libs" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="516-Gears-Of-Fire" type="b2602c69:ProjectViewProjectNode" />
@@ -3276,6 +3297,28 @@
       <pane id="AndroidView">
         <subPane>
           <expand>
+            <path>
+              <item name="516-Gears-Of-Fire" type="1abcf292:AndroidViewProjectNode" />
+              <item name="FtcRobotController" type="feadf853:AndroidModuleNode" />
+            </path>
+            <path>
+              <item name="516-Gears-Of-Fire" type="1abcf292:AndroidViewProjectNode" />
+              <item name="FtcRobotController" type="feadf853:AndroidModuleNode" />
+              <item name="java" type="edd41e36:AndroidSourceTypeNode" />
+            </path>
+            <path>
+              <item name="516-Gears-Of-Fire" type="1abcf292:AndroidViewProjectNode" />
+              <item name="FtcRobotController" type="feadf853:AndroidModuleNode" />
+              <item name="java" type="edd41e36:AndroidSourceTypeNode" />
+              <item name="robotcontroller" type="cbb59c9e:AndroidPsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="516-Gears-Of-Fire" type="1abcf292:AndroidViewProjectNode" />
+              <item name="FtcRobotController" type="feadf853:AndroidModuleNode" />
+              <item name="java" type="edd41e36:AndroidSourceTypeNode" />
+              <item name="robotcontroller" type="cbb59c9e:AndroidPsiDirectoryNode" />
+              <item name="samples" type="462c0819:PsiDirectoryNode" />
+            </path>
             <path>
               <item name="516-Gears-Of-Fire" type="1abcf292:AndroidViewProjectNode" />
               <item name="TeamCode" type="feadf853:AndroidModuleNode" />
@@ -3478,36 +3521,36 @@
       <window_info anchor="bottom" id="Find" order="1" weight="0.3297491" />
     </layout>
     <layout-to-restore>
-      <window_info anchor="bottom" id="Build" order="7" weight="0.32795697" />
+      <window_info anchor="bottom" id="Build" order="7" sideWeight="0.49924472" weight="0.32437277" />
       <window_info id="Designer" order="2" />
       <window_info id="Build Variants" order="3" side_tool="true" />
       <window_info id="Image Layers" order="7" />
-      <window_info anchor="bottom" id="Run" order="2" />
+      <window_info anchor="bottom" id="Run" order="2" weight="0.32985073" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="right" id="Ant Build" order="2" weight="0.25" />
-      <window_info anchor="bottom" id="Android Profiler" order="12" />
-      <window_info id="Favorites" order="5" side_tool="true" />
-      <window_info id="Captures" order="6" weight="0.25" />
       <window_info id="Capture Tool" order="4" />
+      <window_info anchor="bottom" id="Android Profiler" order="12" />
+      <window_info id="Favorites" order="5" sideWeight="0.5011136" side_tool="true" weight="0.2794562" />
+      <window_info id="Captures" order="6" weight="0.25" />
+      <window_info anchor="right" id="Path Designer" order="4" weight="0.37386706" />
       <window_info anchor="right" id="Capture Analysis" order="5" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="1" type="SLIDING" weight="0.4" />
-      <window_info anchor="bottom" id="Event Log" order="8" side_tool="true" />
+      <window_info anchor="bottom" id="Event Log" order="8" sideWeight="0.5007553" side_tool="true" weight="0.32537314" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="3" weight="0.25" />
+      <window_info anchor="bottom" id="Find" order="1" weight="0.3297491" />
       <window_info anchor="right" id="Device File Explorer" order="6" side_tool="true" weight="0.32903782" />
-      <window_info anchor="bottom" id="Logcat" order="10" weight="0.32616487" />
+      <window_info anchor="bottom" id="Logcat" order="10" weight="0.32437277" />
       <window_info anchor="bottom" id="Version Control" order="9" show_stripe_button="false" />
       <window_info anchor="bottom" id="Terminal" order="11" weight="0.32795697" />
       <window_info anchor="right" auto_hide="true" id="Kotlin Bytecode" internal_type="SLIDING" order="0" show_stripe_button="false" type="SLIDING" weight="0.3298969" />
       <window_info anchor="right" id="Gradle" order="7" />
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.2794562" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.49850747" visible="true" weight="0.2794562" />
       <window_info anchor="bottom" id="Message" order="0" />
-      <window_info anchor="right" id="Path Designer" order="4" weight="0.37457046" />
       <window_info anchor="bottom" id="TODO" order="6" />
       <window_info anchor="right" id="Palette&#9;" order="9" />
       <window_info anchor="right" id="Theme Preview" order="8" />
-      <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
+      <window_info id="Structure" order="1" sideWeight="0.50149256" side_tool="true" weight="0.2794562" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
-      <window_info anchor="bottom" id="Find" order="1" weight="0.3297491" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
     </layout-to-restore>
   </component>
@@ -3516,43 +3559,10 @@
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
-      <option name="time" value="89" />
+      <option name="time" value="90" />
     </breakpoint-manager>
   </component>
   <component name="editorHistoryManager">
-    <entry file="jar://$PROJECT_DIR$/libs/Hardware-release-sources.jar!/com/qualcomm/hardware/lynx/LynxDcMotorController.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="3269">
-          <caret line="927" column="31" selection-start-line="927" selection-start-column="17" selection-end-line="927" selection-end-column="31" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://$PROJECT_DIR$/libs/RobotCore-release-sources.jar!/com/qualcomm/robotcore/hardware/DcMotorController.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="163">
-          <caret line="126" column="8" lean-forward="true" selection-start-line="126" selection-start-column="8" selection-end-line="126" selection-end-column="8" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://$PROJECT_DIR$/libs/RobotCore-release-sources.jar!/org/firstinspires/ftc/robotcore/external/Telemetry.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="423">
-          <caret line="360" column="14" selection-start-line="360" selection-start-column="14" selection-end-line="360" selection-end-column="14" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://$PROJECT_DIR$/libs/RobotCore-release-sources.jar!/org/firstinspires/ftc/robotcore/internal/opmode/TelemetryImpl.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="104">
-          <caret line="861" column="22" selection-start-line="861" selection-start-column="22" selection-end-line="861" selection-end-column="22" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/CenterCraterAuto.png">
-      <provider selected="true" editor-type-id="images">
-        <state />
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/LeftCraterAuto.png">
       <provider selected="true" editor-type-id="images">
         <state />
@@ -3802,17 +3812,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="jar://$PROJECT_DIR$/libs/RobotCore-release-sources.jar!/com/qualcomm/robotcore/hardware/DigitalChannelImpl.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="117">
-          <caret line="89" column="17" selection-start-line="89" selection-start-column="17" selection-end-line="89" selection-end-column="17" />
-          <folding>
-            <element signature="e#3266#3267#0" expanded="true" />
-            <element signature="e#3325#3326#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/GOFAutonomousDepot.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="61">
@@ -3829,22 +3828,6 @@
             <element signature="e#52024#52922#0" expanded="true" />
             <marker date="1549057532240" expanded="false" signature="42429:45981" ph="..." />
             <marker date="1549057532240" expanded="false" signature="48421:48996" ph="..." />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/GOFAutonomousCrater.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="122">
-          <caret line="680" column="27" selection-start-line="680" selection-start-column="27" selection-end-line="680" selection-end-column="27" />
-          <folding>
-            <element signature="e#3561#11139#0" expanded="true" />
-            <element signature="class#4564:8832" />
-            <element signature="method#run#0;class#4564:8832" expanded="true" />
-            <element signature="e#11145#13300#0" expanded="true" />
-            <element signature="e#13306#15598#0" expanded="true" />
-            <element signature="e#15604#18664#0" expanded="true" />
-            <element signature="e#20482#21769#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -3871,31 +3854,118 @@
         </state>
       </provider>
     </entry>
+    <entry file="jar://$PROJECT_DIR$/libs/Hardware-release-sources.jar!/com/qualcomm/hardware/lynx/LynxDigitalChannelController.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="293">
+          <caret line="223" column="29" selection-start-line="223" selection-start-column="29" selection-end-line="223" selection-end-column="29" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/statemach.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="572">
+          <caret line="488" column="24" selection-start-line="488" selection-start-column="24" selection-end-line="488" selection-end-column="24" />
+          <folding>
+            <element signature="imports" expanded="true" />
+            <element signature="e#3379#12147#0" expanded="true" />
+            <element signature="class#4747:9791" />
+            <element signature="method#run#0;class#4747:9791" expanded="true" />
+            <element signature="method#getAngle#0;class#4747:9791" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$PROJECT_DIR$/libs/RobotCore-release-sources.jar!/com/qualcomm/robotcore/hardware/DigitalChannelImpl.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="201">
+          <caret line="62" column="25" lean-forward="true" selection-start-line="62" selection-start-column="25" selection-end-line="62" selection-end-column="25" />
+          <folding>
+            <element signature="docComment;class#DigitalChannelImpl#0" expanded="true" />
+            <element signature="docComment;method#DigitalChannelImpl#0;class#DigitalChannelImpl#0" expanded="true" />
+            <element signature="docComment;method#setMode#0;class#DigitalChannelImpl#0" expanded="true" />
+            <element signature="method#setMode#1;class#DigitalChannelImpl#0" expanded="true" />
+            <element signature="e#3266#3267#0" expanded="true" />
+            <element signature="e#3325#3326#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$PROJECT_DIR$/libs/RobotCore-release-sources.jar!/com/qualcomm/robotcore/hardware/DigitalChannel.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="90">
+          <caret line="66" column="31" lean-forward="true" selection-start-line="66" selection-start-column="31" selection-end-line="66" selection-end-column="31" />
+          <folding>
+            <element signature="e#3597#3630#0" expanded="true" />
+            <element signature="docComment;class#Mode#0;class#DigitalChannel#0" expanded="true" />
+            <element signature="docComment;method#getMode#0;class#DigitalChannel#0" expanded="true" />
+            <element signature="docComment;method#setMode#0;class#DigitalChannel#0" expanded="true" />
+            <element signature="docComment;method#setState#0;class#DigitalChannel#0" expanded="true" />
+            <element signature="docComment;method#setMode#1;class#DigitalChannel#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/FtcRobotController/src/main/java/org/firstinspires/ftc/robotcontroller/external/samples/SensorDigitalTouch.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="435">
+          <caret line="67" column="56" selection-start-line="67" selection-start-column="8" selection-end-line="67" selection-end-column="56" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/FtcRobotController/src/main/java/org/firstinspires/ftc/robotcontroller/external/samples/PushbotAutoDriveByEncoder_Linear.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="149">
+          <caret line="132" column="46" selection-start-line="132" selection-start-column="46" selection-end-line="132" selection-end-column="46" />
+          <folding>
+            <element signature="method#encoderDrive#0;class#PushbotAutoDriveByEncoder_Linear#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/GOFHardware.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="138">
-          <caret line="439" column="136" selection-start-line="439" selection-start-column="65" selection-end-line="439" selection-end-column="136" />
+        <state relative-caret-position="272">
+          <caret line="75" column="77" selection-start-line="75" selection-start-column="77" selection-end-line="75" selection-end-column="77" />
           <folding>
             <element signature="e#4034#4266#0" expanded="true" />
             <element signature="e#4272#13688#0" expanded="true" />
+            <element signature="e#13803#14732#0" expanded="true" />
             <element signature="e#14738#15446#0" expanded="true" />
+            <element signature="e#15690#17127#0" expanded="true" />
             <element signature="e#16184#17089#0" expanded="true" />
             <element signature="e#17088#17089#0" expanded="true" />
-            <element signature="e#18200#18289#0" expanded="true" />
+            <element signature="e#17793#17794#0" expanded="true" />
+            <element signature="e#17847#17848#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/GOFTeleOp.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="630">
-          <caret line="376" column="36" lean-forward="true" selection-start-line="376" selection-start-column="36" selection-end-line="376" selection-end-column="36" />
+        <state relative-caret-position="115">
+          <caret line="419" column="28" selection-start-line="419" selection-start-column="28" selection-end-line="419" selection-end-column="28" />
           <folding>
             <element signature="method#init#0;class#GOFTeleOp#0" expanded="true" />
+            <element signature="method#start#0;class#GOFTeleOp#0" expanded="true" />
             <element signature="method#run#0;class#2439:3931" expanded="true" />
             <element signature="method#loop#0;class#GOFTeleOp#0" expanded="true" />
-            <element signature="e#15839#15840#0" expanded="true" />
-            <element signature="e#15869#15870#0" expanded="true" />
+            <element signature="method#stop#0;class#GOFTeleOp#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/GOFAutonomousCrater.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="906">
+          <caret line="1270" column="54" selection-start-line="1270" selection-start-column="54" selection-end-line="1270" selection-end-column="54" />
+          <folding>
+            <element signature="e#3633#14009#0" expanded="true" />
+            <element signature="method#run#0;class#4556:8936" expanded="true" />
+            <element signature="class#9091:13596" />
+            <element signature="method#run#0;class#9091:13596" expanded="true" />
+            <element signature="e#18191#21270#0" expanded="true" />
+            <element signature="e#23060#25044#0" expanded="true" />
+            <element signature="e#50394#54764#0" expanded="true" />
           </folding>
         </state>
       </provider>
