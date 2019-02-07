@@ -72,8 +72,8 @@ public class GOFHardware {
     public          DistanceSensor               frontDistanceSensor;
     public          DistanceSensor               backDistanceSensor;
 
-    public          double                       maxDriveSpeed            = 1;
-    public          double                       maxBoxSpeed              = 1;
+    public          double                       maxDriveSpeed            = 0.9;
+    public          double                       maxBoxSpeed              = 0.5;
     public          double                       boxPos                   = 0;
 
     private static  GOFHardware                  robot                    = null;
@@ -377,19 +377,24 @@ public class GOFHardware {
     }
 
     public void setHangPower(double hangPower) { // Set hang power
-        if(hangOne != null) {
+        if(hangOne != null && hangOne.getMode() != DcMotor.RunMode.RUN_TO_POSITION) {
             hangPower = Range.clip(hangPower, -1, 1);
             if(topSensor != null) {
-                if(!topSensor.getState() && hangPower > 0 && !(hangOne.getMode() == DcMotor.RunMode.RUN_TO_POSITION && hangOne.getTargetPosition() < hangOne.getCurrentPosition())) { // If the top sensor is being pressed but the intended hang power is positive, stop
+                if(!topSensor.getState() && hangPower > 0) { // If the top sensor is being pressed but the intended hang power is positive, stop
                     hangPower = 0;
                 }
             }
             if(bottomSensor != null) {
-                if(bottomSensor.isPressed() && hangPower < 0 && !(hangOne.getMode() == DcMotor.RunMode.RUN_TO_POSITION && hangOne.getTargetPosition() > hangOne.getCurrentPosition())) { // If the bottom sensor is being pressed but the intended hang power is negative, stop
+                if(bottomSensor.isPressed() && hangPower < 0) { // If the bottom sensor is being pressed but the intended hang power is negative, stop
                     hangPower = 0;
                 }
             }
             hangOne.setPower(hangPower);
+        }
+        else {
+            if(hangOne != null && hangOne.getMode() == DcMotor.RunMode.RUN_TO_POSITION) {
+                hangOne.setPower(hangPower);
+            }
         }
     }
 

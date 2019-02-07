@@ -9,6 +9,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
@@ -28,7 +29,7 @@ import java.util.Iterator;
 import java.util.List;
 
 @Autonomous(name="AutoCreatorRunner",group="GOFTests")
-@Disabled
+// @Disabled
 
 public class AutoCreatorTestRunnable extends LinearOpMode {
     private                 boolean             aPressed                = false;
@@ -40,7 +41,10 @@ public class AutoCreatorTestRunnable extends LinearOpMode {
     private                 boolean             bumperPressed           = false;
     private                 boolean             servoMove               = false;
     private                 boolean             remove;
-
+    private                 boolean             useNeg                  = false;
+    private                 boolean             waitingForClick         = true;
+    private                 boolean             hanging                 = true;
+    private                 boolean             autoScored              = false;
 
     private                 double              angle;
     private                 double              drive;
@@ -48,23 +52,39 @@ public class AutoCreatorTestRunnable extends LinearOpMode {
     private                 double              lastIntake              = 0;
     private                 double              maxDriveSpeed;
     private                 double              turn;
+    private volatile        double              boxPos                  = 71;
+    private volatile        double              cycleTime               = 0;
+    private                 double              triggerPressed          = 0;
+    private                 double              integral                = 0;
+    private                 double              lastError               = 0;
+    private                 double              dump                    = 75;
+    private                 double              intake                  = 170;
+    private                 double              neutral                 = 90;
+
 
     private                 ElapsedTime         elapsedTime             = new ElapsedTime();
+    private                 ElapsedTime         hangTime                = new ElapsedTime();
+    private                 ElapsedTime         trigTime                = new ElapsedTime();
+    private volatile        ElapsedTime         threadTime              = new ElapsedTime();
+    private                 ElapsedTime         flipTime                = new ElapsedTime();
 
     public                  GOFHardware         robot                   = GOFHardware.getInstance(); // Use the GOFHardware class
 
     private                 int                 driverMode              = 1;
     private                 int                 goldPos                 = -2;
+    private                 int                 iterations              = 0;
 
-    private static final    String              TFOD_MODEL_ASSET            = "RoverRuckus.tflite";
-    private static final    String              LABEL_GOLD_MINERAL          = "Gold Mineral";
-    private static final    String              LABEL_SILVER_MINERAL        = "Silver Mineral";
-    private static final    String              VUFORIA_KEY                 = "AWVhzQD/////AAABmWz790KTAURpmjOzox2azmML6FgjPO5DBf5SHQLIKvCsslmH9wp8b5zkCGfES8tt+8xslwaK7sd2h5H1jwmix26x+Eg5j60l00SlNiJMDAp5IOMWvhdJGZ8jJ8wFHCNkwERQG57JnrOXVSFDlc1sfum3oH68fEd8RrA570Y+WQda1fP8hYdZtbgG+ZDVG+9XyoDrToYU3FYl3WM1iUphAbHJz1BMFFnWJdbZzOicvqah/RwXqtxRDNlem3JdT4W95kCY5bckg92oaFIBk9n01Gzg8w5mFTReYMVI3Fne72/KpPRPJwblO0W9OI3o7djg+iPjxkKOeHUWW+tmi6r3LRaKTrIUfLfazRu0QwLA8Bgw";
+
+    private static final    String              TFOD_MODEL_ASSET        = "RoverRuckus.tflite";
+    private static final    String              LABEL_GOLD_MINERAL      = "Gold Mineral";
+    private static final    String              LABEL_SILVER_MINERAL    = "Silver Mineral";
+    private static final    String              VUFORIA_KEY             = "AWVhzQD/////AAABmWz790KTAURpmjOzox2azmML6FgjPO5DBf5SHQLIKvCsslmH9wp8b5zkCGfES8tt+8xslwaK7sd2h5H1jwmix26x+Eg5j60l00SlNiJMDAp5IOMWvhdJGZ8jJ8wFHCNkwERQG57JnrOXVSFDlc1sfum3oH68fEd8RrA570Y+WQda1fP8hYdZtbgG+ZDVG+9XyoDrToYU3FYl3WM1iUphAbHJz1BMFFnWJdbZzOicvqah/RwXqtxRDNlem3JdT4W95kCY5bckg92oaFIBk9n01Gzg8w5mFTReYMVI3Fne72/KpPRPJwblO0W9OI3o7djg+iPjxkKOeHUWW+tmi6r3LRaKTrIUfLfazRu0QwLA8Bgw";
 
     private                 GOFVuforiaLocalizer vuforia;
     private                 TFObjectDetector    detector;
 
-    private                 double              startTime                   = elapsedTime.time();
+    private                 double              startTime               = elapsedTime.time();
+
 
     public void runOpMode() {
         /* Initialize hardware class */
@@ -225,18 +245,19 @@ public class AutoCreatorTestRunnable extends LinearOpMode {
         throw new RuntimeException("I give up");
     }
 
-    private void drive(Gamepad gamepadV1, Gamepad gamepadV2) {
-        drive = gamepadV1.left_stick_y;
-        double hangDrive = -gamepadV2.left_stick_y;
-        turn = -gamepadV1.right_stick_x;
-        angle = -gamepadV1.left_stick_x;
+    private void drive(Gamepad gamepad1, Gamepad gamepad2) {
+        threadTime.reset();
+        double drive = gamepad1.left_stick_y;
+        double hangDrive = -gamepad2.left_stick_y;
+        double turn = -gamepad1.right_stick_x;
+        double angle = -gamepad1.left_stick_x;
 
         /* Precision vertical drive */
-        if (gamepadV1.dpad_down || gamepadV1.dpad_up) {
-            if (gamepadV1.left_stick_y != 0) {
+        if (gamepad1.dpad_down || gamepad1.dpad_up) {
+            if (gamepad1.left_stick_y != 0) {
                 drive = drive * 0.2; // Slow down joystick driving
             } else {
-                if (gamepadV1.dpad_down) {
+                if (gamepad1.dpad_down) {
                     drive = 0.2; // Slow drive backwards
                 } else {
                     drive = -0.2; // Slow drive forwards
@@ -245,11 +266,11 @@ public class AutoCreatorTestRunnable extends LinearOpMode {
         }
 
         /* Precision sideways drive */
-        if (gamepadV1.dpad_right || gamepadV1.dpad_left) {
-            if (gamepadV1.right_stick_x != 0) {
+        if (gamepad1.dpad_right || gamepad1.dpad_left) {
+            if (gamepad1.right_stick_x != 0) {
                 angle = angle * 0.3; // Slow down joystick side movement
             } else {
-                if (gamepadV1.dpad_left) {
+                if (gamepad1.dpad_left) {
                     angle = 0.3; // Slow leftwards
                 } else {
                     angle = -0.3; // Slow rightwards
@@ -258,10 +279,10 @@ public class AutoCreatorTestRunnable extends LinearOpMode {
         }
 
         /* Precision turn */
-        if (gamepadV1.left_bumper) {
+        if (gamepad1.left_bumper) {
             turn = 0.2; // Slow left turn
         }
-        if (gamepadV1.right_bumper) {
+        if (gamepad1.right_bumper) {
             turn = -0.2; // Slow right turn
         }
 
@@ -275,6 +296,7 @@ public class AutoCreatorTestRunnable extends LinearOpMode {
             } else {
                 scaleFactor = 1;
             }
+            scaleFactor *= Math.max(Math.abs(1 - gamepad1.right_trigger), 0.2);
             robot.setDrivePower(scaleFactor * (drive + turn - angle), scaleFactor * (drive + turn + angle), scaleFactor * (drive - turn + angle), scaleFactor * (drive - turn - angle)); // Set motors to values based on gamepad
         }
         else if(driverMode == -1) {
@@ -284,104 +306,46 @@ public class AutoCreatorTestRunnable extends LinearOpMode {
             driverMode = 1;
         }
 
-        if((gamepadV1.right_trigger - gamepadV1.left_trigger) != 0 || gamepadV2.dpad_up || gamepadV2.dpad_down) {
-            robot.setInPower(gamepadV1.right_trigger + (gamepadV2.dpad_up ? 1 : 0) - gamepadV1.left_trigger - (gamepadV2.dpad_down ? 1 : 0)); // Set intake power based on the gamepad trigger values
+        if(gamepad1.left_trigger != 0) {
+            triggerPressed = gamepad1.left_trigger * (useNeg ? -1 : 1);
+            trigTime.reset();
+        }
+        if(gamepad1.left_trigger == 0 && triggerPressed != 0) {
+            triggerPressed = 0;
+            if(!useNeg) {
+                waitingForClick = true;
+            }
+            else {
+                useNeg = false;
+            }
+        }
+        if(waitingForClick && trigTime.time() > 0.25) {
+            waitingForClick = false;
+        }
+        if(waitingForClick && gamepad1.left_trigger > 0.05) {
+            useNeg = true;
+        }
+
+        if((triggerPressed != 0 || gamepad2.dpad_up || gamepad2.dpad_down)) {
+            robot.setInPower((gamepad2.dpad_up ? 1 : 0) + triggerPressed - (gamepad2.dpad_down ? 1 : 0) + (servoMove ? 0.25 : 0)); // Set intake power based on the gamepad trigger values
             lastIntake = (robot.intake.getCurrentPosition() - lastIntake);
             lastIntake /= (lastIntake == 0 ? 1 : Math.abs(lastIntake));
         }
         else {
             robot.setInPower(0);
-            /*
-            try {
-                if(lastIntake != 0 && robot.intake.getCurrentPosition() % 288 != 0 && !robot.intake.isBusy()) {
-                    try {
-                        robot.setInPos((int)((288 * (robot.intake.getCurrentPosition() / 288)) + (288 * lastIntake)), 1);
-                    }
-                    catch(Exception p_exception) {
-                        robot.setInPower(0);
-                    }
-                }
-                else {
-                    robot.setInPower(0);
-                }
-            }
-            catch (Exception p_exception) {
-                telemetry.addData("Note: ", "I hope you weren't planning on using intake, since it's not really working.");
-            } */
-        }
-        /*
-        if (gamepadV2.b) {
-            bpressedtwo = true;
         }
 
-        if (bpressedtwo && !gamepadV2.b) { // Toggle sorting system
-            inReady = Math.abs(inReady - 1); // If inReady = 0, set it to 1; otherwise, set it to 0
-            forcedOn = false;
-            bpressedtwo = false;
-        }
-
-        if (gamepadV2.a) {
-            apressedtwo = true;
-        }
-
-        if (apressedtwo && !gamepadV2.a) { // Force sorting system on until turned off manually
-            forcedOn = true;
-            bpressedtwo = false;
-        }
-
-        if (inReady == 1 && robot.frontDistanceSensor != null && robot.backDistanceSensor != null) {
-            // robot.setKickPower(kickReadyPos); // Move kicker out of the way
-            // robot.setDoorPower(doorOpenPos); // Open intake
-
-            if (robot.frontDistanceSensor != null && robot.frontDistanceSensor.getDistance(DistanceUnit.INCH) > 1) {
-                frontCube = 0;
-            } else {
-                try { // Possible division by zero error
-                    inRatioOne = robot.frontColorSensor.red() / robot.frontColorSensor.blue(); // GOLD: RED TO BLUE = 2:1, SILVER: RED TO BLUE = 1:1, PURPLE: RED TO BLUE 1:2
-                } catch (Exception p_exception) {
-                    inRatioOne = 0;
-                }
-                if (Math.abs((2 - inRatioOne)) > Math.abs((1 - inRatioOne))) { // Silver
-                    frontCube = 1;
-                } else { // Gold
-                    frontCube = 2;
-                }
-            }
-            if (robot.backDistanceSensor != null && robot.backDistanceSensor.getDistance(DistanceUnit.INCH) > 1) {
-                backCube = 0;
-            } else {
-                try {
-                    inRatioTwo = robot.backColorSensor.red() / robot.backColorSensor.blue();
-                } catch (Exception p_exception) {
-                    inRatioTwo = 0;
-                }
-                if (Math.abs((2 - inRatioTwo)) > Math.abs((1 - inRatioTwo))) { // Silver
-                    backCube = 1;
-                } else { // Gold
-                    backCube = 2;
-                }
-            }
-
-            if ((backCube * frontCube != 0) && (backCube == frontCube) && !forcedOn) {
-                inReady = 0;
-            } else if (backCube * frontCube != 0) {
-                // robot.setKickPower(kickOutPos); // Kick mineral out of container
-                frontCube = 0; // the front cube should be not there
-            }
-        }
-        */
-
-        if (gamepadV1.y) {
+        if (gamepad1.y) {
             ypressed = true;
         }
 
-        if (ypressed && !gamepadV1.y) {
+        if (ypressed && !gamepad1.y) {
             ypressed = false;
             driverMode *= -1;
         }
 
         /* Reset encoders */
-        if (gamepadV1.a && !gamepadV1.start) {
+        if (gamepad1.a && !gamepad1.start) {
             robot.rrWheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             robot.rfWheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             robot.lrWheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -396,54 +360,98 @@ public class AutoCreatorTestRunnable extends LinearOpMode {
             robot.gyroInit();
         }
 
-        if (gamepadV2.dpad_left || gamepadV2.dpad_right) {
-            if (gamepadV2.left_stick_y != 0) {
+        if (gamepad2.dpad_left || gamepad2.dpad_right) {
+            if (gamepad2.left_stick_y != 0) {
                 hangDrive = hangDrive * 0.25; // Slow down joystick hanging
             } else {
-                if (gamepadV2.dpad_right) {
+                if (gamepad2.dpad_right) {
                     hangDrive = 0.25; // Slow drive hanging
                 } else {
                     hangDrive = -0.25; // Slow drive hanging
                 }
             }
         }
-        robot.setHangPower(hangDrive); // Move container based on gamepad positions
+        if(hangDrive != 0) {
+            flipBox(neutral);
+        }
         if(!servoMove) {
-            robot.setExtendPower((Math.abs(gamepadV2.right_stick_x) < 0.05 ? gamepadV2.dpad_right ? 0.25 : gamepadV2.dpad_left ? -0.25 : gamepadV1.x ? -1 : gamepadV1.b ? 1 : 0 : gamepadV2.right_stick_x));
+            robot.setHangPower(hanging ? hangDrive : 0); // Move container based on gamepad positions
+        }
+        if(!servoMove) {
+            robot.setExtendPower((Math.abs(gamepad2.right_stick_x) < 0.05 ? gamepad2.dpad_right ? 0.25 : gamepad2.dpad_left ? -0.25 : gamepad1.x ? -1 : gamepad1.b ? 1 : 0 : gamepad2.right_stick_x));
         }
 
-        if(((Math.abs(gamepadV2.right_stick_x) < 0.05 ? gamepadV2.dpad_right ? 0.25 : gamepadV2.dpad_left ? -0.25 : gamepadV1.x ? -1 : gamepadV1.b ? 1 : 0 : gamepadV2.right_stick_x)) != 0) {
+        if(((Math.abs(gamepad2.right_stick_x) < 0.05 ? gamepad2.dpad_right ? 0.25 : gamepad2.dpad_left ? -0.25 : gamepad1.x ? -1 : gamepad1.b ? 1 : 0 : gamepad2.right_stick_x)) != 0) {
             servoMove = false;
         }
 
-        if(gamepadV2.left_trigger != 0) {
-            robot.flipBox(0.535);
+        if(gamepad2.left_trigger != 0) {
+            flipBox(neutral); // Neutral
         }
-        if(gamepadV2.right_trigger != 0) {
-            robot.flipBox(0.59);
+        if(gamepad2.right_trigger != 0) {
+            flipBox(intake); // Intake
         }
-        if(gamepadV2.right_bumper && !bumperPressed) {
-            robot.flipBox(0.414);
+        if(gamepad2.right_bumper && !bumperPressed) {
+            flipBox(dump); // Dump
+            hangTime.reset();
+            hanging = false;
         }
-        if(bumperPressed && !(gamepadV2.right_bumper || gamepadV2.left_bumper)) {
+        if(bumperPressed && !(gamepad2.right_bumper || gamepad2.left_bumper)) {
             bumperPressed = false;
         }
-        if(gamepadV2.a && !aPressed) {
-            robot.flipBox(0.535);
+        if(gamepad2.a && !gamepad2.start && !aPressed) {
+            flipBox(neutral);
             aPressed = true;
             servoMove = true;
+            robot.setInPower(0.25);
         }
-        if(aPressed && !gamepadV1.a) {
+        if(aPressed && !gamepad1.a) {
             aPressed = false;
         }
         if(servoMove && !(robot.extenderSensor.getVoltage() > 2)) {
             robot.setExtendPower(1);
         }
+        if(servoMove && !(robot.bottomSensor.isPressed())) {
+            robot.setHangPower(-1);
+        }
         if(robot.extenderSensor.getVoltage() > 2 && servoMove) {
             robot.setExtendPower(0);
-            servoMove = false;
-            robot.flipBox(0.414);
+            if(robot.bottomSensor.isPressed()) {
+                robot.setHangPower(0);
+                servoMove = false;
+                flipBox(dump);
+                autoScored = true;
+            }
         }
+        if(robot.bottomSensor.isPressed() && servoMove) {
+            robot.setHangPower(0);
+            if(robot.extenderSensor.getVoltage() > 2) {
+                servoMove = false;
+                robot.extend.setPower(0);
+                flipBox(dump);
+                autoScored = true;
+            }
+        }
+        if(servoMove && robot.bottomSensor.isPressed() && robot.extenderSensor.getVoltage() > 2) {
+            robot.setHangPower(0);
+            robot.setExtendPower(0);
+            servoMove = false;
+            flipBox(dump);
+            autoScored = true;
+        }
+        if(autoScored && (Math.abs(robot.boxPotentiometer.getVoltage() - (3.3 * (boxPos / 180))) >= 0.1)) {
+            flipTime.reset();
+        }
+        if(flipTime.time() >= 0.5 && flipTime.time() <= 3 && autoScored && (Math.abs(robot.boxPotentiometer.getVoltage() - (3.3 * (boxPos / 180))) >= 0.1)) {
+            autoScored = false;
+            flipBox(neutral);
+        }
+        if(hangTime.time() >= 0.75) {
+            hanging = true;
+        }
+        iterations++;
+        checkBox();
+        cycleTime = threadTime.time();
     }
 
     private void driveByField(double drive, double turn, double angle) { // Experimental field-oriented drive
@@ -497,6 +505,43 @@ public class AutoCreatorTestRunnable extends LinearOpMode {
             varToAdjust = Math.sqrt(varToAdjust);
         }
         return varToAdjust;
+    }
+
+    private void flipBox(final double angle) {
+        boxPos = angle;
+    }
+
+    private void checkBox() {
+        robot.box.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        double currentAngle = 180 * (robot.boxPotentiometer.getVoltage() / 3.3);
+        double error = -(boxPos - currentAngle);
+        double derivative = 0;
+        if(iterations > 1) {
+            integral += threadTime.time() * (error - lastError);
+            derivative = threadTime.time() / (error - lastError);
+        }
+        lastError = error;
+        if(Math.abs(error) >= 5) {
+            double PIDPower;
+            if(boxPos >= 170 && currentAngle >= 170) {
+                robot.box.setPower(0);
+            }
+            else {
+                try {
+                    PIDPower = (0.03 * error) + (0.025 * integral) + (0.09 * (derivative));
+                } catch (Exception p_exception) {
+                    PIDPower = (0.075 * error);
+                }
+                if (Math.abs(PIDPower) >= 0.09) {
+                    robot.box.setPower(Range.clip(PIDPower, -robot.maxBoxSpeed, robot.maxBoxSpeed));
+                } else {
+                    robot.box.setPower(0);
+                }
+            }
+        }
+        else {
+            robot.box.setPower(0);
+        }
     }
 
     private int detectGold() {

@@ -22,11 +22,12 @@ public class GOFTeleOp extends OpMode {
     private             boolean             useNeg              = false;
     private             boolean             waitingForClick     = true;
     private             boolean             bumperPressed       = false;
+    private             boolean             gotThere            = false;
     private             boolean             servoMove           = false;
     private             boolean             hanging             = true;
     private             boolean             autoScored          = false;
 
-    private volatile    double              boxPos              = 71;
+    private volatile    double              boxPos              = 90;
     private volatile    double              cycleTime           = 0;
     private             double              firstAngleOffset;
     private             double              triggerPressed      = 0;
@@ -34,17 +35,23 @@ public class GOFTeleOp extends OpMode {
     private             double              integral            = 0;
     private             double              lastError           = 0;
     private             double              maxDriveSpeed;
-    private             double              firstError;
+    private             double              dump                = 75;
+    private             double              intake              = 170;
+    private             double              neutral             = 90;
+    private             double              offset              = 5;
+    private             double              Kp                  = 0.04;
+    private             double              Ki                  = 0.005;
+    private             double              Kd                  = 0.025;
 
     private             ElapsedTime         hangTime            = new ElapsedTime();
     private             ElapsedTime         trigTime            = new ElapsedTime();
     private volatile    ElapsedTime         threadTime          = new ElapsedTime();
+    private             ElapsedTime         flipTime            = new ElapsedTime();
 
     public              GOFHardware         robot               = GOFHardware.getInstance(); // Use the GOFHardware class
 
     private             int                 driverMode          = 1;
     private             int                 iterations          = 0;
-    private             int                 negate              = 1;
 
     @Override
     public void init() {
@@ -54,6 +61,12 @@ public class GOFTeleOp extends OpMode {
         robot.teamFlag.setPosition(0.5);
         maxDriveSpeed = robot.maxDriveSpeed;
         telemetry.addData("Status", "Initialized"); // Update phone
+    }
+
+    @Override
+    public void init_loop() {
+        checkBox();
+        iterations++;
     }
 
     @Override
@@ -144,7 +157,6 @@ public class GOFTeleOp extends OpMode {
 
     @Override
     public void loop() {
-        threadTime.reset();
         double drive = gamepad1.left_stick_y;
         double hangDrive = -gamepad2.left_stick_y;
         double turn = -gamepad1.right_stick_x;
@@ -194,7 +206,7 @@ public class GOFTeleOp extends OpMode {
             } else {
                 scaleFactor = 1;
             }
-            scaleFactor *= Math.abs(1 - gamepad1.right_trigger);
+            scaleFactor *= Math.max(Math.abs(1 - gamepad1.right_trigger), 0.2);
             robot.setDrivePower(scaleFactor * (drive + turn - angle), scaleFactor * (drive + turn + angle), scaleFactor * (drive - turn + angle), scaleFactor * (drive - turn - angle)); // Set motors to values based on gamepad
         }
         else if(driverMode == -1) {
@@ -217,7 +229,7 @@ public class GOFTeleOp extends OpMode {
                 useNeg = false;
             }
         }
-        if(waitingForClick && trigTime.time() > 1) {
+        if(waitingForClick && trigTime.time() > 0.1) {
             waitingForClick = false;
         }
         if(waitingForClick && gamepad1.left_trigger > 0.05) {
@@ -225,7 +237,7 @@ public class GOFTeleOp extends OpMode {
         }
 
         if((triggerPressed != 0 || gamepad2.dpad_up || gamepad2.dpad_down)) {
-            robot.setInPower((gamepad2.dpad_up ? 1 : 0) + triggerPressed - (gamepad2.dpad_down ? 1 : 0)); // Set intake power based on the gamepad trigger values
+            robot.setInPower((gamepad2.dpad_up ? 1 : 0) + triggerPressed - (gamepad2.dpad_down ? 1 : 0) + (servoMove ? 0.25 : 0)); // Set intake power based on the gamepad trigger values
             lastIntake = (robot.intake.getCurrentPosition() - lastIntake);
             lastIntake /= (lastIntake == 0 ? 1 : Math.abs(lastIntake));
         }
@@ -269,12 +281,15 @@ public class GOFTeleOp extends OpMode {
                 }
             }
         }
+
         if(hangDrive != 0) {
-            flipBox(75);
+            flipBox(neutral);
         }
+
         if(!servoMove) {
             robot.setHangPower(hanging ? hangDrive : 0); // Move container based on gamepad positions
         }
+
         if(!servoMove) {
             robot.setExtendPower((Math.abs(gamepad2.right_stick_x) < 0.05 ? gamepad2.dpad_right ? 0.25 : gamepad2.dpad_left ? -0.25 : gamepad1.x ? -1 : gamepad1.b ? 1 : 0 : gamepad2.right_stick_x));
         }
@@ -284,70 +299,90 @@ public class GOFTeleOp extends OpMode {
         }
 
         if(gamepad2.left_trigger != 0) {
-            flipBox(75); // Neutral
+            flipBox(neutral); // Neutral
         }
+
         if(gamepad2.right_trigger != 0) {
-            flipBox(170); // Intake
+            flipBox(intake); // Intake
         }
+
         if(gamepad2.right_bumper && !bumperPressed) {
-            flipBox(40); // Dump
+            flipBox(dump); // Dump
             hangTime.reset();
             hanging = false;
         }
+
+        if(gamepad2.x) {
+            Ki = 0;
+            Kd = 0;
+        }
+
         if(bumperPressed && !(gamepad2.right_bumper || gamepad2.left_bumper)) {
             bumperPressed = false;
         }
-        if(gamepad2.a && !aPressed) {
-            flipBox(75);
+
+        if(gamepad2.a && !gamepad2.start && !aPressed) {
+            flipBox(neutral);
             aPressed = true;
             servoMove = true;
             robot.setInPower(0.25);
         }
+
         if(aPressed && !gamepad1.a) {
             aPressed = false;
         }
+
         if(servoMove && !(robot.extenderSensor.getVoltage() > 2)) {
             robot.setExtendPower(1);
         }
+
         if(servoMove && !(robot.bottomSensor.isPressed())) {
             robot.setHangPower(-1);
         }
+
         if(robot.extenderSensor.getVoltage() > 2 && servoMove) {
             robot.setExtendPower(0);
             if(robot.bottomSensor.isPressed()) {
                 robot.setHangPower(0);
                 servoMove = false;
-                flipBox(40);
+                flipBox(dump);
                 autoScored = true;
             }
         }
+
         if(robot.bottomSensor.isPressed() && servoMove) {
             robot.setHangPower(0);
             if(robot.extenderSensor.getVoltage() > 2) {
                 servoMove = false;
                 robot.extend.setPower(0);
-                flipBox(40);
+                flipBox(dump);
                 autoScored = true;
             }
         }
+
         if(servoMove && robot.bottomSensor.isPressed() && robot.extenderSensor.getVoltage() > 2) {
             robot.setHangPower(0);
             robot.setExtendPower(0);
             servoMove = false;
-            flipBox(40);
+            flipBox(dump);
             autoScored = true;
         }
+
         if(autoScored && (Math.abs(robot.boxPotentiometer.getVoltage() - (3.3 * (boxPos / 180))) >= 0.1)) {
-            autoScored = false;
-            flipBox(75);
+            flipTime.reset();
         }
+
+        if(flipTime.time() >= 0.5 && flipTime.time() <= 3 && autoScored && (Math.abs(robot.boxPotentiometer.getVoltage() - (3.3 * (boxPos / 180))) >= 0.1)) {
+            autoScored = false;
+            flipBox(neutral);
+        }
+
         if(hangTime.time() >= 0.75) {
             hanging = true;
         }
-        if(iterations != 0 || Math.abs(robot.boxPotentiometer.getVoltage() - (3.3 * (boxPos / 180))) >= 0.1) {
-            iterations++;
-            checkBox();
-        }
+
+        iterations++;
+        checkBox();
         cycleTime = threadTime.time();
     }
 
@@ -414,32 +449,60 @@ public class GOFTeleOp extends OpMode {
     }
 
     private void flipBox(final double angle) {
+        iterations = 0;
+        integral = 0;
         boxPos = angle;
+        gotThere = false;
     }
 
     private void checkBox() {
+        robot.box.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         double currentAngle = 180 * (robot.boxPotentiometer.getVoltage() / 3.3);
-        double error = (boxPos - currentAngle) * negate;
-        if(iterations == 1) {
-            firstError = error;
-        }
-        else if(iterations == 2) {
-            if(Math.abs(firstError) < Math.abs(error)) {
-                negate *= -1;
-            }
-        }
-        else {
-            if(iterations != 3) {
-                integral += threadTime.time() * (error - lastError);
+        double error = -(boxPos - currentAngle);
+        double derivative = 0;
+        if((Math.abs(error) >= offset && !gotThere) || Math.abs(error) >= 2.5 * offset) {
+            if(iterations > 1) {
+                integral += threadTime.time() * (lastError - error);
+                derivative = (error - lastError) / threadTime.time();
+                if(Math.abs(derivative) >= 50) {
+                    derivative = 0;
+                }
+                if(Math.abs(integral) >= 50) {
+                    integral = 0;
+                }
+                if(error != 0) {
+                    derivative = Math.abs(derivative) * (error / Math.abs(error));
+                    integral = Math.abs(integral) * (error / Math.abs(error));
+                }
             }
             lastError = error;
-        }
-        if(Math.abs(error) >= 5) {
-            double PIDPower = (0.1 * error) + (0.01 * integral) + (0.01 * (1 / integral));
-            robot.box.setPower(Range.clip(PIDPower, -robot.maxBoxSpeed, robot.maxBoxSpeed));
+            double PIDPower;
+            if(boxPos >= 170 && currentAngle >= 170) {
+                robot.box.setPower(0);
+            }
+            else {
+                try {
+                    PIDPower = (Kp * error) + (Ki * integral) + (Kd * (derivative));
+                } catch (Exception p_exception) {
+                    PIDPower = (Kp
+                            * error);
+                }
+                if(Math.abs(PIDPower) >= 0.15) {
+                    if((currentAngle <= 175 || PIDPower <= 0) && (currentAngle >= 20 || PIDPower >= 0)) {
+                        robot.box.setPower(Range.clip(PIDPower, -robot.maxBoxSpeed, robot.maxBoxSpeed));
+                        threadTime.reset();
+                    }
+                    else {
+                        robot.box.setPower(0);
+                    }
+                } else {
+                    robot.box.setPower(0);
+                }
+            }
         }
         else {
             robot.box.setPower(0);
+            gotThere = true;
         }
     }
 
