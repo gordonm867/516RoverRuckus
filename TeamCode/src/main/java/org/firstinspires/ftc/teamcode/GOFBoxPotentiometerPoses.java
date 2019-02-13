@@ -37,9 +37,9 @@ public class GOFBoxPotentiometerPoses extends OpMode {
     private             double              lastIntake          = 0;
     private             double              integral            = 0;
     private             double              lastError           = 0;
-    private             double              dump                = 75;
+    private             double              dump                = 45;
     private             double              intake              = 170;
-    private             double              neutral             = 90;
+    private             double              neutral             = 60;
     private             double              offset              = 5;
     private             double              Kp                  = 0.05;
     private             double              Ki                  = 0.005;
@@ -279,7 +279,7 @@ public class GOFBoxPotentiometerPoses extends OpMode {
         double currentAngle = 180 * (robot.boxPotentiometer.getVoltage() / 3.3);
         double error = -(boxPos - currentAngle);
         double derivative = 0;
-        if((Math.abs(error) >= offset && !gotThere) || Math.abs(error) >= 2.5 * offset) {
+        if(Math.abs(error) >= offset && !gotThere) {
             if(iterations > 1) {
                 integral += threadTime.time() * (lastError - error);
                 derivative = (error - lastError) / threadTime.time();

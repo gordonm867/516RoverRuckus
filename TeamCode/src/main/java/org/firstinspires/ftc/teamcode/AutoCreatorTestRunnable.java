@@ -60,6 +60,9 @@ public class AutoCreatorTestRunnable extends LinearOpMode {
     private                 double              dump                    = 75;
     private                 double              intake                  = 170;
     private                 double              neutral                 = 90;
+    private                 double              Kp                      = 0.04;
+    private                 double              Ki                      = 0.005;
+    private                 double              Kd                      = 0.025;
 
 
     private                 ElapsedTime         elapsedTime             = new ElapsedTime();
@@ -246,7 +249,7 @@ public class AutoCreatorTestRunnable extends LinearOpMode {
     }
 
     private void drive(Gamepad gamepad1, Gamepad gamepad2) {
-        threadTime.reset();
+        elapsedTime.reset();
         double drive = gamepad1.left_stick_y;
         double hangDrive = -gamepad2.left_stick_y;
         double turn = -gamepad1.right_stick_x;
@@ -319,14 +322,14 @@ public class AutoCreatorTestRunnable extends LinearOpMode {
                 useNeg = false;
             }
         }
-        if(waitingForClick && trigTime.time() > 0.25) {
+        if(waitingForClick && trigTime.time() > 0.1) {
             waitingForClick = false;
         }
         if(waitingForClick && gamepad1.left_trigger > 0.05) {
             useNeg = true;
         }
 
-        if((triggerPressed != 0 || gamepad2.dpad_up || gamepad2.dpad_down)) {
+        if((triggerPressed != 0 || gamepad2.dpad_up || gamepad2.dpad_down || servoMove)) {
             robot.setInPower((gamepad2.dpad_up ? 1 : 0) + triggerPressed - (gamepad2.dpad_down ? 1 : 0) + (servoMove ? 0.25 : 0)); // Set intake power based on the gamepad trigger values
             lastIntake = (robot.intake.getCurrentPosition() - lastIntake);
             lastIntake /= (lastIntake == 0 ? 1 : Math.abs(lastIntake));
@@ -371,12 +374,15 @@ public class AutoCreatorTestRunnable extends LinearOpMode {
                 }
             }
         }
+
         if(hangDrive != 0) {
             flipBox(neutral);
         }
+
         if(!servoMove) {
             robot.setHangPower(hanging ? hangDrive : 0); // Move container based on gamepad positions
         }
+
         if(!servoMove) {
             robot.setExtendPower((Math.abs(gamepad2.right_stick_x) < 0.05 ? gamepad2.dpad_right ? 0.25 : gamepad2.dpad_left ? -0.25 : gamepad1.x ? -1 : gamepad1.b ? 1 : 0 : gamepad2.right_stick_x));
         }
@@ -388,70 +394,80 @@ public class AutoCreatorTestRunnable extends LinearOpMode {
         if(gamepad2.left_trigger != 0) {
             flipBox(neutral); // Neutral
         }
+
         if(gamepad2.right_trigger != 0) {
             flipBox(intake); // Intake
         }
+
+        if(gamepad2.left_bumper) {
+            flipBox(100);
+        }
+
         if(gamepad2.right_bumper && !bumperPressed) {
             flipBox(dump); // Dump
             hangTime.reset();
             hanging = false;
         }
+
+        if(gamepad2.x) {
+            Ki = 0;
+            Kd = 0;
+        }
+
         if(bumperPressed && !(gamepad2.right_bumper || gamepad2.left_bumper)) {
             bumperPressed = false;
         }
+
         if(gamepad2.a && !gamepad2.start && !aPressed) {
             flipBox(neutral);
             aPressed = true;
             servoMove = true;
             robot.setInPower(0.25);
         }
+
         if(aPressed && !gamepad1.a) {
             aPressed = false;
         }
+
         if(servoMove && !(robot.extenderSensor.getVoltage() > 2)) {
             robot.setExtendPower(1);
         }
+
         if(servoMove && !(robot.bottomSensor.isPressed())) {
             robot.setHangPower(-1);
         }
+
         if(robot.extenderSensor.getVoltage() > 2 && servoMove) {
             robot.setExtendPower(0);
             if(robot.bottomSensor.isPressed()) {
                 robot.setHangPower(0);
                 servoMove = false;
                 flipBox(dump);
-                autoScored = true;
             }
         }
+
         if(robot.bottomSensor.isPressed() && servoMove) {
             robot.setHangPower(0);
             if(robot.extenderSensor.getVoltage() > 2) {
                 servoMove = false;
                 robot.extend.setPower(0);
                 flipBox(dump);
-                autoScored = true;
             }
         }
+
         if(servoMove && robot.bottomSensor.isPressed() && robot.extenderSensor.getVoltage() > 2) {
             robot.setHangPower(0);
             robot.setExtendPower(0);
             servoMove = false;
             flipBox(dump);
-            autoScored = true;
         }
-        if(autoScored && (Math.abs(robot.boxPotentiometer.getVoltage() - (3.3 * (boxPos / 180))) >= 0.1)) {
-            flipTime.reset();
-        }
-        if(flipTime.time() >= 0.5 && flipTime.time() <= 3 && autoScored && (Math.abs(robot.boxPotentiometer.getVoltage() - (3.3 * (boxPos / 180))) >= 0.1)) {
-            autoScored = false;
-            flipBox(neutral);
-        }
+
         if(hangTime.time() >= 0.75) {
             hanging = true;
         }
+
         iterations++;
         checkBox();
-        cycleTime = threadTime.time();
     }
 
     private void driveByField(double drive, double turn, double angle) { // Experimental field-oriented drive

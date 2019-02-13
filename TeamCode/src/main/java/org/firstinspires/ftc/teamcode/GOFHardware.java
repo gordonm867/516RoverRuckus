@@ -72,8 +72,8 @@ public class GOFHardware {
     public          DistanceSensor               frontDistanceSensor;
     public          DistanceSensor               backDistanceSensor;
 
-    public          double                       maxDriveSpeed            = 0.9;
-    public          double                       maxBoxSpeed              = 0.5;
+    public          double                       maxDriveSpeed            = 1;
+    public          double                       maxBoxSpeed              = 1;
     public          double                       boxPos                   = 0;
 
     private static  GOFHardware                  robot                    = null;
@@ -520,13 +520,19 @@ public class GOFHardware {
     }
 
     public double getUSDistance() {
-        double distance = rfSensor.cmUltrasonic();
-        int iterations = 1;
-        while((distance < 0.1 || distance > 200) && iterations < 15) {
-            distance = rfSensor.cmUltrasonic();
-            iterations++;
+        if(rfSensor != null ) {
+            double distance = rfSensor.cmUltrasonic(); // Get ultrasonic distance
+            int iterations = 1;
+            while ((distance < 0.1 || distance > 200) && iterations < 15) { // Filter bad values
+                distance = rfSensor.cmUltrasonic();
+                iterations++;
+            }
+            if(iterations == 15) {
+                return Double.POSITIVE_INFINITY; // If the sensor is giving an inappropriate value 15 times in a row, return infinity
+            }
+            return distance; // Return proper distance if everything seems to be working
         }
-        return distance;
+        return Double.POSITIVE_INFINITY; // Return infinity if sensor is null
     }
 
     public double getREVDistance() {
