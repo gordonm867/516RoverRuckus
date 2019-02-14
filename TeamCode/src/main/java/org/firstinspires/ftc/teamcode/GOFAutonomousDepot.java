@@ -25,6 +25,7 @@ import java.util.List;
 public class GOFAutonomousDepot extends LinearOpMode {
 
     /* Declare OpMode members */
+    private                 boolean             depot                   = false;
     private volatile        boolean             doBox                   = true;
     private volatile        boolean             doTelemetry             = true;
     private                 boolean             path                    = false;
@@ -332,7 +333,9 @@ public class GOFAutonomousDepot extends LinearOpMode {
             robot.teamFlag.setPosition(0.2);
         }
         else {
+            depot = true;
             runBackToPoint(-5, -5, true);
+            depot = false;
             robot.teamFlag.setPosition(0.96);
             sleep(500);
             turn(-getAngle() - 45, 5);
@@ -1102,49 +1105,111 @@ public class GOFAutonomousDepot extends LinearOpMode {
     } */
 
     private void encoderMovePreciseTimed(int pos, double speed, double timeLimit, boolean reset) { // Move encoders towards target position until the position is reached, or the time limit expires
-        robot.rrWheel.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        robot.rfWheel.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        robot.lfWheel.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        robot.lrWheel.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        robot.rrWheel.setTargetPosition(pos);
-        robot.rfWheel.setTargetPosition(pos);
-        robot.lfWheel.setTargetPosition(pos);
-        robot.lrWheel.setTargetPosition(pos);
-        ElapsedTime limitTest = new ElapsedTime();
-        try {
-            robot.setDrivePower(-(pos / Math.abs(pos)) * Math.abs(speed), -(pos / Math.abs(pos)) * Math.abs(speed), -(pos / Math.abs(pos)) * Math.abs(speed), -(pos / Math.abs(pos)) * Math.abs(speed));
-        }
-        catch(Exception p_exception) {
-            robot.setDrivePower(speed, speed, speed, speed);
-        }
-        double maxSpeed = speed;
-        speed = Math.min(0.1, Math.abs(maxSpeed));
-        while((robot.rrWheel.isBusy() || robot.rfWheel.isBusy() || robot.lfWheel.isBusy() || robot.lrWheel.isBusy()) && opModeIsActive() && limitTest.time() < timeLimit) {
-            double error = Math.abs(robot.rrWheel.getCurrentPosition() - robot.rrWheel.getTargetPosition()) / 500;
-            if(!(speed >= maxSpeed) && !(error <= speed)) {
-                speed += 0.05;
-            }
-            else {
-                speed = Math.min(error, Math.abs(maxSpeed));
-            }
-            try {
-                robot.setDrivePower(-(pos / Math.abs(pos)) * speed, -(pos / Math.abs(pos)) * speed, -(pos / Math.abs(pos)) * speed, -(pos / Math.abs(pos)) * speed);
-            }
-            catch(Exception p_exception) {
-                robot.setDrivePower(speed, speed, speed, speed);
-            }
-        }
-        if(limitTest.time() > timeLimit) {
-            robot.rrWheel.setTargetPosition((robot.rrWheel.getCurrentPosition()));
-            robot.rfWheel.setTargetPosition((robot.rfWheel.getCurrentPosition()));
-            robot.lrWheel.setTargetPosition((robot.lrWheel.getCurrentPosition()));
-            robot.lfWheel.setTargetPosition((robot.lfWheel.getCurrentPosition()));
-        }
-        robot.setDrivePower(0, 0, 0, 0);
         if(reset) {
             resetEncoders();
         }
-        sleep(100);
+        if(opModeIsActive()) {
+            double maxDrivePower = robot.maxDriveSpeed;
+            robot.maxDriveSpeed = speed;
+            if (opModeIsActive() && robot.rrWheel != null && robot.rfWheel != null && robot.lrWheel != null && robot.lfWheel != null) {
+                robot.rrWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                robot.rfWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                robot.lfWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                robot.lrWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                robot.rrWheel.setTargetPosition(pos);
+                robot.rfWheel.setTargetPosition(pos);
+                robot.lfWheel.setTargetPosition(pos);
+                robot.lrWheel.setTargetPosition(pos);
+                double startAngle = getAngle();
+                ElapsedTime delta = new ElapsedTime();
+                double Kp = 0.043;
+                double Ki = 0.01;
+                double Kd = 0.02;
+                double i = 0;
+                double lastError = 0;
+                ElapsedTime limitTest = new ElapsedTime();
+                try {
+                    robot.setDrivePower((pos / Math.abs(pos)) * speed, (pos / Math.abs(pos)) * speed, (pos / Math.abs(pos)) * speed, (pos / Math.abs(pos)) * speed);
+                } catch (Exception p_exception) {
+                    robot.setDrivePower(speed, speed, speed, speed);
+                }
+                while(Math.abs(((robot.rrWheel.getCurrentPosition() + robot.rfWheel.getCurrentPosition() + robot.lrWheel.getCurrentPosition() + robot.lfWheel.getCurrentPosition()) / 4)) <= Math.abs(pos) && opModeIsActive() && limitTest.time() < timeLimit && elapsedTime.time() <= 29.5) {
+                    if(Math.abs(getAngle() - startAngle) >= 7) {
+                        robot.rrWheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                        robot.rfWheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                        robot.lfWheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                        robot.lrWheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                        double angleError = getAngle() - startAngle;
+                        try {
+                            if (Math.abs(angleError) > 180 && (Math.abs(getAngle()) / getAngle()) != (Math.abs(startAngle) / startAngle)) {
+                                angleError += angleError > 0 ? -360 : 360;
+                            }
+                        }
+                        catch (Exception p_exception) {} // If an error happens, that means that either our current angle or initial angle was zero, so the error calculation should be accurate anyway
+                        double right = getPower(robot.rrWheel);
+                        double left = getPower(robot.lfWheel);
+                        double error = Math.abs(robot.rrWheel.getCurrentPosition() - robot.rrWheel.getTargetPosition()) / 500;
+                        double maxSpeed = robot.maxDriveSpeed;
+                        if(!(speed >= maxSpeed) && !(error <= speed)) {
+                            speed += 0.05;
+                        }
+                        else {
+                            speed = Math.min(error, Math.abs(maxSpeed));
+                        }
+                        try {
+                            robot.setDrivePower((pos / Math.abs(pos)) * speed, (pos / Math.abs(pos)) * speed, (pos / Math.abs(pos)) * speed, (pos / Math.abs(pos)) * speed);
+                        }
+                        catch(Exception p_exception) {
+                            robot.setDrivePower(0, 0, 0, 0);
+                        }
+                        double deltaError = angleError - lastError;
+                        i += delta.time() * deltaError;
+                        double changePower = (Kp * angleError) + (Ki * i) + (Kd * deltaError / delta.time());
+                        right += changePower;
+                        left -= changePower;
+                        double max = Math.max(Math.abs(right), Math.max(Math.abs(left), speed));
+                        right /= Math.abs(max);
+                        left /= Math.abs(max);
+                        robot.setDrivePower(left, left, right, right);
+                        lastError = angleError;
+                        delta.reset();
+                        if(depot && robot.getUSDistance() <= 57 && robot.getUSDistance() >= 40) {
+                            robot.setDrivePower(0, 0, 0, 0);
+                            break;
+                        }
+                    }
+                }
+                if (limitTest.time() > timeLimit) {
+                    robot.rrWheel.setTargetPosition((robot.rrWheel.getCurrentPosition()));
+                    robot.rfWheel.setTargetPosition((robot.rfWheel.getCurrentPosition()));
+                    robot.lrWheel.setTargetPosition((robot.lrWheel.getCurrentPosition()));
+                    robot.lfWheel.setTargetPosition((robot.lfWheel.getCurrentPosition()));
+                }
+                robot.setDrivePower(0, 0, 0, 0);
+                robot.maxDriveSpeed = maxDrivePower;
+            }
+        }
+        else {
+            stop();
+        }
+    }
+
+    private double getPower(DcMotor motor) {
+        try {
+            double power = (Math.abs(motor.getPower()) / motor.getPower()) * (Math.abs(motor.getTargetPosition()) - Math.abs(motor.getCurrentPosition())) / 100;
+            if(Math.abs(power) >= 0.1) {
+                return(Range.clip(power, -1, 1));
+            }
+            else if(power != 0){
+                return(0.1 * (power < 0 ? -1 : 1));
+            }
+            else {
+                return 0;
+            }
+        }
+        catch(Exception p_exception) {
+            return 0;
+        }
     }
 
     /*
@@ -1200,7 +1265,7 @@ public class GOFAutonomousDepot extends LinearOpMode {
         robot.hangOne.setTargetPosition(1400);
         robot.hangOne.setPower(1);
         robot.setInPower(0);
-        runBackToPoint(-1.25, -1.25, false);
+        runBackToPoint(-1.25, -1.25, true);
         robot.hangOne.setTargetPosition(1560);
         while(opModeIsActive() && robot.hangOne.isBusy()) {
             double oldPos = robot.hangOne.getCurrentPosition();
@@ -1212,7 +1277,7 @@ public class GOFAutonomousDepot extends LinearOpMode {
         }
         robot.hangOne.setPower(0);
         sleep(1000);
-        encoderMovePreciseTimed(0, 1, 1, true);
+        encoderMovePreciseTimed(0, 1, 1, false);
         robot.hangOne.setTargetPosition(0);
         robot.hangOne.setPower(1);
         flipBox(0.71);
