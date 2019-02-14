@@ -43,44 +43,17 @@
       <file leaf-file-name="GOFAutonomousCrater.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/GOFAutonomousCrater.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="321">
-              <caret line="487" column="5" lean-forward="true" selection-start-line="446" selection-start-column="4" selection-end-line="487" selection-end-column="5" />
+            <state relative-caret-position="215">
+              <caret line="1047" column="105" selection-start-line="1047" selection-start-column="105" selection-end-line="1047" selection-end-column="105" />
               <folding>
                 <element signature="imports" expanded="true" />
-                <element signature="e#4685#15426#0" expanded="true" />
-                <element signature="class#5688:9952" />
-                <element signature="method#run#0;class#5688:9952" expanded="true" />
-                <element signature="method#getAngle#0;class#5688:9952" expanded="true" />
-                <element signature="class#9979:13011" />
-                <element signature="method#run#0;class#9979:13011" expanded="true" />
-                <element signature="e#15432#16966#0" expanded="true" />
-                <element signature="e#16972#18526#0" expanded="true" />
-                <element signature="e#18532#21061#0" expanded="true" />
-                <element signature="e#21067#22853#0" expanded="true" />
-                <element signature="e#22899#22900#0" expanded="true" />
-                <element signature="e#22984#22985#0" expanded="true" />
-                <element signature="e#22807#24524#0" expanded="true" />
-                <element signature="e#37050#37476#0" expanded="true" />
-                <element signature="e#37482#37905#0" expanded="true" />
-                <element signature="e#37911#39678#0" expanded="true" />
-                <element signature="e#39684#40507#0" expanded="true" />
-                <element signature="e#40513#41362#0" expanded="true" />
-                <element signature="e#41368#42223#0" expanded="true" />
-                <element signature="e#42229#43108#0" expanded="true" />
-                <element signature="e#43114#43954#0" expanded="true" />
-                <element signature="e#43960#44795#0" expanded="true" />
-                <element signature="e#44801#45662#0" expanded="true" />
-                <element signature="e#45668#46535#0" expanded="true" />
-                <element signature="e#46541#47434#0" expanded="true" />
-                <element signature="e#47440#48360#0" expanded="true" />
-                <element signature="e#52687#52854#0" expanded="true" />
-                <element signature="e#52860#53050#0" expanded="true" />
-                <element signature="e#62385#63538#0" expanded="true" />
-                <element signature="e#63544#63968#0" expanded="true" />
-                <element signature="e#63974#64605#0" expanded="true" />
-                <element signature="e#64611#64705#0" expanded="true" />
-                <element signature="e#65150#70580#0" expanded="true" />
-                <element signature="e#69430#69995#0" expanded="true" />
+                <element signature="e#3776#14876#0" expanded="true" />
+                <element signature="method#run#0;class#4778:9042" expanded="true" />
+                <element signature="e#14882#16107#0" expanded="true" />
+                <element signature="e#16113#17458#0" expanded="true" />
+                <element signature="e#17464#19999#0" expanded="true" />
+                <element signature="e#37275#39042#0" expanded="true" />
+                <element signature="e#39048#39871#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -89,21 +62,11 @@
       <file leaf-file-name="GOFAutonomousDepot.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/GOFAutonomousDepot.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="196">
-              <caret line="538" column="13" lean-forward="true" selection-start-line="538" selection-start-column="13" selection-end-line="538" selection-end-column="13" />
+            <state relative-caret-position="445">
+              <caret line="338" column="44" selection-start-line="338" selection-start-column="44" selection-end-line="338" selection-end-column="44" />
               <folding>
                 <element signature="imports" expanded="true" />
-                <element signature="e#3529#14324#0" expanded="true" />
-                <element signature="class#4531:8795" />
-                <element signature="method#run#0;class#4531:8795" expanded="true" />
-                <element signature="method#getAngle#0;class#4531:8795" expanded="true" />
-                <element signature="class#8822:11854" />
-                <element signature="method#run#0;class#8822:11854" expanded="true" />
-                <element signature="e#14877#16931#0" expanded="true" />
-                <element signature="e#16937#19620#0" expanded="true" />
-                <element signature="e#18258#21119#0" expanded="true" />
-                <element signature="e#21257#24484#0" expanded="true" />
-                <element signature="e#62840#62960#0" expanded="true" />
+                <element signature="e#22886#24561#0" expanded="true" />
                 <marker date="1550069089017" expanded="false" signature="49137:52689" ph="..." />
                 <marker date="1550069089017" expanded="false" signature="55129:55704" ph="..." />
               </folding>
@@ -114,12 +77,25 @@
       <file leaf-file-name="GOFTeleOp.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/GOFTeleOp.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="217">
-              <caret line="384" column="70" lean-forward="true" selection-start-line="384" selection-start-column="70" selection-end-line="384" selection-end-column="70" />
+            <state relative-caret-position="3247">
+              <caret line="279" column="44" selection-start-line="279" selection-start-column="44" selection-end-line="279" selection-end-column="44" />
               <folding>
-                <element signature="e#3254#3589#0" expanded="true" />
-                <element signature="method#run#0;class#3781:6021" expanded="true" />
-                <element signature="e#6058#14041#0" expanded="true" />
+                <element signature="e#3765#6129#0" expanded="true" />
+                <element signature="method#run#0;class#3858:6098" expanded="true" />
+                <element signature="e#14007#17112#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="CurvedAutoTest.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/CurvedAutoTest.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="352">
+              <caret line="55" column="59" lean-forward="true" selection-start-line="55" selection-start-column="59" selection-end-line="55" selection-end-column="59" />
+              <folding>
+                <element signature="method#runOpMode#0;class#CurvedAutoTest#0" expanded="true" />
+                <element signature="method#turn#0;class#CurvedAutoTest#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -128,12 +104,8 @@
       <file leaf-file-name="GOFHardware.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/GOFHardware.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="330">
+            <state relative-caret-position="15">
               <caret line="42" column="24" selection-start-line="42" selection-start-column="13" selection-end-line="42" selection-end-column="24" />
-              <folding>
-                <element signature="e#4110#4278#0" expanded="true" />
-                <element signature="e#4284#12871#0" expanded="true" />
-              </folding>
             </state>
           </provider>
         </entry>
@@ -149,11 +121,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>angleOffset</find>
-      <find>gamepad2.left_bumper</find>
-      <find>bumperPressed</find>
-      <find>robot.top</find>
-      <find>setInPower</find>
       <find>die() {</find>
       <find>0.197</find>
       <find>0.920</find>
@@ -168,7 +135,6 @@
       <find>robot.getUsdistance</find>
       <find>centerCrater</find>
       <find>robot.extend.setTargetPosition(0)</find>
-      <find>sleep</find>
       <find>topSensor.getState()</find>
       <find>n(50)</find>
       <find>getUS</find>
@@ -179,6 +145,12 @@
       <find>atan</find>
       <find>passi</find>
       <find>die()</find>
+      <find>encoderMovePreciseTimed</find>
+      <find>sleep</find>
+      <find>hangDrive</find>
+      <find>getState</find>
+      <find>setInPower</find>
+      <find>setHangPower</find>
     </findStrings>
   </component>
   <component name="GradleLocalSettings">
@@ -3204,7 +3176,6 @@
         <option value="$PROJECT_DIR$/TeamCode/src/main/java/HurricaneClient.java" />
         <option value="$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/Practices/Hurricane.java" />
         <option value="$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/Practices/HurricaneClient.java" />
-        <option value="$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/CurvedAutoTest.java" />
         <option value="$PROJECT_DIR$/TeamCode/src/main/java/StateMac.java" />
         <option value="$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/GOFCompetitionCheck.java" />
         <option value="$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/Practices/GOFGyroTest.java" />
@@ -3212,11 +3183,12 @@
         <option value="$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/statemach.java" />
         <option value="$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/GOFBoxPotentiometerPoses.java" />
         <option value="$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/GOFHardware.java" />
-        <option value="$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/GOFAutonomousCrater.java" />
         <option value="$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/AutoCreatorTest.java" />
-        <option value="$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/GOFTeleOp.java" />
         <option value="$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/AutoCreatorTestRunnable.java" />
         <option value="$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/GOFAutonomousDepot.java" />
+        <option value="$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/GOFAutonomousCrater.java" />
+        <option value="$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/GOFTeleOp.java" />
+        <option value="$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/CurvedAutoTest.java" />
       </list>
     </option>
   </component>
@@ -3226,11 +3198,10 @@
     <option name="height" value="678" />
   </component>
   <component name="ProjectView">
-    <navigator currentView="ProjectPane" proportions="" version="1">
+    <navigator proportions="" version="1">
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="PackagesPane" />
       <pane id="Scope" />
       <pane id="AndroidView">
         <subPane>
@@ -3243,83 +3214,28 @@
               <item name="516-Gears-Of-Fire" type="1abcf292:AndroidViewProjectNode" />
               <item name="TeamCode" type="feadf853:AndroidModuleNode" />
             </path>
+            <path>
+              <item name="516-Gears-Of-Fire" type="1abcf292:AndroidViewProjectNode" />
+              <item name="TeamCode" type="feadf853:AndroidModuleNode" />
+              <item name="java" type="edd41e36:AndroidSourceTypeNode" />
+            </path>
+            <path>
+              <item name="516-Gears-Of-Fire" type="1abcf292:AndroidViewProjectNode" />
+              <item name="TeamCode" type="feadf853:AndroidModuleNode" />
+              <item name="java" type="edd41e36:AndroidSourceTypeNode" />
+              <item name="teamcode" type="cbb59c9e:AndroidPsiDirectoryNode" />
+            </path>
           </expand>
           <select />
         </subPane>
       </pane>
+      <pane id="PackagesPane" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
             <path>
               <item name="516-Gears-Of-Fire" type="b2602c69:ProjectViewProjectNode" />
               <item name="516-Gears-Of-Fire" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-            </path>
-            <path>
-              <item name="516-Gears-Of-Fire" type="b2602c69:ProjectViewProjectNode" />
-              <item name="516-Gears-Of-Fire" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="FtcRobotController" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-            </path>
-            <path>
-              <item name="516-Gears-Of-Fire" type="b2602c69:ProjectViewProjectNode" />
-              <item name="516-Gears-Of-Fire" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="TeamCode" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-            </path>
-            <path>
-              <item name="516-Gears-Of-Fire" type="b2602c69:ProjectViewProjectNode" />
-              <item name="516-Gears-Of-Fire" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="TeamCode" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="516-Gears-Of-Fire" type="b2602c69:ProjectViewProjectNode" />
-              <item name="516-Gears-Of-Fire" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="TeamCode" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="main" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="516-Gears-Of-Fire" type="b2602c69:ProjectViewProjectNode" />
-              <item name="516-Gears-Of-Fire" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="TeamCode" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="main" type="462c0819:PsiDirectoryNode" />
-              <item name="assets" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="516-Gears-Of-Fire" type="b2602c69:ProjectViewProjectNode" />
-              <item name="516-Gears-Of-Fire" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="TeamCode" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="main" type="462c0819:PsiDirectoryNode" />
-              <item name="assets" type="462c0819:PsiDirectoryNode" />
-              <item name="trajectory" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="516-Gears-Of-Fire" type="b2602c69:ProjectViewProjectNode" />
-              <item name="516-Gears-Of-Fire" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="TeamCode" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="main" type="462c0819:PsiDirectoryNode" />
-              <item name="java" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="516-Gears-Of-Fire" type="b2602c69:ProjectViewProjectNode" />
-              <item name="516-Gears-Of-Fire" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="TeamCode" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="main" type="462c0819:PsiDirectoryNode" />
-              <item name="java" type="462c0819:PsiDirectoryNode" />
-              <item name="teamcode" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="516-Gears-Of-Fire" type="b2602c69:ProjectViewProjectNode" />
-              <item name="516-Gears-Of-Fire" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="TeamCode" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="main" type="462c0819:PsiDirectoryNode" />
-              <item name="java" type="462c0819:PsiDirectoryNode" />
-              <item name="teamcode" type="462c0819:PsiDirectoryNode" />
-              <item name="Practices" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
@@ -3546,31 +3462,10 @@
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
-      <option name="time" value="93" />
+      <option name="time" value="96" />
     </breakpoint-manager>
   </component>
   <component name="editorHistoryManager">
-    <entry file="jar://$USER_HOME$/.gradle/caches/transforms-1/files-1.1/RobotCore-release.aar/f39dd0d894e63b27a846d9f0397374a8/jars/libs/support-annotations-23.4.0.jar!/android/support/annotation/RawRes.class">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="105">
-          <caret line="14" column="33" lean-forward="true" selection-start-line="14" selection-start-column="33" selection-end-line="14" selection-end-column="33" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://$PROJECT_DIR$/libs/FtcCommon-release-sources.jar!/com/qualcomm/ftccommon/SoundPlayer.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="173">
-          <caret line="374" column="46" lean-forward="true" selection-start-line="374" selection-start-column="46" selection-end-line="374" selection-end-column="46" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/Library/Android/sdk/sources/android-23/java/io/File.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-62">
-          <caret line="147" column="21" selection-start-line="147" selection-start-column="15" selection-end-line="147" selection-end-column="21" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$USER_HOME$/Library/Android/sdk/sources/android-23/java/lang/String.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="187">
@@ -3657,13 +3552,6 @@
     <entry file="file://$PROJECT_DIR$/TeamCode/src/main/java/HurricaneClient.java" />
     <entry file="file://$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/Practices/Hurricane.java" />
     <entry file="file://$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/Practices/HurricaneClient.java" />
-    <entry file="file://$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/CurvedAutoTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-643">
-          <caret line="26" selection-start-line="26" selection-end-line="26" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/TeamCode/src/main/java/StateMac.java" />
     <entry file="file://$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/GOFCompetitionCheck.java">
       <provider selected="true" editor-type-id="text-editor">
@@ -3754,10 +3642,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="348">
           <caret line="270" column="28" lean-forward="true" selection-start-line="270" selection-start-column="28" selection-end-line="270" selection-end-column="28" />
-          <folding>
-            <element signature="method#opModeIsActive#0;class#LinearOpMode#0" expanded="true" />
-            <element signature="method#isStopRequested#0;class#LinearOpMode#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -3765,26 +3649,23 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-283">
           <caret line="499" column="8" lean-forward="true" selection-start-line="499" selection-start-column="8" selection-end-line="499" selection-end-column="8" />
-          <folding>
-            <element signature="e#18537#22614#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/TeamCode/src/main/AndroidManifest.xml">
-      <provider editor-type-id="android-manifest">
+      <provider selected="true" editor-type-id="text-editor">
         <state />
       </provider>
-      <provider selected="true" editor-type-id="text-editor">
+      <provider editor-type-id="android-manifest">
         <state />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/FtcRobotController/src/main/AndroidManifest.xml">
-      <provider editor-type-id="android-manifest">
-        <state />
-      </provider>
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-373" />
+      </provider>
+      <provider editor-type-id="android-manifest">
+        <state />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/FtcRobotController/src/main/java/org/firstinspires/ftc/robotcontroller/external/samples/ConceptTensorFlowObjectDetection.java">
@@ -3853,17 +3734,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/GOFHardware.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="330">
-          <caret line="42" column="24" selection-start-line="42" selection-start-column="13" selection-end-line="42" selection-end-column="24" />
-          <folding>
-            <element signature="e#4110#4278#0" expanded="true" />
-            <element signature="e#4284#12871#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$USER_HOME$/Library/Android/sdk/sources/android-23/java/lang/Math.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="177">
@@ -3875,79 +3745,90 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/GOFHardware.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="15">
+          <caret line="42" column="24" selection-start-line="42" selection-start-column="13" selection-end-line="42" selection-end-column="24" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/GOFTeleOp.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="217">
-          <caret line="384" column="70" lean-forward="true" selection-start-line="384" selection-start-column="70" selection-end-line="384" selection-end-column="70" />
+        <state relative-caret-position="3247">
+          <caret line="279" column="44" selection-start-line="279" selection-start-column="44" selection-end-line="279" selection-end-column="44" />
           <folding>
-            <element signature="e#3254#3589#0" expanded="true" />
-            <element signature="method#run#0;class#3781:6021" expanded="true" />
-            <element signature="e#6058#14041#0" expanded="true" />
+            <element signature="e#3765#6129#0" expanded="true" />
+            <element signature="method#run#0;class#3858:6098" expanded="true" />
+            <element signature="e#14007#17112#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$USER_HOME$/.gradle/caches/transforms-1/files-1.1/RobotCore-release.aar/f39dd0d894e63b27a846d9f0397374a8/jars/libs/Vuforia.jar!/com/vuforia/Vuforia.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="233">
+          <caret line="163" column="23" selection-start-line="163" selection-start-column="23" selection-end-line="163" selection-end-column="23" />
+          <folding>
+            <element signature="e#5177#5178#0" expanded="true" />
+            <element signature="e#5213#5214#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$PROJECT_DIR$/libs/RobotCore-release-sources.jar!/org/firstinspires/ftc/robotcore/internal/vuforia/VuforiaLocalizerImpl.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="180">
+          <caret line="977" column="8" lean-forward="true" selection-start-line="977" selection-start-column="8" selection-end-line="977" selection-end-column="8" />
+          <folding>
+            <element signature="e#16305#16491#0" expanded="true" />
+            <element signature="e#35139#35232#0" expanded="true" />
+            <element signature="e#39180#39572#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/GOFVuforiaLocalizer.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="195">
+          <caret line="16" column="20" selection-start-line="16" selection-start-column="20" selection-end-line="16" selection-end-column="20" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/CurvedAutoTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="352">
+          <caret line="55" column="59" lean-forward="true" selection-start-line="55" selection-start-column="59" selection-end-line="55" selection-end-column="59" />
+          <folding>
+            <element signature="method#runOpMode#0;class#CurvedAutoTest#0" expanded="true" />
+            <element signature="method#turn#0;class#CurvedAutoTest#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/GOFAutonomousCrater.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="321">
-          <caret line="487" column="5" lean-forward="true" selection-start-line="446" selection-start-column="4" selection-end-line="487" selection-end-column="5" />
+        <state relative-caret-position="215">
+          <caret line="1047" column="105" selection-start-line="1047" selection-start-column="105" selection-end-line="1047" selection-end-column="105" />
           <folding>
             <element signature="imports" expanded="true" />
-            <element signature="e#4685#15426#0" expanded="true" />
-            <element signature="class#5688:9952" />
-            <element signature="method#run#0;class#5688:9952" expanded="true" />
-            <element signature="method#getAngle#0;class#5688:9952" expanded="true" />
-            <element signature="class#9979:13011" />
-            <element signature="method#run#0;class#9979:13011" expanded="true" />
-            <element signature="e#15432#16966#0" expanded="true" />
-            <element signature="e#16972#18526#0" expanded="true" />
-            <element signature="e#18532#21061#0" expanded="true" />
-            <element signature="e#21067#22853#0" expanded="true" />
-            <element signature="e#22899#22900#0" expanded="true" />
-            <element signature="e#22984#22985#0" expanded="true" />
-            <element signature="e#22807#24524#0" expanded="true" />
-            <element signature="e#37050#37476#0" expanded="true" />
-            <element signature="e#37482#37905#0" expanded="true" />
-            <element signature="e#37911#39678#0" expanded="true" />
-            <element signature="e#39684#40507#0" expanded="true" />
-            <element signature="e#40513#41362#0" expanded="true" />
-            <element signature="e#41368#42223#0" expanded="true" />
-            <element signature="e#42229#43108#0" expanded="true" />
-            <element signature="e#43114#43954#0" expanded="true" />
-            <element signature="e#43960#44795#0" expanded="true" />
-            <element signature="e#44801#45662#0" expanded="true" />
-            <element signature="e#45668#46535#0" expanded="true" />
-            <element signature="e#46541#47434#0" expanded="true" />
-            <element signature="e#47440#48360#0" expanded="true" />
-            <element signature="e#52687#52854#0" expanded="true" />
-            <element signature="e#52860#53050#0" expanded="true" />
-            <element signature="e#62385#63538#0" expanded="true" />
-            <element signature="e#63544#63968#0" expanded="true" />
-            <element signature="e#63974#64605#0" expanded="true" />
-            <element signature="e#64611#64705#0" expanded="true" />
-            <element signature="e#65150#70580#0" expanded="true" />
-            <element signature="e#69430#69995#0" expanded="true" />
+            <element signature="e#3776#14876#0" expanded="true" />
+            <element signature="method#run#0;class#4778:9042" expanded="true" />
+            <element signature="e#14882#16107#0" expanded="true" />
+            <element signature="e#16113#17458#0" expanded="true" />
+            <element signature="e#17464#19999#0" expanded="true" />
+            <element signature="e#37275#39042#0" expanded="true" />
+            <element signature="e#39048#39871#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/GOFAutonomousDepot.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="196">
-          <caret line="538" column="13" lean-forward="true" selection-start-line="538" selection-start-column="13" selection-end-line="538" selection-end-column="13" />
+        <state relative-caret-position="445">
+          <caret line="338" column="44" selection-start-line="338" selection-start-column="44" selection-end-line="338" selection-end-column="44" />
           <folding>
             <element signature="imports" expanded="true" />
-            <element signature="e#3529#14324#0" expanded="true" />
-            <element signature="class#4531:8795" />
-            <element signature="method#run#0;class#4531:8795" expanded="true" />
-            <element signature="method#getAngle#0;class#4531:8795" expanded="true" />
-            <element signature="class#8822:11854" />
-            <element signature="method#run#0;class#8822:11854" expanded="true" />
-            <element signature="e#14877#16931#0" expanded="true" />
-            <element signature="e#16937#19620#0" expanded="true" />
-            <element signature="e#18258#21119#0" expanded="true" />
-            <element signature="e#21257#24484#0" expanded="true" />
-            <element signature="e#62840#62960#0" expanded="true" />
+            <element signature="e#22886#24561#0" expanded="true" />
             <marker date="1550069089017" expanded="false" signature="49137:52689" ph="..." />
             <marker date="1550069089017" expanded="false" signature="55129:55704" ph="..." />
           </folding>

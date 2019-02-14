@@ -25,7 +25,7 @@ public class GOFTeleOp extends OpMode {
     private             boolean             gotThere            = false;
     private             boolean             servoMove           = false;
     private             boolean             hanging             = true;
-    private             boolean             autoScored          = false;
+    private             boolean             hangDown            = false;
 
     private volatile    double              boxPos              = 137;
     private             double              firstAngleOffset;
@@ -88,8 +88,7 @@ public class GOFTeleOp extends OpMode {
                 while(doTelemetry && elapsedTime.time() < 5) {
                     try {
                         String tmy = "";
-                        // tmy += "Run Time: " + elapsedTime.toString() + "\n";
-                        tmy += "Encoders" + "\n";
+                        tmy += "Motors" + "\n";
                         tmy += "    rr: " + robot.rrWheel.getCurrentPosition() + "\n";
                         tmy += "    rf: " + robot.rfWheel.getCurrentPosition() + "\n";
                         tmy += "    lr: " + robot.lrWheel.getCurrentPosition() + "\n";
@@ -97,13 +96,15 @@ public class GOFTeleOp extends OpMode {
                         tmy += "    h1: " + robot.hangOne.getCurrentPosition() + "\n";
                         tmy += "    em: " + robot.extend.getCurrentPosition() + "\n";
                         tmy += "    so: " + robot.box.getCurrentPosition() + "\n";
-                        tmy += "Motors" + "\n";
-                        tmy += "    so: " + robot.box.getPower() + "\n";
+                        tmy += "    intake: " + (gamepad1.right_trigger) + ", " + robot.intake.getCurrentPosition() + "\n";
+                        tmy += "    outtake: " + (gamepad1.left_trigger) + "\n";
                         tmy += "Servos" + "\n";
-                        tmy += "    fm: " + (180 * (robot.boxPotentiometer.getVoltage() / 3.3)) + "\n";
-                        tmy += "Control Data" + "\n";
-                        tmy += "    Gamepad 1: " + gamepad1.toString() + "\n";
-                        tmy += "    Gamepad 2: " + gamepad2.toString() + "\n";
+                        tmy += "    fm, actual: " + (180 * (robot.boxPotentiometer.getVoltage() / 3.3)) + "\n";
+                        tmy += "    fm, intended: " + boxPos + "\n";
+                        tmy += "    tm: " + robot.teamFlag.getPosition() + "\n";
+                        tmy += "Sensors" + "\n";
+                        tmy += "     MR Range Sensor: " + robot.getUSDistance() + "\n";
+                        tmy += "     REV 2m Distance Sensor: " + robot.getREVDistance() + "\n";
                         telemetry.addData("", tmy);
                         telemetry.update();
                         sleep(0);
@@ -201,8 +202,8 @@ public class GOFTeleOp extends OpMode {
             useNeg = true;
         }
 
-        if((triggerPressed != 0 || gamepad2.dpad_up || gamepad2.dpad_down || servoMove)) {
-            robot.setInPower((gamepad2.dpad_up ? 1 : 0) + triggerPressed - (gamepad2.dpad_down ? 1 : 0) + (servoMove ? 0.25 : 0)); // Set intake power based on the gamepad trigger values
+        if((triggerPressed != 0 || gamepad2.dpad_up || gamepad2.dpad_down || servoMove) || gamepad1.a) {
+            robot.setInPower((gamepad2.dpad_up ? 1 : 0) + triggerPressed - (gamepad2.dpad_down ? 1 : 0) + (servoMove ? 0.25 : 0) - (gamepad1.a ? 1 : 0)); // Set intake power based on the gamepad trigger values
             lastIntake = (robot.intake.getCurrentPosition() - lastIntake);
             lastIntake /= (lastIntake == 0 ? 1 : Math.abs(lastIntake));
         }
@@ -210,7 +211,7 @@ public class GOFTeleOp extends OpMode {
             robot.setInPower(0);
         }
 
-        if (gamepad1.y) {
+        if (gamepad1.y && !gamepad1.start) {
             ypressed = true;
         }
 
@@ -220,7 +221,7 @@ public class GOFTeleOp extends OpMode {
         }
 
         /* Reset encoders */
-        if (gamepad1.a && !gamepad1.start) {
+        if (gamepad1.y && gamepad1.start) {
             robot.rrWheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             robot.rfWheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             robot.lrWheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -247,11 +248,28 @@ public class GOFTeleOp extends OpMode {
             }
         }
 
-        if(hangDrive != 0) {
+        if(gamepad2.x && !robot.bottomSensor.isPressed()) {
+            hangDown = true;
+        }
+
+        if(hangDown) {
+            robot.setHangPower(-1);
+        }
+
+        if(hangDrive >= 0.25) {
+            hangDown = false;
+        }
+
+        if(robot.bottomSensor.isPressed() && hangDown) {
+            robot.setHangPower(0);
+            hangDown = false;
+        }
+
+        if(robot.hangOne.getPower() > 0.05) {
             flipBox(neutral);
         }
 
-        if(!servoMove) {
+        if(!servoMove && !hangDown) {
             robot.setHangPower(hanging ? hangDrive : 0); // Move container based on gamepad positions
         }
 
