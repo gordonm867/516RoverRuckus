@@ -43,16 +43,19 @@
       <file leaf-file-name="GOFAutonomousCrater.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/GOFAutonomousCrater.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="178">
-              <caret line="508" column="64" lean-forward="true" selection-start-line="508" selection-start-column="64" selection-end-line="508" selection-end-column="64" />
+            <state relative-caret-position="340">
+              <caret line="293" column="9" lean-forward="true" selection-start-line="293" selection-start-column="9" selection-end-line="293" selection-end-column="9" />
               <folding>
                 <element signature="imports" expanded="true" />
-                <element signature="e#3776#14876#0" expanded="true" />
                 <element signature="method#run#0;class#4778:9042" expanded="true" />
-                <element signature="e#14882#16107#0" expanded="true" />
-                <element signature="e#16113#17458#0" expanded="true" />
-                <element signature="e#17464#19999#0" expanded="true" />
-                <element signature="e#37275#39042#0" expanded="true" />
+                <element signature="e#15191#16461#0" expanded="true" />
+                <element signature="e#16467#17857#0" expanded="true" />
+                <element signature="e#17863#20443#0" expanded="true" />
+                <element signature="e#22276#22277#0" expanded="true" />
+                <element signature="e#22361#22362#0" expanded="true" />
+                <element signature="e#21924#23426#0" expanded="true" />
+                <element signature="e#37421#39291#0" expanded="true" />
+                <element signature="e#65434#70613#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -123,7 +126,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>0.420</find>
       <find>3.25</find>
       <find>rightCraterAuto() {</find>
       <find>-5.2, -1</find>
@@ -153,6 +155,7 @@
       <find>if(depot</find>
       <find>false</find>
       <find>-3000</find>
+      <find>hangone.setmode(DcMotor.runmode.stop</find>
     </findStrings>
   </component>
   <component name="GradleLocalSettings">
@@ -3825,16 +3828,19 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/GOFAutonomousCrater.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="178">
-          <caret line="508" column="64" lean-forward="true" selection-start-line="508" selection-start-column="64" selection-end-line="508" selection-end-column="64" />
+        <state relative-caret-position="340">
+          <caret line="293" column="9" lean-forward="true" selection-start-line="293" selection-start-column="9" selection-end-line="293" selection-end-column="9" />
           <folding>
             <element signature="imports" expanded="true" />
-            <element signature="e#3776#14876#0" expanded="true" />
             <element signature="method#run#0;class#4778:9042" expanded="true" />
-            <element signature="e#14882#16107#0" expanded="true" />
-            <element signature="e#16113#17458#0" expanded="true" />
-            <element signature="e#17464#19999#0" expanded="true" />
-            <element signature="e#37275#39042#0" expanded="true" />
+            <element signature="e#15191#16461#0" expanded="true" />
+            <element signature="e#16467#17857#0" expanded="true" />
+            <element signature="e#17863#20443#0" expanded="true" />
+            <element signature="e#22276#22277#0" expanded="true" />
+            <element signature="e#22361#22362#0" expanded="true" />
+            <element signature="e#21924#23426#0" expanded="true" />
+            <element signature="e#37421#39291#0" expanded="true" />
+            <element signature="e#65434#70613#0" expanded="true" />
           </folding>
         </state>
       </provider>
