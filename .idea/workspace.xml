@@ -40,11 +40,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="GOFAutonomousCrater.java" pinned="false" current-in-tab="false">
+      <file leaf-file-name="GOFAutonomousCrater.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/GOFAutonomousCrater.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="150">
-              <caret line="1497" column="4" selection-start-line="1497" selection-start-column="4" selection-end-line="1513" selection-end-column="5" />
+            <state relative-caret-position="178">
+              <caret line="508" column="64" lean-forward="true" selection-start-line="508" selection-start-column="64" selection-end-line="508" selection-end-column="64" />
               <folding>
                 <element signature="imports" expanded="true" />
                 <element signature="e#3776#14876#0" expanded="true" />
@@ -53,22 +53,22 @@
                 <element signature="e#16113#17458#0" expanded="true" />
                 <element signature="e#17464#19999#0" expanded="true" />
                 <element signature="e#37275#39042#0" expanded="true" />
-                <element signature="e#65434#70613#0" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="GOFAutonomousDepot.java" pinned="false" current-in-tab="true">
+      <file leaf-file-name="GOFAutonomousDepot.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/GOFAutonomousDepot.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="212">
-              <caret line="1111" column="45" selection-start-line="1111" selection-start-column="45" selection-end-line="1111" selection-end-column="45" />
+            <state relative-caret-position="466">
+              <caret line="1182" column="90" lean-forward="true" selection-start-line="1182" selection-start-column="90" selection-end-line="1182" selection-end-column="90" />
               <folding>
                 <element signature="imports" expanded="true" />
                 <element signature="e#14877#17324#0" expanded="true" />
                 <element signature="e#22886#24561#0" expanded="true" />
                 <element signature="e#43700#44557#0" expanded="true" />
+                <element signature="e#60640#61603#0" expanded="true" />
                 <marker date="1550188566094" expanded="false" signature="49271:52823" ph="..." />
                 <marker date="1550188566094" expanded="false" signature="58854:59429" ph="..." />
               </folding>
@@ -123,7 +123,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>0.920</find>
       <find>0.420</find>
       <find>3.25</find>
       <find>rightCraterAuto() {</find>
@@ -153,6 +152,7 @@
       <find>setHangPower</find>
       <find>if(depot</find>
       <find>false</find>
+      <find>-3000</find>
     </findStrings>
   </component>
   <component name="GradleLocalSettings">
@@ -3187,10 +3187,10 @@
         <option value="$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/GOFHardware.java" />
         <option value="$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/AutoCreatorTest.java" />
         <option value="$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/AutoCreatorTestRunnable.java" />
-        <option value="$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/GOFAutonomousCrater.java" />
         <option value="$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/GOFTeleOp.java" />
         <option value="$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/CurvedAutoTest.java" />
         <option value="$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/GOFAutonomousDepot.java" />
+        <option value="$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/GOFAutonomousCrater.java" />
       </list>
     </option>
   </component>
@@ -3807,10 +3807,26 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/GOFAutonomousDepot.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="466">
+          <caret line="1182" column="90" lean-forward="true" selection-start-line="1182" selection-start-column="90" selection-end-line="1182" selection-end-column="90" />
+          <folding>
+            <element signature="imports" expanded="true" />
+            <element signature="e#14877#17324#0" expanded="true" />
+            <element signature="e#22886#24561#0" expanded="true" />
+            <element signature="e#43700#44557#0" expanded="true" />
+            <element signature="e#60640#61603#0" expanded="true" />
+            <marker date="1550188566094" expanded="false" signature="49271:52823" ph="..." />
+            <marker date="1550188566094" expanded="false" signature="58854:59429" ph="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/GOFAutonomousCrater.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="150">
-          <caret line="1497" column="4" selection-start-line="1497" selection-start-column="4" selection-end-line="1513" selection-end-column="5" />
+        <state relative-caret-position="178">
+          <caret line="508" column="64" lean-forward="true" selection-start-line="508" selection-start-column="64" selection-end-line="508" selection-end-column="64" />
           <folding>
             <element signature="imports" expanded="true" />
             <element signature="e#3776#14876#0" expanded="true" />
@@ -3819,22 +3835,6 @@
             <element signature="e#16113#17458#0" expanded="true" />
             <element signature="e#17464#19999#0" expanded="true" />
             <element signature="e#37275#39042#0" expanded="true" />
-            <element signature="e#65434#70613#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/GOFAutonomousDepot.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="212">
-          <caret line="1111" column="45" selection-start-line="1111" selection-start-column="45" selection-end-line="1111" selection-end-column="45" />
-          <folding>
-            <element signature="imports" expanded="true" />
-            <element signature="e#14877#17324#0" expanded="true" />
-            <element signature="e#22886#24561#0" expanded="true" />
-            <element signature="e#43700#44557#0" expanded="true" />
-            <marker date="1550188566094" expanded="false" signature="49271:52823" ph="..." />
-            <marker date="1550188566094" expanded="false" signature="58854:59429" ph="..." />
           </folding>
         </state>
       </provider>

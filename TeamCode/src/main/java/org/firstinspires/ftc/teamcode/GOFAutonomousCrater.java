@@ -512,7 +512,7 @@ public class GOFAutonomousCrater extends LinearOpMode {
             flipBox(165);
             robot.setInPower(1);
             sleep(500);
-            robot.extend.setTargetPosition(-3000);
+            robot.extend.setTargetPosition(-3100);
             while (robot.extend.isBusy()) {}
             sleep(1000);
             robot.setInPower(0.25);
@@ -706,19 +706,6 @@ public class GOFAutonomousCrater extends LinearOpMode {
             }
         }
         return goldPos;
-    }
-
-    private void sample() {
-        if(robot.intake.getMode() == DcMotor.RunMode.RUN_TO_POSITION) {
-            robot.intake.setPower(0);
-            robot.intake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        }
-        flipBox(140);
-        while(Math.abs(robot.box.getPower()) >= 0.1) {}
-        robot.setInPower(1);
-        sleep(1000);
-        while(Math.abs(robot.box.getPower()) >= 0.1) {}
-        flipBox(111);
     }
 
     private void park() {
