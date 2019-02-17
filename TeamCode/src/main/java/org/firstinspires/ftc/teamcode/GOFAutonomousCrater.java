@@ -33,6 +33,7 @@ public class GOFAutonomousCrater extends LinearOpMode {
     private                 boolean             remove;
     private volatile        boolean             threadReset             = false;
     private                 boolean             yPressed                = false;
+    private                 boolean             xPressed                = false;
 
     private                 ElapsedTime         elapsedTime             = new ElapsedTime(); // Measure timing
 
@@ -40,10 +41,10 @@ public class GOFAutonomousCrater extends LinearOpMode {
     private volatile        double              boxPos                  = 111;
     private                 double              intake                  = 140;
     private                 double              neutral                 = 112;
-    private volatile        double              offset                  = 2.5;
     private                 double[]            point                   = new double[2];
     private                 double              startTime               = elapsedTime.time();
     private                 double              ticksPerInch            = 560 / (4 * Math.PI);
+    private                 double              score                   = 0;
 
     private volatile        GOFHardware         robot                   = GOFHardware.getInstance(); // Use the GOFHardware class
 
@@ -65,6 +66,7 @@ public class GOFAutonomousCrater extends LinearOpMode {
     public void runOpMode() {
         /* Initialize hardware class */
         robot.init(hardwareMap);
+        msStuckDetectStop = 2000;
 
         /* Reset encoders */
         if (robot.rrWheel != null && robot.rfWheel != null && robot.lfWheel != null && robot.lrWheel != null) {
@@ -182,6 +184,12 @@ public class GOFAutonomousCrater extends LinearOpMode {
                     }
                 }
                 while (elapsedTime.time() <= 32 && doBox && ((active == null || manager == null || manager.getActiveOpModeName().equalsIgnoreCase(active)))) {
+                    if(boxPos >= 115) {
+                        robot.box.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+                    }
+                    else {
+                        robot.box.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+                    }
                     threadTime.reset();
                     if(threadReset) {
                         threadReset = false;
@@ -233,6 +241,29 @@ public class GOFAutonomousCrater extends LinearOpMode {
                 yPressed = false;
             }
         }
+        while(gamepad1.x) {}
+        while(!gamepad1.x) {
+            telemetry.addData("Scoring is", (score == 0 ? "DISABLED" : "ENABLED for " + score + "cycles.") + "Press \"y\" to increase, \"a\" to decrease, and \"x\" to finalize (on gamepad 1).");
+            telemetry.update();
+            if(gamepad1.y) {
+                score++;
+                while(gamepad1.y) {}
+            }
+            if(gamepad1.a && !xPressed) {
+                xPressed = true;
+                score--;
+            }
+            if(xPressed && !gamepad1.a) {
+                xPressed = false;
+            }
+            if(gamepad1.y && !yPressed) {
+                yPressed = true;
+                score++;
+            }
+            if(yPressed && !gamepad1.y) {
+                yPressed = false;
+            }
+        }
 
         telemetry.addData("Status: ", "Entering loop");
         telemetry.update();
@@ -245,7 +276,7 @@ public class GOFAutonomousCrater extends LinearOpMode {
         telemetry.update();
 
         waitForStart(); // Wait for user to press "PLAY"
-        // update.start();
+        update.start();
         box.start();
 
         elapsedTime.reset();
@@ -259,8 +290,6 @@ public class GOFAutonomousCrater extends LinearOpMode {
 
         /* Descend */
         flipBox(neutral);
-        telemetry.addData("Thread alive?", box.isAlive());
-        telemetry.update();
         descend();
         double passiveError = robot.box.getCurrentPosition();
         while(Math.abs((robot.box.getCurrentPosition() - passiveError)) <= ((1.5 * 1440) / (3 * Math.PI))) {
@@ -274,8 +303,22 @@ public class GOFAutonomousCrater extends LinearOpMode {
         robot.hangOne.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         robot.hangOne.setTargetPosition(-1560);
         robot.setHangPower(-1);
+        if(goldPos == 0) {
+            while(goldPos == 0 && !robot.bottomSensor.isPressed() && robot.hangOne.isBusy() && opModeIsActive()) {}
+            flipBox(30);
+            while(robot.box.getPower() < 0.09) {}
+            while(robot.box.getPower() >= 0.09) {}
+            robot.setInPower(0.25);
+            sleep(500);
+            flipBox(neutral);
+            robot.setHangPower(1);
+            while(opModeIsActive() && robot.topSensor.getState()) {}
+            sleep(500);
+            robot.setHangPower(-1);
+        }
         turn(-getAngle(), 1);
         flipBox(goldPos == 0 ? 60 : neutral);
+
 
         /* Move to gold */
         if (robot.rrWheel != null && robot.rfWheel != null && robot.lfWheel != null && robot.lrWheel != null && opModeIsActive()) {
@@ -306,6 +349,11 @@ public class GOFAutonomousCrater extends LinearOpMode {
         resetEncoders();
         robot.setInPower(0);
         turn(-getAngle(), 1);
+        double scored = 0;
+        while(scored < score) {
+            score();
+            scored++;
+        }
         flipBox(60);
         robot.setInPower(0);
         runBackToPoint(-5.2, -1, (float)0.5);
@@ -317,16 +365,16 @@ public class GOFAutonomousCrater extends LinearOpMode {
         robot.teamFlag.setPosition(0.99);
         sleep(1000);
         robot.teamFlag.setPosition(0.2);
-        if(doubleSample) {
+        if(doubleSample && opModeIsActive()) {
             doubleSample();
             flipBox(intake);
             robot.setInPower(1);
             robot.extend.setTargetPosition(-3000);
             robot.extend.setPower(1);
-            while(robot.extend.isBusy()) {}
+            while(opModeIsActive() && robot.extend.isBusy()) {}
             runToPoint(-5.2, -2);
             robot.extend.setTargetPosition(-50);
-            while(robot.extend.isBusy()) {}
+            while(opModeIsActive() && robot.extend.isBusy()) {}
             flipBox(30);
             die();
             flipBox(neutral);
@@ -344,6 +392,11 @@ public class GOFAutonomousCrater extends LinearOpMode {
         telemetry.addData("Status", "Turning " + -getAngle());
         telemetry.update();
         turn(-getAngle(), 1);
+        double scored = 0;
+        while(scored < score) {
+            score();
+            scored++;
+        }
         robot.setInPower(1);
         robot.intake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         turn(-22.5, 5);
@@ -352,7 +405,7 @@ public class GOFAutonomousCrater extends LinearOpMode {
         robot.extend.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         robot.extend.setPower(1);
         robot.extend.setTargetPosition(-1700);
-        while(robot.extend.isBusy()) {}
+        while(robot.extend.isBusy() && opModeIsActive()) {}
         while(opModeIsActive() && !robot.bottomSensor.isPressed() && robot.hangOne.isBusy()) {
             double oldPos = robot.hangOne.getCurrentPosition();
             sleep(100);
@@ -361,7 +414,7 @@ public class GOFAutonomousCrater extends LinearOpMode {
                 break;
             }
         }
-        while(robot.extend.isBusy()) {}
+        while(opModeIsActive() && robot.extend.isBusy()) {}
         runBackToPoint(-5.2, -1, (float)0.5);
         frontTurn(-getAngle() - 45, 5);
         depot = true;
@@ -377,6 +430,11 @@ public class GOFAutonomousCrater extends LinearOpMode {
     private void leftCraterAuto() {
         flipBox(100);
         encoderMovePreciseTimed(-873, -646, -202, -846, 0.3, 1);
+        double scored = 0;
+        while(scored < score) {
+            score();
+            scored++;
+        }
         resetEncoders();
         robot.intake.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         robot.setInPower(0);
@@ -414,13 +472,13 @@ public class GOFAutonomousCrater extends LinearOpMode {
         robot.extend.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         robot.extend.setTargetPosition(-800);
         robot.extend.setPower(1);
-        while(robot.extend.isBusy()) {}
+        while(opModeIsActive() && robot.extend.isBusy()) {}
         turn(-15, 9);
         robot.extend.setTargetPosition(-1300);
-        while(robot.extend.isBusy()) {}
+        while(opModeIsActive() && robot.extend.isBusy()) {}
         sleep(500);
         robot.extend.setTargetPosition(-50);
-        while(robot.extend.isBusy()) {}
+        while(opModeIsActive() && robot.extend.isBusy()) {}
         flipBox(30);
         runBackToPoint(-5.2, -1, (float)0.5);
         robot.setInPower(0);
@@ -438,9 +496,9 @@ public class GOFAutonomousCrater extends LinearOpMode {
             robot.extend.setTargetPosition(-3000);
             robot.extend.setPower(1);
             runToPoint(-5.2, -2);
-            while(robot.extend.isBusy()) {}
+            while(opModeIsActive() && robot.extend.isBusy()) {}
             robot.extend.setTargetPosition(-50);
-            while(robot.extend.isBusy()) {}
+            while(opModeIsActive() && robot.extend.isBusy()) {}
             flipBox(30);
             die();
             flipBox(111);
@@ -457,7 +515,7 @@ public class GOFAutonomousCrater extends LinearOpMode {
         double roc = Double.MAX_VALUE;
         double doc = 0;
         double noc;
-        while(roc > 10) {
+        while(opModeIsActive() && roc > 10) {
             noc = doc;
             double first = robot.box.getCurrentPosition();
             robot.rrWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -483,7 +541,7 @@ public class GOFAutonomousCrater extends LinearOpMode {
         if(doubleSample && goldPos == 1 && point[1] != 3.25) {
             value *= (8 / 0.75);
         }
-        while(Math.abs(robot.box.getCurrentPosition()) <= value) {
+        while(opModeIsActive() && Math.abs(robot.box.getCurrentPosition()) <= value) {
             robot.rrWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             robot.rfWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             robot.lrWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -505,33 +563,28 @@ public class GOFAutonomousCrater extends LinearOpMode {
         if(goldPos == -2) {
             goldPos = 0;
         }
-        if(goldPos == 0) {
-            robot.extend.setTargetPosition(ePoses[goldPos + 1]);
-            robot.extend.setPower(1);
-            while (goldPos == 0 && robot.extend.isBusy()) {}
-            flipBox(165);
-            robot.setInPower(1);
-            sleep(500);
-            robot.extend.setTargetPosition(-3100);
-            while (robot.extend.isBusy()) {}
-            sleep(1000);
-            robot.setInPower(0.25);
-            flipBox(neutral);
-            robot.setInPower(0);
-            robot.extend.setTargetPosition(-400);
-        }
         robot.setHangPower(1);
         while(opModeIsActive() && robot.topSensor.getState()) {}
-        telemetry.addData("Loop status", "Exited with case " + !robot.topSensor.getState());
-        telemetry.update();
         robot.hangOne.setPower(0); // Stop sending power just in case
         robot.hangOne.setTargetPosition(robot.hangOne.getCurrentPosition()); // Set the target position to its current position to stop movement
         robot.setInPower(0);
         resetEncoders();
         robot.hangOne.setMode(DcMotor.RunMode.RUN_TO_POSITION); // Set hang wheel back to run to position mode
         if(goldPos == 0) {
-            while (robot.extend.isBusy()) {}
-            robot.extend.setPower(0);
+            robot.extend.setTargetPosition(ePoses[goldPos + 1]);
+            robot.extend.setPower(1);
+            while(opModeIsActive() && goldPos == 0 && robot.extend.isBusy()) {}
+            flipBox(140);
+            robot.setInPower(1);
+            sleep(500);
+            robot.extend.setTargetPosition(-3000);
+            while (opModeIsActive() && robot.extend.isBusy()) {}
+            sleep(1000);
+            robot.setInPower(0.25);
+            flipBox(110);
+            robot.setInPower(0);
+            robot.extend.setTargetPosition(-75);
+            while(opModeIsActive() && robot.extend.isBusy()) {}
         }
     }
 
@@ -730,6 +783,42 @@ public class GOFAutonomousCrater extends LinearOpMode {
         doBox = false;
     }
 
+    private void score() {
+        if(opModeIsActive() && elapsedTime.time() <= 15) {
+            flipBox(80);
+            robot.extend.setTargetPosition(-3100);
+            robot.extend.setPower(1);
+            while(opModeIsActive() && robot.extend.isBusy()) {}
+            flipBox(140);
+            robot.setInPower(1);
+            sleep(750);
+            turn(10, 2);
+            turn(-20, 2);
+            turn(10, 2);
+            robot.setInPower(0.35);
+            robot.extend.setTargetPosition(0);
+            robot.extend.setPower(1);
+            while(opModeIsActive() && robot.extend.isBusy() && robot.extenderSensor.getVoltage() >= 2) {
+                flipBox(30);
+                while(opModeIsActive() && robot.box.getPower() < 0.05) {}
+                while(opModeIsActive() && robot.box.getPower() >= 0.05) {}
+                sleep(500);
+                flipBox(neutral);
+                robot.hangOne.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                robot.hangOne.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                robot.hangOne.setTargetPosition(-1300);
+                robot.setHangPower(1);
+                encoderMovePreciseTimed(873, 646, 202, 846, 0.3, 1);
+                robot.hangOne.setTargetPosition(-1455);
+                while(opModeIsActive() && (robot.hangOne.isBusy() && robot.topSensor.getState())) {}
+                sleep(500);
+                robot.setHangPower(-1);
+                encoderMovePreciseTimed(-873, -646, -202, -846, 0.3, 1);
+                while(!robot.bottomSensor.isPressed()) {}
+            }
+        }
+    }
+
     private void doubleSample() {
         double value = goldPos == 1 ? 16 : (goldPos == -1 ? 43 : 29);
         robot.box.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -737,7 +826,7 @@ public class GOFAutonomousCrater extends LinearOpMode {
         double roc = Double.MAX_VALUE;
         double doc = 0;
         double noc;
-        while(roc > 10) {
+        while(opModeIsActive() && roc > 10) {
             noc = doc;
             double first = robot.box.getCurrentPosition();
             robot.rrWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -759,7 +848,7 @@ public class GOFAutonomousCrater extends LinearOpMode {
         sleep(150);
         robot.box.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         robot.box.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        while(Math.abs(robot.box.getCurrentPosition()) <= value * 1440 / (3 * Math.PI)) {
+        while(opModeIsActive() && Math.abs(robot.box.getCurrentPosition()) <= value * 1440 / (3 * Math.PI)) {
             robot.rrWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             robot.rfWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             robot.lrWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -775,6 +864,9 @@ public class GOFAutonomousCrater extends LinearOpMode {
     }
 
     private void runToPoint(double newX, double newY) {
+        if(!opModeIsActive()) {
+            return;
+        }
         double angle;
         try {
             angle = atan(newY - point[1], newX - point[0]);
@@ -800,6 +892,9 @@ public class GOFAutonomousCrater extends LinearOpMode {
     }
 
     private void runToPoint(double newX, double newY, int deviation) {
+        if(!opModeIsActive()) {
+            return;
+        }
         double angle;
         try {
             angle = atan(newY - point[1], newX - point[0]);
@@ -825,6 +920,9 @@ public class GOFAutonomousCrater extends LinearOpMode {
     }
 
     private void runToPoint(double newX, double newY, double angleError) {
+        if(!opModeIsActive()) {
+            return;
+        }
         double angle;
         try {
             angle = atan(newY - point[1], newX - point[0]) + angleError;
@@ -850,6 +948,9 @@ public class GOFAutonomousCrater extends LinearOpMode {
     }
 
     private void runToPoint(double newX, double newY, int deviation, double angleError) {
+        if(!opModeIsActive()) {
+            return;
+        }
         double angle;
         try {
             angle = atan(newY - point[1], newX - point[0]) + angleError;
@@ -875,6 +976,9 @@ public class GOFAutonomousCrater extends LinearOpMode {
     }
 
     private void runToPoint(double newX, double newY, float speed) {
+        if(!opModeIsActive()) {
+            return;
+        }
         double angle;
         try {
             angle = atan(newY - point[1], newX - point[0]);
@@ -900,6 +1004,9 @@ public class GOFAutonomousCrater extends LinearOpMode {
     }
 
     private void runBackToPoint(double newX, double newY) {
+        if(!opModeIsActive()) {
+            return;
+        }
         double angle;
         try {
             angle = atan(newY - point[1], newX - point[0]);
@@ -925,6 +1032,9 @@ public class GOFAutonomousCrater extends LinearOpMode {
     }
 
     private void runBackToPoint(double newX, double newY, int deviation) {
+        if(!opModeIsActive()) {
+            return;
+        }
         double angle;
         try {
             angle = atan(newY - point[1], newX - point[0]) + 180;
@@ -950,6 +1060,9 @@ public class GOFAutonomousCrater extends LinearOpMode {
     }
 
     private void runBackToPoint(double newX, double newY, double angleError) {
+        if(!opModeIsActive()) {
+            return;
+        }
         double angle;
         try {
             angle = atan(newY - point[1], newX - point[0]) + 180 + angleError;
@@ -975,6 +1088,9 @@ public class GOFAutonomousCrater extends LinearOpMode {
     }
 
     private void runBackToPoint(double newX, double newY, int deviation, double angleError) {
+        if(!opModeIsActive()) {
+            return;
+        }
         double angle;
         try {
             angle = atan(newY - point[1], newX - point[0]) + 180 + angleError;
@@ -1000,6 +1116,9 @@ public class GOFAutonomousCrater extends LinearOpMode {
     }
 
     private void runBackToPoint(double newX, double newY, float speed) {
+        if(!opModeIsActive()) {
+            return;
+        }
         double angle;
         try {
             angle = atan(newY - point[1], newX - point[0]) + 180;
@@ -1022,7 +1141,7 @@ public class GOFAutonomousCrater extends LinearOpMode {
             flipBox(30);
             robot.extend.setTargetPosition(-50);
             robot.extend.setPower(1);
-            while(robot.extend.isBusy()) {}
+            while(opModeIsActive() && robot.extend.isBusy()) {}
             flipBox(60);
         }
         int distance = -calculateMove(Math.abs(newX - point[0]), Math.abs(newY - point[1]));
@@ -1395,6 +1514,9 @@ public class GOFAutonomousCrater extends LinearOpMode {
     // PID controller has therefore never been tuned, and has thus been deprecated
 
     private void encoderMovePreciseTimed(int pos, double speed, double timeLimit) { // Move encoders towards target position until the position is reached, or the time limit expires
+        if(pos == 0 && timeLimit >= 0.1) {
+            pos = -((robot.rfWheel.getCurrentPosition() + robot.lfWheel.getCurrentPosition() + robot.lrWheel.getCurrentPosition() + robot.rrWheel.getCurrentPosition()) / 4);
+        }
         resetEncoders();
         if(opModeIsActive()) {
             double maxDrivePower = robot.maxDriveSpeed;

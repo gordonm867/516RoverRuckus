@@ -309,7 +309,7 @@ public class GOFTeleOp extends OpMode {
         }
 
         if(gamepad2.a && !gamepad2.start && !aPressed) {
-            flipBox(neutral);
+            flipBox(112);
             aPressed = true;
             servoMove = true;
             robot.setInPower(0.25);
@@ -430,7 +430,7 @@ public class GOFTeleOp extends OpMode {
     }
 
     private void checkBox() {
-        if(boxPos >= 130) {
+        if(boxPos >= 115) {
             robot.box.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         }
         else {
@@ -460,16 +460,15 @@ public class GOFTeleOp extends OpMode {
                 try {
                     PIDPower = (Kp * error) + (Ki * integral) + (Kd * (derivative));
                 } catch (Exception p_exception) {
-                    PIDPower = (Kp
-                            * error);
+                    PIDPower = (Kp * error);
                 }
                 if(Math.abs(PIDPower) >= 0.15) {
                     if((currentAngle <= 175 || PIDPower <= 0) && (currentAngle >= 20 || PIDPower >= 0)) {
-                        robot.box.setPower(Range.clip(PIDPower, -robot.maxBoxSpeed, robot.maxBoxSpeed));
+                        robot.box.setPower(Range.clip(PIDPower, -robot.maxBoxSpeed * (7.0/12.0), robot.maxBoxSpeed));
                         threadTime.reset();
                     }
                     else {
-                        robot.box.setPower(Range.clip(PIDPower, -robot.maxBoxSpeed, robot.maxBoxSpeed));
+                        robot.box.setPower(Range.clip(PIDPower, -robot.maxBoxSpeed * (7.0/12.0), robot.maxBoxSpeed));
                     }
                 } else {
                     robot.box.setPower(0);

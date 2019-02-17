@@ -64,6 +64,7 @@ public class GOFAutonomousDepot extends LinearOpMode {
     public void runOpMode() {
         /* Initialize hardware class */
         robot.init(hardwareMap);
+        msStuckDetectStop = 2000;
 
         /* Reset encoders */
         if (robot.rrWheel != null && robot.rfWheel != null && robot.lfWheel != null && robot.lrWheel != null) {
@@ -78,7 +79,7 @@ public class GOFAutonomousDepot extends LinearOpMode {
         }
 
         point[0] = -2;
-        point[1] = 2;
+        point[1] = -2;
 
         vuforiaInit(); // Initialize Vuforia
         detectInit(); // Initialize TensorFlwo
@@ -181,6 +182,12 @@ public class GOFAutonomousDepot extends LinearOpMode {
                     }
                 }
                 while (elapsedTime.time() <= 32 && doBox && ((active == null || manager == null || manager.getActiveOpModeName().equalsIgnoreCase(active)))) {
+                    if(boxPos >= 115) {
+                        robot.box.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+                    }
+                    else {
+                        robot.box.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+                    }
                     threadTime.reset();
                     if(threadReset) {
                         threadReset = false;
@@ -249,7 +256,7 @@ public class GOFAutonomousDepot extends LinearOpMode {
 
         elapsedTime.reset();
         detector.shutdown();
-        //vuforia.close();
+        // vuforia.close();
 
         robot.playSound(goldPos);
         if (robot.soundError) {
@@ -316,76 +323,40 @@ public class GOFAutonomousDepot extends LinearOpMode {
         robot.rfWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         robot.lrWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         robot.lfWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        if(!path) {
-            while (Math.abs((robot.rrWheel.getCurrentPosition() + robot.rfWheel.getCurrentPosition() + robot.lrWheel.getCurrentPosition() + robot.lfWheel.getCurrentPosition()) / 4) >= (36 * Math.sqrt(2) * ticksPerInch)) {
-                if (Math.abs(getAngle()) <= 175) {
-                    double theta = Math.toRadians(-getAngle()) + Math.PI;
-                    robot.setDrivePower(0.66194995074 * (Math.cos(theta) + Math.sin(theta)), 0.66194995074 * (Math.cos(theta) - Math.sin(theta)), 1 * (Math.cos(theta) - Math.sin(theta)), 1 * (Math.cos(theta) + Math.sin(theta)));
-                } else {
-                    robot.setDrivePower(1, 1, 1, 1);
-                }
-            }
-            point[0] = -5;
-            point[1] = -5;
-            robot.teamFlag.setPosition(0.96);
-            sleep(500);
-            turn(-getAngle() - 45, 5);
-            robot.teamFlag.setPosition(0.2);
-        }
-        else {
-            depot = true;
-            runBackToPoint(-5, -5, true);
-            depot = false;
-            robot.teamFlag.setPosition(0.96);
-            sleep(500);
-            turn(-getAngle() - 45, 5);
-            robot.teamFlag.setPosition(0.2);
-        }
-        /*
-        runToPoint(-1, -5, true);
-        runToPoint(0.25,-5, true);
-        encoderMovePreciseTimed(-1700, 1700, 1700, -1700, 1, 2);
-        runBackToPoint(-4, -5, 0, true);
-        */
-        die();
+        runBackToPoint(0, -5, true);
+        depot = true;
+        runBackToPoint(-4, -5, (float)0.5, true);
+        depot = false;
+        robot.teamFlag.setPosition(0.99);
         robot.extend.setTargetPosition(-3000);
         robot.extend.setPower(1);
-        runToPoint(1.5, -5, 0, true);
-        while(opModeIsActive() && robot.extend.isBusy()) {}
-        flipBox(120);
-        while(opModeIsActive()) {}
+        runToPoint(0, -5, true);
+        while(opModeIsActive() && robot.extend.isBusy() && elapsedTime.time() <= 29) {
+            robot.rrWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            robot.rfWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            robot.lrWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            robot.lfWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            robot.setDrivePower(-0.15, -0.15, -0.15, -0.15);
+        }
     }
 
     private void rightDepotAuto() {
-        robot.setInPower(0);
-        robot.intake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        // encoderMovePreciseTimed(-809, -143, -315, -1276, 0.3, 1);
-        // resetEncoders();
-        // runToPoint(-2.9, -2.9);
-        point[0] = -2;
-        point[1] = -2;
+        flipBox(100);
+        encoderMovePreciseTimed(-873, -646, -202, -846, 0.3, 1);
+        resetEncoders();
+        robot.intake.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         telemetry.addData("Status", "Turning " + -getAngle());
         telemetry.update();
         turn(-getAngle(), 1);
-        robot.setInPower(0);
-        robot.intake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        // encoderMovePreciseTimed(-229, 615, 427, -201, 0.3, 1);
-        // resetEncoders();
-        turn(-135 - atan(-2, -0.118), 5);
-        flipBox(71);
-        /*
-        double turns = 0;
-        while(robot.centerSensor.getDistance(DistanceUnit.INCH) >= 40) {
-            turn(turns < 2 ? -2 : 2, 1);
-            turns++;
-            if(turns > 4) {
-                break;
-            }
-        }
-        turn(-4.5, 1);
-        */
-        flipBox(170);
         robot.setInPower(1);
+        robot.intake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        turn(-22.5, 5);
+        robot.setHangPower(0);
+        flipBox(125);
+        robot.extend.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        robot.extend.setPower(1);
+        robot.extend.setTargetPosition(-1500);
+        while(robot.extend.isBusy()) {}
         while(opModeIsActive() && !robot.bottomSensor.isPressed() && robot.hangOne.isBusy()) {
             double oldPos = robot.hangOne.getCurrentPosition();
             sleep(100);
@@ -394,35 +365,31 @@ public class GOFAutonomousDepot extends LinearOpMode {
                 break;
             }
         }
-        robot.extend.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        robot.hangOne.setPower(0);
-        robot.hangOne.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        robot.extend.setTargetPosition(-1500);
+        turnBackToPoint(0, -5);
+        robot.setInPower(0);
+        flipBox(30);
+        robot.extend.setTargetPosition(-50);
         robot.extend.setPower(1);
         while(robot.extend.isBusy()) {}
-        turn(-5, 1);
-        turn(12, 1);
-        turn(-7, 1);
-        sample();
-        robot.setInPower(1);
-        resetEncoders();
-        robot.extend.setTargetPosition(0);
-        while(!robot.extend.isBusy()) {}
+        flipBox(60);
+        while(robot.extend.isBusy()) {}
         if(path) {
-            flipBox(51);
+            flipBox(30);
+            while((180 * (robot.boxPotentiometer.getVoltage() / 3.3)) <= 36) {}
+            robot.setInPower(0.5);
+            sleep(500);
+            robot.setInPower(0);
             score(point);
         }
-        else {
-            flipBox(71);
-        }
-        runToPoint(-1, -5, true);
-        runToPoint(0.25,-5, true);
-        encoderMovePreciseTimed(-1700, 1700, 1700, -1700, 1, 2);
-        runBackToPoint(-3, -5, true);
-        runToPoint(1.5, -5, true);
+        runBackToPoint(0, -5, true);
+        depot = true;
+        runBackToPoint(-4, -5, (float)0.5, true);
+        depot = false;
+        robot.teamFlag.setPosition(0.99);
         robot.extend.setTargetPosition(-3000);
         robot.extend.setPower(1);
-        while(opModeIsActive() && robot.extend.isBusy()) {
+        runToPoint(0, -5, true);
+        while(opModeIsActive() && robot.extend.isBusy() && elapsedTime.time() <= 29) {
             robot.rrWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             robot.rfWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             robot.lrWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -432,24 +399,22 @@ public class GOFAutonomousDepot extends LinearOpMode {
     }
 
     private void leftDepotAuto() {
+        flipBox(100);
+        encoderMovePreciseTimed(-873, -646, -202, -846, 0.3, 1);
+        resetEncoders();
+        robot.intake.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         robot.setInPower(0);
-        // encoderMovePreciseTimed(-809, -143, -315, -1276, 0.3, 1);
-        // resetEncoders();
-        // runToPoint(-2.9, -2.9);
-        point[0] = -2;
-        point[1] = -2;
-        // encoderMovePreciseTimed(-229, 615, 427, -201, 0.3, 1);
         robot.intake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         double angle;
-        double newY = -3.76;
-        double newX = -2.104;
+        double newY = -3.905;
+        double newX = 2.127;
         try {
-            angle = atan(newY - point[1], newX - point[0]);
+            angle = atan(newY - 2, newX + 2);
         }
         catch(Exception p_exception) {
             angle = 90;
         }
-        double turnDistance = -getAngle() - 225.0 + angle;
+        double turnDistance = -getAngle() - 135.0 + angle;
         if(turnDistance > 180) {
             turnDistance -= 360;
         }
@@ -459,19 +424,6 @@ public class GOFAutonomousDepot extends LinearOpMode {
         if(turnDistance != 0) {
             turn(turnDistance, 10);
         }
-        flipBox(71);
-        /*
-        double turns = 0;
-        while(robot.centerSensor.getDistance(DistanceUnit.INCH) >= 40) {
-            turn(turns < 2 ? -2 : 2, 1);
-            turns++;
-            if(turns > 4) {
-                break;
-            }
-        }
-        */
-        flipBox(170);
-        turn(-4.5, 1);
         while(opModeIsActive() && !robot.bottomSensor.isPressed() && robot.hangOne.isBusy()) {
             double oldPos = robot.hangOne.getCurrentPosition();
             sleep(100);
@@ -480,35 +432,37 @@ public class GOFAutonomousDepot extends LinearOpMode {
                 break;
             }
         }
-        robot.extend.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        robot.hangOne.setPower(0);
-        robot.hangOne.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.setHangPower(0);
+        flipBox(140);
         robot.setInPower(1);
-        flipBox(170);
-        robot.extend.setTargetPosition(-1000);
+        robot.extend.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        robot.extend.setTargetPosition(-800);
         robot.extend.setPower(1);
         while(robot.extend.isBusy()) {}
-        turn(-5, 1);
-        turn(12, 1);
-        turn(-7, 1);
-        sample();
-        robot.setInPower(1);
-        resetEncoders();
+        turn(-15, 9);
+        robot.extend.setTargetPosition(-1300);
+        while(robot.extend.isBusy()) {}
+        sleep(500);
+        robot.extend.setTargetPosition(-50);
+        while(robot.extend.isBusy()) {}
+        flipBox(30);
         if(path) {
-            flipBox(51);
+            flipBox(30);
+            while((180 * (robot.boxPotentiometer.getVoltage() / 3.3)) <= 36) {}
+            robot.setInPower(0.5);
+            sleep(500);
+            robot.setInPower(0);
             score(point);
         }
-        else {
-            flipBox(71);
-        }
-        runToPoint(-1, -5, true);
-        runToPoint(0.25,-5, true);
-        encoderMovePreciseTimed(-1700, 1700, 1700, -1700, 1, 2);
-        runBackToPoint(-3, -5, true);
-        runToPoint(1.5, -5, true);
+        runBackToPoint(0, -5, true);
+        depot = true;
+        runBackToPoint(-4, -5, (float)0.5, true);
+        depot = false;
+        robot.teamFlag.setPosition(0.99);
         robot.extend.setTargetPosition(-3000);
         robot.extend.setPower(1);
-        while(opModeIsActive() && robot.extend.isBusy()) {
+        runToPoint(0, -5, true);
+        while(opModeIsActive() && robot.extend.isBusy() && elapsedTime.time() <= 29) {
             robot.rrWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             robot.rfWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             robot.lrWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -572,10 +526,10 @@ public class GOFAutonomousDepot extends LinearOpMode {
             robot.extend.setTargetPosition(ePoses[goldPos + 1]);
             robot.extend.setPower(1);
             while (goldPos == 0 && robot.extend.isBusy()) {}
-            flipBox(157);
+            flipBox(165);
             robot.setInPower(1);
             sleep(500);
-            robot.extend.setTargetPosition(-3000);
+            robot.extend.setTargetPosition(-3100);
             while (robot.extend.isBusy()) {}
             sleep(1000);
             robot.setInPower(0.35);
@@ -778,13 +732,53 @@ public class GOFAutonomousDepot extends LinearOpMode {
             robot.intake.setPower(0);
             robot.intake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         }
-        flipBox(170);
-        sleep(500);
+        flipBox(140);
+        while(Math.abs(robot.box.getPower()) >= 0.1) {}
         robot.setInPower(1);
         sleep(1000);
         if(!(goldPos == 0 && elapsedTime.time() > 15)) {
             robot.setInPower(0);
             flipBox(71);
+        }
+    }
+
+    private void turnToPoint(double newX, double newY) {
+        double angle;
+        try {
+            angle = atan(newY - point[1], newX - point[0]);
+        }
+        catch(Exception p_exception) {
+            angle = 90;
+        }
+        double turnDistance = -getAngle() - 225.0 + angle;
+        if(turnDistance > 180) {
+            turnDistance -= 360;
+        }
+        if(turnDistance < -180) {
+            turnDistance += 360;
+        }
+        if(turnDistance != 0) {
+            turn(turnDistance, Math.abs(turnDistance) / 10.0);
+        }
+    }
+
+    private void turnBackToPoint(double newX, double newY) {
+        double angle;
+        try {
+            angle = atan(newY - point[1], newX - point[0]);
+        }
+        catch(Exception p_exception) {
+            angle = -90;
+        }
+        double turnDistance = -getAngle() - 225.0 + angle + 180;
+        if(turnDistance > 180) {
+            turnDistance -= 360;
+        }
+        if(turnDistance < -180) {
+            turnDistance += 360;
+        }
+        if(turnDistance != 0) {
+            turn(turnDistance, Math.abs(turnDistance) / 60.0);
         }
     }
 
@@ -1014,6 +1008,7 @@ public class GOFAutonomousDepot extends LinearOpMode {
     }
 
     private void encoderMovePreciseTimed(int rr, int rf, int lr, int lf, double speed, double timeLimit) { // Move encoders towards target position until the position is reached, or the time limit expires
+        resetEncoders();
         if (opModeIsActive() && robot.rrWheel != null && robot.rfWheel != null && robot.lrWheel != null && robot.lfWheel != null && robot.hangOne != null) {
             robot.rrWheel.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             robot.rfWheel.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -1128,10 +1123,23 @@ public class GOFAutonomousDepot extends LinearOpMode {
                 double i = 0;
                 double lastError = 0;
                 ElapsedTime limitTest = new ElapsedTime();
-                try {
-                    robot.setDrivePower((pos / Math.abs(pos)) * speed, (pos / Math.abs(pos)) * speed, (pos / Math.abs(pos)) * speed, (pos / Math.abs(pos)) * speed);
-                } catch (Exception p_exception) {
-                    robot.setDrivePower(speed, speed, speed, speed);
+                double zeroPos = 0;
+                if(pos == 0) {
+                    zeroPos = 0 - ((robot.rrWheel.getCurrentPosition() + robot.rfWheel.getCurrentPosition() + robot.lfWheel.getCurrentPosition() + robot.lrWheel.getCurrentPosition()) / 4);
+                }
+                if(zeroPos != 0) {
+                    try {
+                        robot.setDrivePower((zeroPos / Math.abs(zeroPos)) * speed, (zeroPos / Math.abs(zeroPos)) * speed, (zeroPos / Math.abs(zeroPos)) * speed, (zeroPos / Math.abs(zeroPos)) * speed);
+                    } catch (Exception p_exception) {
+                        robot.setDrivePower(speed, speed, speed, speed);
+                    }
+                }
+                else {
+                    try {
+                        robot.setDrivePower((pos / Math.abs(pos)) * speed, (pos / Math.abs(pos)) * speed, (pos / Math.abs(pos)) * speed, (pos / Math.abs(pos)) * speed);
+                    } catch (Exception p_exception) {
+                        robot.setDrivePower(speed, speed, speed, speed);
+                    }
                 }
                 while(Math.abs(((robot.rrWheel.getCurrentPosition() + robot.rfWheel.getCurrentPosition() + robot.lrWheel.getCurrentPosition() + robot.lfWheel.getCurrentPosition()) / 4)) <= Math.abs(pos) && opModeIsActive() && limitTest.time() < timeLimit && elapsedTime.time() <= 29.5) {
                     if(Math.abs(getAngle() - startAngle) >= 7) {
@@ -1156,11 +1164,19 @@ public class GOFAutonomousDepot extends LinearOpMode {
                         else {
                             speed = Math.min(error, Math.abs(maxSpeed));
                         }
-                        try {
-                            robot.setDrivePower((pos / Math.abs(pos)) * speed, (pos / Math.abs(pos)) * speed, (pos / Math.abs(pos)) * speed, (pos / Math.abs(pos)) * speed);
+                        if(zeroPos != 0) {
+                            try {
+                                robot.setDrivePower((zeroPos / Math.abs(zeroPos)) * speed, (zeroPos / Math.abs(zeroPos)) * speed, (zeroPos / Math.abs(zeroPos)) * speed, (zeroPos / Math.abs(zeroPos)) * speed);
+                            } catch (Exception p_exception) {
+                                robot.setDrivePower(speed, speed, speed, speed);
+                            }
                         }
-                        catch(Exception p_exception) {
-                            robot.setDrivePower(0, 0, 0, 0);
+                        else {
+                            try {
+                                robot.setDrivePower((pos / Math.abs(pos)) * speed, (pos / Math.abs(pos)) * speed, (pos / Math.abs(pos)) * speed, (pos / Math.abs(pos)) * speed);
+                            } catch (Exception p_exception) {
+                                robot.setDrivePower(speed, speed, speed, speed);
+                            }
                         }
                         double deltaError = angleError - lastError;
                         i += delta.time() * deltaError;
@@ -1173,10 +1189,10 @@ public class GOFAutonomousDepot extends LinearOpMode {
                         robot.setDrivePower(left, left, right, right);
                         lastError = angleError;
                         delta.reset();
-                        if(depot && robot.getUSDistance() <= 57 && robot.getUSDistance() >= 40) {
-                            robot.setDrivePower(0, 0, 0, 0);
-                            break;
-                        }
+                    }
+                    if(depot && robot.getUSDistance() <= 57 && robot.getUSDistance() >= 40) {
+                        robot.setDrivePower(0, 0, 0, 0);
+                        break;
                     }
                 }
                 if (limitTest.time() > timeLimit) {
@@ -1254,33 +1270,28 @@ public class GOFAutonomousDepot extends LinearOpMode {
     }
 
     private void score(double[] actualPoint) {
-        if(!(boxPos == 51)) {
-            flipBox(51);
+        if(!(boxPos == 60)) {
+            flipBox(60);
             sleep(500);
-            robot.setInPower(-0.2);
+            robot.setInPower(0.2);
         }
         else {
             robot.setInPower(0);
         }
-        robot.hangOne.setTargetPosition(1400);
+        robot.hangOne.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        robot.hangOne.setTargetPosition(1300);
         robot.hangOne.setPower(1);
         robot.setInPower(0);
-        runBackToPoint(-1.25, -1.25, true);
-        robot.hangOne.setTargetPosition(1560);
-        while(opModeIsActive() && robot.hangOne.isBusy()) {
-            double oldPos = robot.hangOne.getCurrentPosition();
-            sleep(100);
-            double newPos = robot.hangOne.getCurrentPosition();
-            if(oldPos == newPos) {
-                break;
-            }
-        }
+        turn(-getAngle(), 8);
+        encoderMovePreciseTimed(873, 646, 202, 846, 0.3, 1);
+        robot.hangOne.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        robot.setHangPower(1);
+        while(opModeIsActive() && robot.topSensor.getState()) {}
         robot.hangOne.setPower(0);
         sleep(1000);
-        encoderMovePreciseTimed(0, 1, 1, false);
+        encoderMovePreciseTimed(-873, -646, -202, -846, 0.3, 1);
         robot.hangOne.setTargetPosition(0);
         robot.hangOne.setPower(1);
-        flipBox(0.71);
         point = actualPoint;
     }
 

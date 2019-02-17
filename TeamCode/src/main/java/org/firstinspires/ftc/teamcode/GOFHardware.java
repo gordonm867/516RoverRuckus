@@ -73,7 +73,7 @@ public class GOFHardware {
     public          DistanceSensor               backDistanceSensor;
 
     public          double                       maxDriveSpeed            = 1;
-    public          double                       maxBoxSpeed              = 1;
+    public          double                       maxBoxSpeed              = 0.75;
     public          double                       boxPos                   = 0;
 
     private static  GOFHardware                  robot                    = null;
