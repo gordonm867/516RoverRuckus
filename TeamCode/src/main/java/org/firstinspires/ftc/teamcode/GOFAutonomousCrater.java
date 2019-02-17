@@ -243,12 +243,8 @@ public class GOFAutonomousCrater extends LinearOpMode {
         }
         while(gamepad1.x) {}
         while(!gamepad1.x) {
-            telemetry.addData("Scoring is", (score == 0 ? "DISABLED" : "ENABLED for " + score + "cycles.") + "Press \"y\" to increase, \"a\" to decrease, and \"x\" to finalize (on gamepad 1).");
+            telemetry.addData("Scoring is", (score == 0 ? "DISABLED" : "ENABLED for " + score + "cycle" + (score == 1 ? "." : "s.")) + "Press \"y\" to increase, \"a\" to decrease, and \"x\" to finalize (on gamepad 1).");
             telemetry.update();
-            if(gamepad1.y) {
-                score++;
-                while(gamepad1.y) {}
-            }
             if(gamepad1.a && !xPressed) {
                 xPressed = true;
                 score--;
@@ -310,14 +306,17 @@ public class GOFAutonomousCrater extends LinearOpMode {
             while(robot.box.getPower() >= 0.09) {}
             robot.setInPower(0.25);
             sleep(500);
+            robot.setInPower(0);
             flipBox(neutral);
+            robot.hangOne.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             robot.setHangPower(1);
             while(opModeIsActive() && robot.topSensor.getState()) {}
             sleep(500);
+            robot.hangOne.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             robot.setHangPower(-1);
         }
         turn(-getAngle(), 1);
-        flipBox(goldPos == 0 ? 60 : neutral);
+        flipBox(60);
 
 
         /* Move to gold */
@@ -795,27 +794,31 @@ public class GOFAutonomousCrater extends LinearOpMode {
             turn(10, 2);
             turn(-20, 2);
             turn(10, 2);
+            flipBox(neutral);
             robot.setInPower(0.35);
             robot.extend.setTargetPosition(0);
             robot.extend.setPower(1);
-            while(opModeIsActive() && robot.extend.isBusy() && robot.extenderSensor.getVoltage() >= 2) {
-                flipBox(30);
-                while(opModeIsActive() && robot.box.getPower() < 0.05) {}
-                while(opModeIsActive() && robot.box.getPower() >= 0.05) {}
-                sleep(500);
-                flipBox(neutral);
-                robot.hangOne.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                robot.hangOne.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                robot.hangOne.setTargetPosition(-1300);
-                robot.setHangPower(1);
-                encoderMovePreciseTimed(873, 646, 202, 846, 0.3, 1);
-                robot.hangOne.setTargetPosition(-1455);
-                while(opModeIsActive() && (robot.hangOne.isBusy() && robot.topSensor.getState())) {}
-                sleep(500);
-                robot.setHangPower(-1);
-                encoderMovePreciseTimed(-873, -646, -202, -846, 0.3, 1);
-                while(!robot.bottomSensor.isPressed()) {}
-            }
+            while(opModeIsActive() && robot.extend.isBusy() && robot.extenderSensor.getVoltage() <= 2) {}
+            flipBox(30);
+            while(opModeIsActive() && robot.box.getPower() < 0.05) {}
+            while(opModeIsActive() && robot.box.getPower() >= 0.05) {}
+            sleep(500);
+            flipBox(neutral);
+            robot.hangOne.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            robot.hangOne.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            robot.hangOne.setTargetPosition(1300);
+            robot.setHangPower(1);
+            encoderMovePreciseTimed(873, 646, 202, 846, 0.3, 1);
+            resetEncoders();
+            robot.hangOne.setTargetPosition(1455);
+            while(opModeIsActive() && (robot.hangOne.isBusy() && robot.topSensor.getState())) {}
+            sleep(500);
+            robot.hangOne.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            robot.setHangPower(-1);
+            encoderMovePreciseTimed(-873, -646, -202, -846, 0.3, 1);
+            turn(-getAngle(), 1);
+            resetEncoders();
+            while(!robot.bottomSensor.isPressed()) {}
         }
     }
 
