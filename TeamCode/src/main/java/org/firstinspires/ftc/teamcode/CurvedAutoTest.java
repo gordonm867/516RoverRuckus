@@ -24,9 +24,7 @@ import java.util.List;
 @Disabled
 public class CurvedAutoTest extends LinearOpMode {
 
-    private                 GOFHardware         robot                   = GOFHardware.getInstance();
-    private                 double              angleOffset             = 3;
-
+    private GOFHardware robot = GOFHardware.getInstance();
 
     public void runOpMode() {
         robot.init(hardwareMap);
@@ -37,20 +35,23 @@ public class CurvedAutoTest extends LinearOpMode {
         turn(-90, 5);
         while (opModeIsActive() && Math.abs(x) < Math.abs(maxX)) {
             double currentY = Math.tan((2.0 / 3.0) * (x + 2)) + 2;
+            telemetry.addData("Point", "(" + x + ", " + currentY + ")");
+            telemetry.update();
             double nextX = x - 0.1;
             double nextY = Math.tan((1.0 / 2.0) * (nextX + 2)) + 2;
-            double angle = Math.toRadians(-getAngle()) + (Math.atan2(nextY - currentY, nextX - x) + Math.PI);
+            double angle = Math.toRadians(-getAngle() - 135) + (Math.atan2(nextY - currentY, nextX - x) + Math.PI);
             double side = Math.sin(angle);
             double forward = Math.cos(angle);
             double lfOffset = robot.lfWheel.getCurrentPosition();
             double lrOffset = robot.lrWheel.getCurrentPosition();
             double ticksPerInch = 560 / (4 * Math.PI);
             while (Math.abs(((robot.lfWheel.getCurrentPosition() - lfOffset) + (robot.lrWheel.getCurrentPosition() - lrOffset)) / 2) <= (ticksPerInch * 12) * 0.1) {
-                double ratio = Math.max(Math.abs(forward + side), Math.abs(forward - side));
+                double ratio = -Math.max(Math.abs(forward + side), Math.abs(forward - side));
                 robot.setDrivePower((forward + side) / ratio, (forward - side) / ratio, (forward - side) / ratio, (forward + side) / ratio);
             }
             x = nextX;
         }
+        robot.wheelBrake();
     }
 
     /* Reset encoders and set modes to "Run to position" */
@@ -93,6 +94,7 @@ public class CurvedAutoTest extends LinearOpMode {
         if(Math.abs(angle) < 0.1 || Math.abs(angle) + 0.1 % 360 < 0.2) { // Detects if turn is too insignificant
             return;
         }
+        double angleOffset = 3;
         angle += (angleOffset * Math.abs(angle) / angle);
         double oldAngle;
         double angleIntended;

@@ -73,7 +73,7 @@ public class GOFHardware {
     public          DistanceSensor               backDistanceSensor;
 
     public          double                       maxDriveSpeed            = 1;
-    public          double                       maxBoxSpeed              = 0.75;
+    public          double                       maxBoxSpeed              = 0.85;
     public          double                       boxPos                   = 0;
 
     private static  GOFHardware                  robot                    = null;
@@ -180,7 +180,7 @@ public class GOFHardware {
 
         try { // Intake extension
             extend = hwMap.get(DcMotor.class, "em");
-            extend.setDirection(DcMotor.Direction.FORWARD);
+            extend.setDirection(DcMotor.Direction.REVERSE);
             extend.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
             extend.setPower(0);
             extend.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);

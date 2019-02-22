@@ -27,20 +27,20 @@ public class GOFTeleOp extends OpMode {
     private             boolean             hanging             = true;
     private             boolean             hangDown            = false;
 
-    private volatile    double              boxPos              = 137;
+    private volatile    double              boxPos              = 120;
     private             double              firstAngleOffset;
     private             double              triggerPressed      = 0;
     private             double              lastIntake          = 0;
     private             double              integral            = 0;
     private             double              lastError           = 0;
     private             double              maxDriveSpeed;
-    private             double              dump                = 42.5;
-    private             double              intake              = 137;
+    private             double              dump                = 30;
+    private             double              intake              = 120;
     private             double              neutral             = 65;
     private             double              offset              = 2.5;
-    private             double              Kp                  = 0.04;
-    private             double              Ki                  = 0.005;
-    private             double              Kd                  = 0.025;
+    private             double              Kp                  = 0.02;
+    private             double              Ki                  = 0;
+    private             double              Kd                  = 0;
 
     private             ElapsedTime         hangTime            = new ElapsedTime();
     private             ElapsedTime         trigTime            = new ElapsedTime();
@@ -203,7 +203,7 @@ public class GOFTeleOp extends OpMode {
         }
 
         if((triggerPressed != 0 || gamepad2.dpad_up || gamepad2.dpad_down || servoMove) || gamepad1.a) {
-            robot.setInPower((gamepad2.dpad_up ? 1 : 0) + triggerPressed - (gamepad2.dpad_down ? 1 : 0) + (servoMove ? 0.25 : 0) - (gamepad1.a ? 1 : 0)); // Set intake power based on the gamepad trigger values
+            robot.setInPower((gamepad2.dpad_up ? 1 : 0) + triggerPressed - (gamepad2.dpad_down ? 1 : 0) + (servoMove ? 0.4 : 0) - (gamepad1.a ? 1 : 0)); // Set intake power based on the gamepad trigger values
             lastIntake = (robot.intake.getCurrentPosition() - lastIntake);
             lastIntake /= (lastIntake == 0 ? 1 : Math.abs(lastIntake));
         }
@@ -299,7 +299,12 @@ public class GOFTeleOp extends OpMode {
             hanging = false;
         }
 
-        if(gamepad2.x) {
+        if(gamepad2.y) {
+            Ki = 0.005;
+            Kd = 0.025;
+        }
+
+        if(gamepad2.b) {
             Ki = 0;
             Kd = 0;
         }
@@ -309,7 +314,7 @@ public class GOFTeleOp extends OpMode {
         }
 
         if(gamepad2.a && !gamepad2.start && !aPressed) {
-            flipBox(112);
+            flipBox(90);
             aPressed = true;
             servoMove = true;
             robot.setInPower(0.25);
@@ -458,7 +463,7 @@ public class GOFTeleOp extends OpMode {
             lastError = error;
             double PIDPower;
                 try {
-                    PIDPower = (Kp * error) + (Ki * integral) + (Kd * (derivative));
+                    PIDPower = (Kp * error) - (Ki * integral) + (Kd * (derivative));
                 } catch (Exception p_exception) {
                     PIDPower = (Kp * error);
                 }
