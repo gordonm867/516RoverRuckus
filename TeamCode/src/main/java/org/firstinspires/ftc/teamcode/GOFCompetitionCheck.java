@@ -5,10 +5,12 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 
+import org.firstinspires.ftc.robotcore.internal.opmode.OpModeManagerImpl;
+
 @TeleOp(name="GOFCompetitionCheck",group="GOFPreparation")
 public class GOFCompetitionCheck extends LinearOpMode {
 
-    GOFHardware robot = GOFHardware.getInstance();
+    private GOFHardware       robot   = GOFHardware.getInstance();
 
     public void runOpMode() {
 

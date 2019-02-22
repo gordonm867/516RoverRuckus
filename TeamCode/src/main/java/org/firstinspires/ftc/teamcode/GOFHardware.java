@@ -26,6 +26,8 @@ import com.qualcomm.hardware.rev.RevTouchSensor;
 import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -34,10 +36,13 @@ import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcontroller.external.samples.SensorMRRangeSensor;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.robotcore.internal.opmode.OpModeManagerImpl;
+import org.firstinspires.ftc.robotcore.internal.opmode.OpModeServices;
 
 // @SuppressWarnings({"WeakerAccess", "SpellCheckingInspection", "EmptyCatchBlock", "StatementWithEmptyBody", "SameParameterValue"})
 public class GOFHardware {
 
+    public volatile AnalogInput                  boxPotentiometer;
     public          AnalogInput                  extenderSensor;
 
     public          BNO055IMU                    gyro0;
@@ -52,6 +57,7 @@ public class GOFHardware {
     public          ColorSensor                  frontColorSensor;
     public          ColorSensor                  backColorSensor;
 
+    public volatile DcMotor                      box;
     public          DcMotor                      lfWheel;
     public          DcMotor                      rfWheel;
     public          DcMotor                      lrWheel;
@@ -59,13 +65,16 @@ public class GOFHardware {
     public          DcMotor                      intake;
     public          DcMotor                      hangOne;
     public          DcMotor                      extend;
-    public          DcMotor                      passive;
+
+    public          DigitalChannel               topSensor;
 
     public          DistanceSensor               centerSensor;
     public          DistanceSensor               frontDistanceSensor;
     public          DistanceSensor               backDistanceSensor;
 
     public          double                       maxDriveSpeed            = 1;
+    public          double                       maxBoxSpeed              = 0.85;
+    public          double                       boxPos                   = 0;
 
     private static  GOFHardware                  robot                    = null;
 
@@ -78,10 +87,10 @@ public class GOFHardware {
     public          ModernRoboticsI2cRangeSensor rfSensor;
 
     public          RevTouchSensor               bottomSensor;
-    public          RevTouchSensor               topSensor;
 
-    public          Servo                        box;
     public          Servo                        teamFlag;
+
+    public          Thread                       currentThread;
 
     /* Constructor */
     public static GOFHardware getInstance() {
@@ -171,7 +180,7 @@ public class GOFHardware {
 
         try { // Intake extension
             extend = hwMap.get(DcMotor.class, "em");
-            extend.setDirection(DcMotor.Direction.FORWARD);
+            extend.setDirection(DcMotor.Direction.REVERSE);
             extend.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
             extend.setPower(0);
             extend.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -180,15 +189,15 @@ public class GOFHardware {
             extend = null;
         }
 
-        try { // Intake extension
-            passive = hwMap.get(DcMotor.class, "so");
-            passive.setDirection(DcMotor.Direction.FORWARD);
-            passive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-            passive.setPower(0);
-            passive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        try { // Box flipper
+            box = hwMap.get(DcMotor.class, "fm");
+            box.setDirection(DcMotor.Direction.FORWARD);
+            box.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            box.setPower(0);
+            box.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         }
         catch (Exception p_exception) {
-            passive = null;
+            box = null;
         }
 
     /*
@@ -196,13 +205,6 @@ public class GOFHardware {
               SERVOS (Define and Initialize)
          ---------------------------------------
     */
-
-        try { // Box flipper
-            box = hwMap.get(Servo.class, "fm");
-        }
-        catch (Exception p_exception) {
-            box = null;
-        }
 
         /*
         try { // Container kicker servo
@@ -261,6 +263,13 @@ public class GOFHardware {
             rfSensor = null;
         }
 
+        try { // Distance sensor at center of robot
+            boxPotentiometer = hwMap.get(AnalogInput.class, "bp");
+        }
+        catch (Exception p_exception) {
+            boxPotentiometer = null;
+        }
+
         try { // Sound files
             rightId = hwMap.appContext.getResources().getIdentifier("right", "raw", hwMap.appContext.getPackageName());
             leftId = hwMap.appContext.getResources().getIdentifier("left", "raw", hwMap.appContext.getPackageName());
@@ -317,7 +326,8 @@ public class GOFHardware {
         }
 
         try { // Upper limit switch
-            topSensor = hwMap.get(RevTouchSensor.class, "tl");
+            topSensor = hwMap.get(DigitalChannel.class, "tl");
+            topSensor.setMode(DigitalChannel.Mode.INPUT);
         }
         catch (Exception p_exception) {
             topSensor = null;
@@ -367,10 +377,10 @@ public class GOFHardware {
     }
 
     public void setHangPower(double hangPower) { // Set hang power
-        if(hangOne != null) {
+        if(hangOne != null && hangOne.getMode() != DcMotor.RunMode.RUN_TO_POSITION) {
             hangPower = Range.clip(hangPower, -1, 1);
             if(topSensor != null) {
-                if(topSensor.isPressed() && hangPower > 0) { // If the top sensor is being pressed but the intended hang power is positive, stop
+                if(!topSensor.getState() && hangPower > 0) { // If the top sensor is being pressed but the intended hang power is positive, stop
                     hangPower = 0;
                 }
             }
@@ -380,6 +390,11 @@ public class GOFHardware {
                 }
             }
             hangOne.setPower(hangPower);
+        }
+        else {
+            if(hangOne != null && hangOne.getMode() == DcMotor.RunMode.RUN_TO_POSITION) {
+                hangOne.setPower(hangPower);
+            }
         }
     }
 
@@ -410,10 +425,40 @@ public class GOFHardware {
         }
     }
 
-    public void flipBox(double boxPos) {
-        if(box != null) {
-            box.setPosition(Range.clip(boxPos, 0.4, 0.7));
+    public void flipBox(final double angle) {
+        boxPos = angle;
+        box.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        try {
+            if(currentThread.isAlive()) {
+                currentThread.interrupt();
+                while(currentThread.isAlive()) {
+                    currentThread.interrupt();
+                }
+            }
         }
+        catch(Exception p_exception) {} // If an exception is thrown, there can't be an active Thread anyway
+        currentThread = new Thread() {
+            public void run() {
+                double voltage = boxPotentiometer.getVoltage();
+                if(voltage >= 3.3) {
+                    voltage = 3.3;
+                }
+                double targetVoltage = 3.3 * (angle / 180);
+                while(!Thread.currentThread().isInterrupted() && !((voltage + 0.1 >= targetVoltage) && (voltage - 0.1 <= targetVoltage))) {
+                    voltage = boxPotentiometer.getVoltage();
+                    double error = boxPotentiometer.getVoltage() - targetVoltage;
+                    box.setPower(Range.clip(error, -maxBoxSpeed, maxBoxSpeed));
+                    try {
+                        sleep(0);
+                    }
+                    catch(Exception p_exception) {
+                        break;
+                    }
+                }
+                box.setPower(0);
+            }
+        };
+        currentThread.start();
     }
 
     public void playSound(double goldPos) { // Play sound
@@ -475,13 +520,19 @@ public class GOFHardware {
     }
 
     public double getUSDistance() {
-        double distance = rfSensor.cmUltrasonic();
-        int iterations = 1;
-        while((distance < 0.1 || distance > 200) && iterations < 15) {
-            distance = rfSensor.cmUltrasonic();
-            iterations++;
+        if(rfSensor != null ) {
+            double distance = rfSensor.cmUltrasonic(); // Get ultrasonic distance
+            int iterations = 1;
+            while ((distance < 0.1 || distance > 200) && iterations < 15) { // Filter bad values
+                distance = rfSensor.cmUltrasonic();
+                iterations++;
+            }
+            if(iterations == 15) {
+                return Double.POSITIVE_INFINITY; // If the sensor is giving an inappropriate value 15 times in a row, return infinity
+            }
+            return distance; // Return proper distance if everything seems to be working
         }
-        return distance;
+        return Double.POSITIVE_INFINITY; // Return infinity if sensor is null
     }
 
     public double getREVDistance() {

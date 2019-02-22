@@ -25,9 +25,9 @@ import java.util.Iterator;
 import java.util.List;
 
 @TeleOp(name="GOFAutoCreatorTest",group="GOFTests")
-@Disabled
+// @Disabled
 public class AutoCreatorTest extends LinearOpMode {
-    private                 GOFTeleOp           driveControl = new GOFTeleOp();
+    private                 GOFTeleOp           driveControl            = GOFTeleOp.getInstance();
 
     private static final    String              TFOD_MODEL_ASSET        = "RoverRuckus.tflite";
     private static final    String              LABEL_GOLD_MINERAL      = "Gold Mineral";
