@@ -40,7 +40,7 @@ public class GOFAutonomousCrater extends LinearOpMode {
     private                 double              angleOffset             = 3;
     private volatile        double              boxPos                  = 111;
     private                 double              intake                  = 120;
-    private                 double              neutral                 = 90;
+    private                 double              neutral                 = 70;
     private                 double[]            point                   = new double[2];
     private                 double              startTime               = elapsedTime.time();
     private                 double              ticksPerInch            = 560 / (4 * Math.PI);
@@ -62,271 +62,300 @@ public class GOFAutonomousCrater extends LinearOpMode {
     private                 TFObjectDetector    detector;
 
     private                 Thread              box;
+    private                 Thread              update;
+    private                 Thread              lights;
 
 
     @Override
     public void runOpMode() {
-        /* Initialize hardware class */
-        robot.init(hardwareMap);
-        msStuckDetectStop = 2000;
+        try {
+            /* Initialize hardware class */
+            robot.init(hardwareMap);
+            msStuckDetectStop = 2000;
+            System.nanoTime();
 
-        /* Reset encoders */
-        if (robot.rrWheel != null && robot.rfWheel != null && robot.lfWheel != null && robot.lrWheel != null) {
-            robot.teamFlag.setPosition(0.05);
-            robot.rrWheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            robot.rfWheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            robot.lfWheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            robot.lrWheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            robot.intake.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            robot.hangOne.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            robot.extend.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        }
-
-        point[0] = -2;
-        point[1] = 2;
-
-        vuforiaInit(); // Initialize Vuforia
-        detectInit(); // Initialize TensorFlwo
-
-        Thread update = new Thread() {
-            @Override
-            public synchronized void run() {
-                while(!doTelemetry) {
-                    try {
-                        sleep(100);
-                    }
-                    catch(Exception p_exception) {
-                        Thread.currentThread().interrupt();
-                    }
-                }
-                while(elapsedTime.time() <= 32 && doTelemetry) {
-                    try {
-                        String tmy = "Run Time: " + elapsedTime.toString() + "\n";
-                        tmy += "Motors" + "\n";
-                        tmy += "    rr: " + robot.rrWheel.getCurrentPosition() + "\n";
-                        tmy += "    rf: " + robot.rfWheel.getCurrentPosition() + "\n";
-                        tmy += "    lr: " + robot.lrWheel.getCurrentPosition() + "\n";
-                        tmy += "    lf: " + robot.lfWheel.getCurrentPosition() + "\n";
-                        tmy += "    h1: " + robot.hangOne.getCurrentPosition() + "\n";
-                        tmy += "    em: " + robot.extend.getCurrentPosition() + "\n";
-                        tmy += "    so: " + robot.box.getCurrentPosition() + "\n";
-                        tmy += "    intake: " + (gamepad1.right_trigger) + ", " + robot.intake.getCurrentPosition() + "\n";
-                        tmy += "    outtake: " + (gamepad1.left_trigger) + "\n";
-                        tmy += "Servos" + "\n";
-                        tmy += "    fm, actual: " + (180 * (robot.boxPotentiometer.getVoltage() / 3.3)) + "\n";
-                        tmy += "    fm, intended: " + boxPos + "\n";
-                        tmy += "    tm: " + robot.teamFlag.getPosition() + "\n";
-                        tmy += "Gyro Data" + "\n";
-                        tmy += "    Robot angle: " + getAngle() + "\n";
-                        tmy += "    X acceleration: " + ((robot.gyro0.getGravity().xAccel + robot.gyro1.getGravity().xAccel) / 2) + "\n";
-                        tmy += "    Y acceleration: " + ((robot.gyro0.getGravity().yAccel + robot.gyro1.getGravity().yAccel) / 2) + "\n";
-                        tmy += "    Z acceleration: " + ((robot.gyro0.getGravity().zAccel + robot.gyro1.getGravity().zAccel) / 2) + "\n";
-                        tmy += "Sensors" + "\n";
-                        tmy += "     MR Range Sensor: " + robot.getUSDistance() + "\n";
-                        tmy += "     REV 2m Distance Sensor: " + robot.getREVDistance() + "\n";
-                        //tmy += "Extender limit switch voltage: " + robot.extenderSensor.getVoltage();
-                        telemetry.addData("", tmy);
-                    } catch (Exception p_exception) {
-                        telemetry.addData("Uh oh", "The driver controller was unable to communicate via telemetry.  For help, please seek a better programmer.");
-                    }
-                    telemetry.update();
-                }
+            /* Reset encoders */
+            if (robot.rrWheel != null && robot.rfWheel != null && robot.lfWheel != null && robot.lrWheel != null) {
+                robot.teamFlag.setPosition(0.05);
+                robot.rrWheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                robot.rfWheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                robot.lfWheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                robot.lrWheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                robot.intake.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                robot.hangOne.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                robot.extend.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             }
 
-            private double getAngle() {
-                double robotAngle;
-                Orientation g0angles = null;
-                Orientation g1angles = null;
-                if (robot.gyro0 != null) {
-                    g0angles = robot.gyro0.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES); // Get z axis angle from first gyro (in radians so that a conversion is unnecessary for proper employment of Java's Math class)
-                }
-                if (robot.gyro1 != null) {
-                    g1angles = robot.gyro1.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES); // Get z axis angle from second gyro (in radians so that a conversion is unnecessary for proper employment of Java's Math class)
-                }
-                if (g0angles != null && g1angles != null) {
-                    robotAngle = ((g0angles.firstAngle + g1angles.firstAngle) / 2); // Average angle measures to determine actual robot angle
-                } else if (g0angles != null) {
-                    robotAngle = g0angles.firstAngle;
-                } else if (g1angles != null) {
-                    robotAngle = g1angles.firstAngle;
-                } else {
-                    robotAngle = 0;
-                }
-                return robotAngle;
-            }
-        };
-        box = new Thread() {
-            private ElapsedTime threadTime = new ElapsedTime();
-            private double iterations = 0;
-            private double integral = 0;
-            private double lastError = 0;
-            @Override
-            public synchronized void run() {
-                threadTime.reset();
-                while (!doBox) {
-                    try {
-                        sleep(100);
-                    } catch (Exception p_exception) {
-                        Thread.currentThread().interrupt();
-                    }
-                }
-                String active = null;
-                try {
-                    active = manager.getActiveOpModeName();
-                } catch (Exception p_exception) {
-                    manager = null;
-                }
-                while (Math.abs(robot.boxPotentiometer.getVoltage() - (3.3 * (boxPos / 180.0))) <= 0.0917) {
-                    try {
-                        sleep(50);
-                    } catch (Exception p_exception) {
-                        doBox = false;
-                        Thread.currentThread().interrupt();
-                        break;
-                    }
-                }
-                boolean gotThere = true;
-                while(!Thread.currentThread().isInterrupted() && elapsedTime.time() <= 32 && doBox && ((active == null || manager == null || manager.getActiveOpModeName().equalsIgnoreCase(active)))) {
-                    if (boxPos >= 115 || boxPos == 75) {
-                        robot.box.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-                    } else {
-                        robot.box.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-                    }
-                    if(gotThere) {
-                        gotThere = !((boxPos == 75 && (180 * robot.boxPotentiometer.getVoltage() / 3.3) >= 70 && (180 * robot.boxPotentiometer.getVoltage() / 3.3) <= 80) || (boxPos >= 120 && (180 * robot.boxPotentiometer.getVoltage() / 3.3) >= 115));
-                    }
-                    if(threadReset) {
-                        gotThere = true;
-                        threadReset = false;
-                        iterations = 0;
-                        integral = 0;
-                    }
-                    double currentAngle = 180 * (robot.boxPotentiometer.getVoltage() / 3.3);
-                    double error = -(boxPos - currentAngle);
-                    double derivative = 0;
-                    if(Math.abs(error) >= 5 && gotThere) {
-                        threadTime.reset();
-                        iterations++;
-                        if (iterations > 1) {
-                            integral += threadTime.time() * (error - lastError);
-                            derivative = threadTime.time() / (error - lastError);
+            point[0] = -2;
+            point[1] = 2;
+
+            vuforiaInit(); // Initialize Vuforia
+            detectInit(); // Initialize TensorFlwo
+
+            update = new Thread() {
+                @Override
+                public synchronized void run() {
+                    while (!doTelemetry) {
+                        try {
+                            sleep(100);
+                        } catch (Exception p_exception) {
+                            Thread.currentThread().interrupt();
                         }
-                        if(Math.abs(integral) >= 200) {
+                    }
+                    String active = null;
+                    try {
+                        active = manager.getActiveOpModeName();
+                    } catch (Exception p_exception) {
+                        manager = null;
+                    }
+                    while(opModeIsActive() && !Thread.currentThread().isInterrupted() && elapsedTime.time() <= 32 && doTelemetry && ((active == null || manager == null || manager.getActiveOpModeName().equalsIgnoreCase(active)))) {
+                        try {
+                            String tmy = "Run Time: " + elapsedTime.toString() + "\n";
+                            tmy += "Motors" + "\n";
+                            tmy += "    rr: " + robot.rrWheel.getCurrentPosition() + "\n";
+                            tmy += "    rf: " + robot.rfWheel.getCurrentPosition() + "\n";
+                            tmy += "    lr: " + robot.lrWheel.getCurrentPosition() + "\n";
+                            tmy += "    lf: " + robot.lfWheel.getCurrentPosition() + "\n";
+                            tmy += "    h1: " + robot.hangOne.getCurrentPosition() + "\n";
+                            tmy += "    em: " + robot.extend.getCurrentPosition() + "\n";
+                            tmy += "    so: " + robot.box.getCurrentPosition() + "\n";
+                            tmy += "    intake: " + (gamepad1.right_trigger) + ", " + robot.intake.getCurrentPosition() + "\n";
+                            tmy += "    outtake: " + (gamepad1.left_trigger) + "\n";
+                            tmy += "Servos" + "\n";
+                            tmy += "    fm, actual: " + (180 * (robot.boxPotentiometer.getVoltage() / 3.3)) + "\n";
+                            tmy += "    fm, intended: " + boxPos + "\n";
+                            tmy += "    tm: " + robot.teamFlag.getPosition() + "\n";
+                            tmy += "Gyro Data" + "\n";
+                            tmy += "    Robot angle: " + getAngle() + "\n";
+                            tmy += "    X acceleration: " + ((robot.gyro0.getGravity().xAccel + robot.gyro1.getGravity().xAccel) / 2) + "\n";
+                            tmy += "    Y acceleration: " + ((robot.gyro0.getGravity().yAccel + robot.gyro1.getGravity().yAccel) / 2) + "\n";
+                            tmy += "    Z acceleration: " + ((robot.gyro0.getGravity().zAccel + robot.gyro1.getGravity().zAccel) / 2) + "\n";
+                            tmy += "Sensors" + "\n";
+                            tmy += "     MR Range Sensor: " + robot.getUSDistance() + "\n";
+                            tmy += "     REV 2m Distance Sensor: " + robot.getREVDistance() + "\n";
+                            //tmy += "Extender limit switch voltage: " + robot.extenderSensor.getVoltage();
+                            telemetry.addData("", tmy);
+                        } catch (Exception p_exception) {
+                            telemetry.addData("Uh oh", "The driver controller was unable to communicate via telemetry.  For help, please seek a better programmer.");
+                        }
+                        telemetry.update();
+                    }
+                }
+
+                private double getAngle() {
+                    double robotAngle;
+                    Orientation g0angles = null;
+                    Orientation g1angles = null;
+                    if (robot.gyro0 != null) {
+                        g0angles = robot.gyro0.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES); // Get z axis angle from first gyro (in radians so that a conversion is unnecessary for proper employment of Java's Math class)
+                    }
+                    if (robot.gyro1 != null) {
+                        g1angles = robot.gyro1.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES); // Get z axis angle from second gyro (in radians so that a conversion is unnecessary for proper employment of Java's Math class)
+                    }
+                /*
+                if(g0angles != null && g1angles != null && g0angles.firstAngle == 0 && Math.abs(g1angles.firstAngle) >= 10) {
+                    robot.gyro0 = null;
+                    g0angles = null;
+                }
+                else if(g0angles != null && g1angles != null && g1angles.firstAngle == 0 && Math.abs(g0angles.firstAngle) >= 10) {
+                    robot.gyro1 = null;
+                    g1angles = null;
+                }
+                */
+                    if (g0angles != null && g1angles != null) {
+                        robotAngle = ((g0angles.firstAngle + g1angles.firstAngle) / 2); // Average angle measures to determine actual robot angle
+                    } else if (g0angles != null) {
+                        robotAngle = g0angles.firstAngle;
+                    } else if (g1angles != null) {
+                        robotAngle = g1angles.firstAngle;
+                    } else {
+                        robotAngle = 0;
+                    }
+                    return robotAngle;
+                }
+            };
+            box = new Thread() {
+                private ElapsedTime threadTime = new ElapsedTime();
+                private double iterations = 0;
+                private double integral = 0;
+                private double lastError = 0;
+
+                @Override
+                public synchronized void run() {
+                    threadTime.reset();
+                    while (!doBox) {
+                        try {
+                            sleep(100);
+                        } catch (Exception p_exception) {
+                            Thread.currentThread().interrupt();
+                        }
+                    }
+                    String active = null;
+                    try {
+                        active = manager.getActiveOpModeName();
+                    } catch (Exception p_exception) {
+                        manager = null;
+                    }
+                    while (Math.abs(robot.boxPotentiometer.getVoltage() - (3.3 * (boxPos / 180.0))) <= 0.0917) {
+                        try {
+                            sleep(50);
+                        } catch (Exception p_exception) {
+                            doBox = false;
+                            Thread.currentThread().interrupt();
+                            break;
+                        }
+                    }
+                    boolean gotThere = true;
+                    while (!Thread.currentThread().isInterrupted() && elapsedTime.time() <= 32 && doBox && ((active == null || manager == null || manager.getActiveOpModeName().equalsIgnoreCase(active)))) {
+                        if (boxPos >= 115 || boxPos == 75) {
+                            robot.box.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+                        } else {
+                            robot.box.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+                        }
+                        if (gotThere) {
+                            gotThere = !((boxPos == 75 && (180 * robot.boxPotentiometer.getVoltage() / 3.3) >= 70 && (180 * robot.boxPotentiometer.getVoltage() / 3.3) <= 80) || (boxPos >= 120 && (180 * robot.boxPotentiometer.getVoltage() / 3.3) >= 115));
+                        }
+                        if (threadReset) {
+                            gotThere = true;
+                            threadReset = false;
+                            iterations = 0;
                             integral = 0;
                         }
-                        if(Math.abs(derivative) >= 75) {
-                            derivative = 0;
-                        }
-                        if (error != 0) {
-                            derivative = Math.abs(derivative) * (error / Math.abs(error));
-                            integral = Math.abs(integral) * (error / Math.abs(error));
-                        }
-                        lastError = error;
-                        double PIDPower;
-                        if (boxPos >= 170 && currentAngle >= 170) {
+                        double currentAngle = 180 * (robot.boxPotentiometer.getVoltage() / 3.3);
+                        double error = -(boxPos - currentAngle);
+                        double derivative = 0;
+                        if (Math.abs(error) >= 5 && gotThere) {
+                            threadTime.reset();
+                            iterations++;
+                            if (iterations > 1) {
+                                integral += threadTime.time() * error;
+                                derivative = threadTime.time() / (error - lastError);
+                            }
+                            if (Math.abs(integral) >= 200) {
+                                integral = 0;
+                            }
+                            if (Math.abs(derivative) >= 75) {
+                                derivative = 0;
+                            }
+                            lastError = error;
+                            double PIDPower;
+                            if (boxPos >= 170 && currentAngle >= 170) {
+                                robot.box.setPower(0);
+                            } else {
+                                try {
+                                    PIDPower = (0.02 * error) + (0.005 * integral) + (0.025 * (derivative));
+                                } catch (Exception p_exception) {
+                                    PIDPower = (0.075 * error);
+                                }
+                                if (Math.abs(PIDPower) >= 0.09) {
+                                    robot.box.setPower(Range.clip(PIDPower, -robot.maxBoxSpeed * (7.0 / 12.0), robot.maxBoxSpeed));
+                                } else {
+                                    robot.box.setPower(0);
+                                }
+                            }
+                        } else {
                             robot.box.setPower(0);
                         }
-                        else {
-                            try {
-                                PIDPower = (0.02 * error) + (0.005 * integral) + (0.025 * (derivative));
-                            }
-                            catch (Exception p_exception) {
-                                PIDPower = (0.075 * error);
-                            }
-                            if(Math.abs(PIDPower) >= 0.09) {
-                                robot.box.setPower(Range.clip(PIDPower, -robot.maxBoxSpeed * (7.0 / 12.0), robot.maxBoxSpeed));
-                            }
-                            else {
-                                robot.box.setPower(0);
-                            }
-                        }
-                    }
-                    else {
-                        robot.box.setPower(0);
                     }
                 }
+            };
+            lights = new Thread() {
+                @Override
+                public synchronized void run() {
+                    while (!doTelemetry) {
+                        try {
+                            sleep(100);
+                        } catch (Exception p_exception) {
+                            Thread.currentThread().interrupt();
+                        }
+                    }
+                    String active = null;
+                    try {
+                        active = manager.getActiveOpModeName();
+                    } catch (Exception p_exception) {
+                        manager = null;
+                    }
+                    while(opModeIsActive() && !Thread.currentThread().isInterrupted() && elapsedTime.time() <= 32 && doTelemetry && ((active == null || manager == null || manager.getActiveOpModeName().equalsIgnoreCase(active)))) {
+                        robot.lights.update();
+                    }
+                }
+            };
+
+            GOFAutoTransitioner.transitionOnStop(this, "GOFTeleOp"); // Start TeleOp after autonomous ends
+
+            while (!gamepad1.x) {
+                telemetry.addData("Double Sampling is", (doubleSample ? "ON" : "OFF") + " - Press \"Y\" to change and \"X\" to finalize (on gamepad1)");
+                telemetry.update();
+                if (gamepad1.y && !yPressed) {
+                    doubleSample = !doubleSample;
+                    yPressed = true;
+                } else if (!gamepad1.y) {
+                    yPressed = false;
+                }
             }
-        };
+            while (gamepad1.x) {}
+            while (!gamepad1.x) {
+                telemetry.addData("Scoring is ", (score == 0 ? "DISABLED" : "ENABLED for " + score + "cycle" + (score == 1 ? "." : "s.")) + "  Press \"y\" to increase, \"a\" to decrease, and \"x\" to finalize (on gamepad 1).");
+                telemetry.update();
+                if (gamepad1.a && !xPressed) {
+                    xPressed = true;
+                    score--;
+                }
+                if (xPressed && !gamepad1.a) {
+                    xPressed = false;
+                }
+                if (gamepad1.y && !yPressed) {
+                    yPressed = true;
+                    score++;
+                }
+                if (yPressed && !gamepad1.y) {
+                    yPressed = false;
+                }
+            }
 
-        GOFAutoTransitioner.transitionOnStop(this, "GOFTeleOp"); // Start TeleOp after autonomous ends
-
-        while(!gamepad1.x) {
-            telemetry.addData("Double Sampling is", (doubleSample ? "ON" : "OFF") + " - Press \"Y\" to change and \"X\" to finalize (on gamepad1)");
+            telemetry.addData("Status: ", "Entering loop");
             telemetry.update();
-            if(gamepad1.y && !yPressed) {
-                doubleSample = !doubleSample;
-                yPressed = true;
+
+            if (!isStopRequested()) {
+                goldPos = detectGold();
             }
-            else if(!gamepad1.y){
-                yPressed = false;
-            }
-        }
-        while(gamepad1.x) {}
-        while(!gamepad1.x) {
-            telemetry.addData("Scoring is ", (score == 0 ? "DISABLED" : "ENABLED for " + score + "cycle" + (score == 1 ? "." : "s.")) + "  Press \"y\" to increase, \"a\" to decrease, and \"x\" to finalize (on gamepad 1).");
+
+            telemetry.addData("Status", "Initialized with gold position " + goldPos);
             telemetry.update();
-            if(gamepad1.a && !xPressed) {
-                xPressed = true;
-                score--;
+
+            waitForStart(); // Wait for user to press "PLAY"
+            robot.extend.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            robot.extend.setTargetPosition(150);
+            robot.extend.setPower(0.75);
+            update.start();
+            box.start();
+            lights.start();
+
+            elapsedTime.reset();
+            detector.shutdown();
+            //vuforia.close();
+
+            robot.playSound(goldPos);
+            if (robot.soundError) {
+                telemetry.addData("Error: ", "Unable to play sound.");
             }
-            if(xPressed && !gamepad1.a) {
-                xPressed = false;
+
+            /* Descend */
+            flipBox(neutral);
+            descend();
+            double passiveError = robot.box.getCurrentPosition();
+            while (opModeIsActive() && Math.abs((robot.box.getCurrentPosition() - passiveError)) <= ((1.5 * 1440) / (3 * Math.PI))) {
+                robot.rrWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                robot.rfWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                robot.lrWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                robot.lfWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                robot.setDrivePower(-0.5, 0.5, 0.5, -0.5);
             }
-            if(gamepad1.y && !yPressed) {
-                yPressed = true;
-                score++;
-            }
-            if(yPressed && !gamepad1.y) {
-                yPressed = false;
-            }
-        }
-
-        telemetry.addData("Status: ", "Entering loop");
-        telemetry.update();
-
-        if(!isStopRequested()) {
-            goldPos = detectGold();
-        }
-
-        telemetry.addData("Status", "Initialized with gold position " + goldPos);
-        telemetry.update();
-
-        waitForStart(); // Wait for user to press "PLAY"
-        robot.extend.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        robot.extend.setTargetPosition(-50);
-        robot.extend.setPower(0.75);
-        update.start();
-        box.start();
-
-        elapsedTime.reset();
-        detector.shutdown();
-        //vuforia.close();
-
-        robot.playSound(goldPos);
-        if (robot.soundError) {
-            telemetry.addData("Error: ", "Unable to play sound.");
-        }
-
-        /* Descend */
-        flipBox(neutral);
-        while(opModeIsActive() && robot.extend.isBusy()) {}
-        robot.extend.setPower(0);
-        robot.extend.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        robot.extend.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        descend();
-        double passiveError = robot.box.getCurrentPosition();
-        while(Math.abs((robot.box.getCurrentPosition() - passiveError)) <= ((1.5 * 1440) / (3 * Math.PI))) {
-            robot.rrWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            robot.rfWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            robot.lrWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            robot.lfWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            robot.setDrivePower(-0.5, 0.5, 0.5, -0.5);
-        }
-        robot.wheelBrake();
-        resetEncoders();
-        robot.hangOne.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        robot.hangOne.setTargetPosition(-1560);
-        robot.setHangPower(-1);
+            robot.wheelBrake();
+            resetEncoders();
+            robot.hangOne.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            robot.hangOne.setTargetPosition(-1560);
+            robot.setHangPower(-1);
         /*
         if(goldPos == 0) {
             while(goldPos == 0 && !robot.bottomSensor.isPressed() && robot.hangOne.isBusy() && opModeIsActive()) {}
@@ -344,32 +373,35 @@ public class GOFAutonomousCrater extends LinearOpMode {
             robot.setHangPower(-1);
         }
         */
-        turn(-getAngle(), 1);
-        flipBox(60);
+            turn(-getAngle(), 1);
+            flipBox(60);
 
 
-        /* Move to gold */
-        if (robot.rrWheel != null && robot.rfWheel != null && robot.lfWheel != null && robot.lrWheel != null && opModeIsActive()) {
-            goldPos = Range.clip(goldPos, -2, 1);
-            if (goldPos == -1) {
-                leftCraterAuto();
+            /* Move to gold */
+            if (robot.rrWheel != null && robot.rfWheel != null && robot.lfWheel != null && robot.lrWheel != null && opModeIsActive()) {
+                goldPos = Range.clip(goldPos, -2, 1);
+                if (goldPos == -1) {
+                    leftCraterAuto();
+                } else if (goldPos == 1) {
+                    rightCraterAuto();
+                } else if (goldPos == 0 || goldPos == -2) {
+                    goldPos = 0;
+                    centerCraterAuto();
+                }
+            } else {
+                telemetry.addData("Hardware problem detected", "A wheel is null, and I'm blaming hardware. Please fix it.");
+                telemetry.update();
             }
-            else if (goldPos == 1) {
-                rightCraterAuto();
-            }
-            else if (goldPos == 0 || goldPos == -2) {
-                goldPos = 0;
-                centerCraterAuto();
-            }
+            throw new InterruptedException("Program run complete");
         }
-        else {
-            telemetry.addData("Hardware problem detected", "A wheel is null, and I'm blaming hardware. Please fix it.");
-            telemetry.update();
+        catch(InterruptedException done) {
+            update.interrupt();
+            box.interrupt();
+            lights.interrupt();
         }
     }
 
     private void centerCraterAuto() {
-        flipBox(120);
         robot.setInPower(1);
         robot.intake.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         robot.intake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -378,13 +410,13 @@ public class GOFAutonomousCrater extends LinearOpMode {
         robot.setInPower(0);
         turn(-getAngle(), 1);
         double scored = 0;
-        while(scored < score) {
+        while (opModeIsActive() && scored < score) {
             score();
             scored++;
         }
         flipBox(60);
         robot.setInPower(0);
-        runBackToPoint(-5.2, -1, (float)0.5);
+        runBackToPoint(-5.2, -1, (float) 0.5);
         frontTurn(-getAngle() - 45, 5);
         die();
         depot = true;
@@ -392,14 +424,13 @@ public class GOFAutonomousCrater extends LinearOpMode {
         depot = false;
         robot.teamFlag.setPosition(0.99);
         sleep(1000);
-        if(doubleSample && opModeIsActive()) {
+        if (doubleSample && opModeIsActive()) {
             doubleSample();
         }
         park();
     }
 
     private void rightCraterAuto() {
-        flipBox(100);
         encoderMovePreciseTimed(-873, -646, -202, -846, 0.3, 1);
         resetEncoders();
         robot.intake.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -407,7 +438,7 @@ public class GOFAutonomousCrater extends LinearOpMode {
         telemetry.update();
         turn(-getAngle(), 1);
         double scored = 0;
-        while(scored < score) {
+        while(opModeIsActive() && scored < score) {
             score();
             scored++;
         }
@@ -441,13 +472,12 @@ public class GOFAutonomousCrater extends LinearOpMode {
     }
 
     private void leftCraterAuto() {
-        flipBox(100);
         encoderMovePreciseTimed(-873, -646, -202, -846, 0.3, 1);
         if(score != 0) {
             turn(-getAngle(), 1);
         }
         double scored = 0;
-        while(scored < score) {
+        while(opModeIsActive() && scored < score) {
             score();
             scored++;
         }
@@ -562,7 +592,7 @@ public class GOFAutonomousCrater extends LinearOpMode {
         robot.hangOne.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         int[] ePoses = {-600, -2200, -1000};
         if(goldPos == -2) {
-            goldPos = 0;
+            goldPos = 1;
         }
         robot.setHangPower(1);
         while(opModeIsActive() && robot.topSensor.getState()) {}
@@ -571,6 +601,10 @@ public class GOFAutonomousCrater extends LinearOpMode {
         robot.setInPower(0);
         resetEncoders();
         robot.hangOne.setMode(DcMotor.RunMode.RUN_TO_POSITION); // Set hang wheel back to run to position mode
+        robot.extend.setPower(0.1);
+        robot.extend.setTargetPosition(robot.extend.getCurrentPosition());
+        robot.extend.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.extend.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         if(goldPos == 0) {
             robot.extend.setTargetPosition((int)(0.5 * ePoses[goldPos + 1]));
             robot.extend.setPower(0.75);
@@ -582,10 +616,13 @@ public class GOFAutonomousCrater extends LinearOpMode {
             while (opModeIsActive() && robot.extend.isBusy()) {}
             sleep(1000);
             robot.setInPower(0.25);
-            flipBox(110);
-            robot.setInPower(0);
-            robot.extend.setTargetPosition((int)(0.5 * -75));
-            while(opModeIsActive() && robot.extend.isBusy()) {}
+            flipBox(80);
+            if (score == 0) {
+                robot.setInPower(0);
+                robot.extend.setTargetPosition((int) (0.5 * -75));
+                while (opModeIsActive() && robot.extend.isBusy()) {
+                }
+            }
         }
     }
 
@@ -646,64 +683,138 @@ public class GOFAutonomousCrater extends LinearOpMode {
                         }
                     }
                     if(updatedRecognitions.size() == 3) { // If there are three detected objects (the minerals)
+                        double goldConfidence = 0;
+                        double silverConfidence = 0;
+                        double silverConfidence2 = 0;
                         double goldMineralX = -987654; // Sets all of the object x positions to number well outside actual x range; if they still equal this number, they couldn't have been changed later in the code
                         double silverMineral1X = -987654;
                         double silverMineral2X = -987654;
                         for(Recognition recognition : updatedRecognitions) { // For each item in the list of recognized items
                             if (recognition.getLabel().equals(LABEL_GOLD_MINERAL)) { // If the item is gold....
                                 goldMineralX = (int)(recognition.getLeft()); // Set the gold x position to its x position
+                                goldConfidence = recognition.getConfidence();
                             }
                             else if (silverMineral1X == -987654) { // If the item is silver and no silver has been assigned an x position yet....
                                 silverMineral1X = (int)(recognition.getLeft()); // Set the first silver x position to its x position
+                                silverConfidence = recognition.getConfidence();
                             }
                             else { // If the item is silver and another silver has been found
                                 silverMineral2X = (int)(recognition.getLeft()); // Set the second silver x position to its x position
+                                silverConfidence2 = recognition.getConfidence();
                             }
                         }
                         if (goldMineralX != -987654 && silverMineral1X != -987654 && silverMineral2X != -987654) { // If all of the minerals have new x positions....
                             if (goldMineralX < silverMineral1X && goldMineralX < silverMineral2X) { // If gold has the lowest x position
                                 telemetry.addData("Gold Mineral Position?", "Left, x pos " + goldMineralX); // Tell phones it might be on the left
                                 goldPos = -1;
+                                robot.lights.pixels[0].setRGB((int)(96 * goldConfidence), (int)(32 * goldConfidence), (int)(0 * goldConfidence));  // Gold
+                                robot.lights.pixels[1].setRGB((int)(80 * silverConfidence), (int)(96 * silverConfidence), (int)(96 * silverConfidence));  // Silver
+                                robot.lights.pixels[2].setRGB((int)(80 * silverConfidence2), (int)(80 * silverConfidence2), (int)(80 * silverConfidence2));  // Silver
                             }
                             else if (goldMineralX > silverMineral1X && goldMineralX > silverMineral2X) { // If gold has the highest x position
                                 telemetry.addData("Gold Mineral Position?", "Right, x pos " + goldMineralX); // Tell phones it might be on the right
                                 telemetry.update();
                                 goldPos = 1;
+                                robot.lights.pixels[0].setRGB((int)(80 * silverConfidence), (int)(96 * silverConfidence), (int)(96 * silverConfidence));  // Silver
+                                robot.lights.pixels[1].setRGB((int)(80 * silverConfidence2), (int)(80 * silverConfidence2), (int)(80 * silverConfidence2));  // Silver
+                                robot.lights.pixels[2].setRGB((int)(96 * goldConfidence), (int)(32 * goldConfidence), (int)(0 * goldConfidence));  // Gold
                             }
                             else { // Otherwise....
                                 telemetry.addData("Gold Mineral Position?", "Center, x pos " + goldMineralX);
                                 telemetry.update();
                                 goldPos = 0;
+                                robot.lights.pixels[0].setRGB((int)(80 * silverConfidence), (int)(96 * silverConfidence), (int)(96 * silverConfidence));  // Silver
+                                robot.lights.pixels[1].setRGB((int)(96 * goldConfidence), (int)(32 * goldConfidence), (int)(0 * goldConfidence));  // Gold
+                                robot.lights.pixels[2].setRGB((int)(80 * silverConfidence2), (int)(80 * silverConfidence2), (int)(80 * silverConfidence2));  // Silver
                             }
                             telemetry.update();
                         }
                     }
                     else if (updatedRecognitions.size() == 2) { // If only left two are visible
+                        double goldConfidence = 0;
+                        double silverConfidence = 0;
+                        double silverConfidence2 = 0;
                         double goldMineralX = -987654; // Sets all of the object x positions to number well outside actual x range; if they still equal this number, they couldn't have been changed later in the code
                         double silverMineral1X = -987654;
                         double silverMineral2X = -987654;
                         for (Recognition recognition : updatedRecognitions) { // For each item in the list of recognized items
                             if (recognition.getLabel().equals(LABEL_GOLD_MINERAL)) { // If the item is gold....
                                 goldMineralX = (int)(recognition.getLeft()); // Set the gold x position to its x position (note that the phone's orientation reverses axes)
+                                goldConfidence = recognition.getConfidence();
                             } else if (silverMineral1X == -987654) { // If the item is silver and no silver has been assigned an x position yet....
                                 silverMineral1X = (int)(recognition.getLeft()); // Set the first silver x position to its x position
+                                silverConfidence = recognition.getConfidence();
                             } else {
                                 silverMineral2X = (int)(recognition.getLeft());
+                                silverConfidence2 = recognition.getConfidence();
                             }
                             if (silverMineral2X == -987654 && goldMineralX != -987654 && silverMineral1X != -987654) {
                                 if(goldMineralX > silverMineral1X) {
                                     telemetry.addData("Gold Mineral Position", "Center, x pos " + goldMineralX + "; silver x pos" + silverMineral1X);
                                     telemetry.update();
                                     goldPos = 0;
+                                    robot.lights.pixels[0].setRGB((int)(80 * silverConfidence), (int)(96 * silverConfidence), (int)(96 * silverConfidence));  // Silver
+                                    robot.lights.pixels[1].setRGB((int)(96 * goldConfidence), (int)(32 * goldConfidence), (int)(0 * goldConfidence));  // Gold
+                                    robot.lights.pixels[2].setRGB((int)(80 * silverConfidence2), (int)(80 * silverConfidence2), (int)(80 * silverConfidence2));  // Silver
                                 } else {
                                     telemetry.addData("Gold Mineral Position", "Left, x pos " + goldMineralX + "; silver x pos" + silverMineral1X);
                                     telemetry.update();
                                     goldPos = -1;
+                                    robot.lights.pixels[0].setRGB((int)(96 * goldConfidence), (int)(32 * goldConfidence), (int)(0 * goldConfidence));  // Gold
+                                    robot.lights.pixels[1].setRGB((int)(80 * silverConfidence), (int)(96 * silverConfidence), (int)(96 * silverConfidence));  // Silver
+                                    robot.lights.pixels[2].setRGB((int)(80 * silverConfidence2), (int)(80 * silverConfidence2), (int)(80 * silverConfidence2));  // Silver
                                 }
                             } else if (silverMineral2X != -987654) {
-                                telemetry.addData("Gold Mineral Position", "Right, x pos " + goldMineralX);
+                                telemetry.addData("Gold Mineral Position", "Right; silver x positions " + silverMineral1X + ", " + silverMineral2X);
                                 telemetry.update();
                                 goldPos = 1;
+                                robot.lights.pixels[0].setRGB((int)(80 * silverConfidence2), (int)(80 * silverConfidence2), (int)(80 * silverConfidence2));  // Silver
+                                robot.lights.pixels[1].setRGB((int)(80 * silverConfidence), (int)(96 * silverConfidence), (int)(96 * silverConfidence));  // Silver
+                                robot.lights.pixels[2].setRGB((int)(96 * goldConfidence), (int)(32 * goldConfidence), (int)(0 * goldConfidence));  // Gold
+                            }
+                        }
+                    }
+                    else if(updatedRecognitions.size() == 1) { // If only one is visible
+                        double goldConfidence = 0;
+                        double silverConfidence = 0;
+                        double silverConfidence2 = 0;
+                        double goldMineralX = -987654; // Sets all of the object x positions to number well outside actual x range; if they still equal this number, they couldn't have been changed later in the code
+                        double silverMineral1X = -987654;
+                        double silverMineral2X = -987654;
+                        for (Recognition recognition : updatedRecognitions) { // For each item in the list of recognized items
+                            if (recognition.getLabel().equals(LABEL_GOLD_MINERAL)) { // If the item is gold....
+                                goldMineralX = (int)(recognition.getLeft()); // Set the gold x position to its x position (note that the phone's orientation reverses axes)
+                                goldConfidence = recognition.getConfidence();
+                            } else if (silverMineral1X == -987654) { // If the item is silver and no silver has been assigned an x position yet....
+                                silverMineral1X = (int)(recognition.getLeft()); // Set the first silver x position to its x position
+                                silverConfidence = recognition.getConfidence();
+                            } else {
+                                silverMineral2X = (int)(recognition.getLeft());
+                                silverConfidence2 = recognition.getConfidence();
+                            }
+                            if (goldMineralX != -987654) {
+                                if(goldMineralX > 300) {
+                                    telemetry.addData("Gold Mineral Position", "Center, x pos " + goldMineralX + "; silver x pos" + silverMineral1X);
+                                    telemetry.update();
+                                    goldPos = 0;
+                                    robot.lights.pixels[0].setRGB((int)(80 * silverConfidence), (int)(96 * silverConfidence), (int)(96 * silverConfidence));  // Silver
+                                    robot.lights.pixels[1].setRGB((int)(96 * goldConfidence), (int)(32 * goldConfidence), (int)(0 * goldConfidence));  // Gold
+                                    robot.lights.pixels[2].setRGB((int)(80 * silverConfidence2), (int)(80 * silverConfidence2), (int)(80 * silverConfidence2));  // Silver
+                                } else {
+                                    telemetry.addData("Gold Mineral Position", "Left, x pos " + goldMineralX + "; silver x pos" + silverMineral1X);
+                                    telemetry.update();
+                                    goldPos = -1;
+                                    robot.lights.pixels[0].setRGB((int)(96 * goldConfidence), (int)(32 * goldConfidence), (int)(0 * goldConfidence));  // Gold
+                                    robot.lights.pixels[1].setRGB((int)(80 * silverConfidence), (int)(96 * silverConfidence), (int)(96 * silverConfidence));  // Silver
+                                    robot.lights.pixels[2].setRGB((int)(80 * silverConfidence2), (int)(80 * silverConfidence2), (int)(80 * silverConfidence2));  // Silver
+                                }
+                            } else {
+                                telemetry.addData("Gold Mineral Position", "Right; silver x positions " + silverMineral1X + ", " + silverMineral2X);
+                                telemetry.update();
+                                goldPos = 1;
+                                robot.lights.pixels[0].setRGB((int)(80 * silverConfidence2), (int)(80 * silverConfidence2), (int)(80 * silverConfidence2));  // Silver
+                                robot.lights.pixels[1].setRGB((int)(80 * silverConfidence), (int)(96 * silverConfidence), (int)(96 * silverConfidence));  // Silver
+                                robot.lights.pixels[2].setRGB((int)(96 * goldConfidence), (int)(32 * goldConfidence), (int)(0 * goldConfidence));  // Gold
                             }
                         }
                     }
@@ -786,6 +897,7 @@ public class GOFAutonomousCrater extends LinearOpMode {
 
     private void score() {
         if(opModeIsActive() && elapsedTime.time() <= (goldPos == 0 ? 20 : 15)) {
+            encoderMovePreciseTimed(-180, -180, -180, -180, 1, 1.5);
             flipBox(80);
             robot.extend.setTargetPosition((int)(0.5 * -3100));
             robot.extend.setPower(0.75);
@@ -793,29 +905,32 @@ public class GOFAutonomousCrater extends LinearOpMode {
             flipBox(120);
             robot.setInPower(1);
             sleep(750);
-            turn(10, 2);
-            turn(-20, 2);
-            turn(10, 2);
+            turn(25, 2);
+            turn(-50, 2);
+            turn(25, 2);
+            resetEncoders();
             flipBox(neutral);
             robot.setInPower(0.35);
             robot.extend.setTargetPosition(0);
             robot.extend.setPower(0.75);
             while(opModeIsActive() && robot.extend.isBusy() && robot.extenderSensor.getVoltage() <= 2) {}
             robot.extend.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            flipBox(30);
+            flipBox(25);
             robot.extend.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            sleep(500);
+            sleep(1000);
             flipBox(neutral);
             robot.hangOne.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             robot.hangOne.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             robot.hangOne.setTargetPosition(1300);
             robot.setHangPower(1);
-            encoderMovePreciseTimed(873, 646, 202, 846, 0.3, 1);
+            resetEncoders();
+            encoderMovePreciseTimed(873 + 180, 646 + 180, 202 + 180, 846 + 180, 0.3, 1);
             resetEncoders();
             robot.hangOne.setTargetPosition(1455);
             while(opModeIsActive() && (robot.hangOne.isBusy() && robot.topSensor.getState())) {}
-            sleep(500);
+            robot.hangBrake();
             robot.hangOne.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            sleep(500);
             robot.setHangPower(-1);
             encoderMovePreciseTimed(-873, -646, -202, -846, 0.3, 1);
             turn(-getAngle(), 1);
@@ -825,55 +940,25 @@ public class GOFAutonomousCrater extends LinearOpMode {
     }
 
     private void doubleSample() {
-        double value = goldPos == 1 ? 16 : (goldPos == -1 ? 43 : 29);
-        robot.box.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        robot.box.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        double roc = Double.MAX_VALUE;
-        double doc = 0;
-        double noc;
-        while(opModeIsActive() && roc > 10) {
-            noc = doc;
-            double first = robot.box.getCurrentPosition();
-            robot.rrWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            robot.rfWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            robot.lrWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            robot.lfWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            robot.setDrivePower(-0.75, 0.8, 0.75, -0.8);
-            sleep(250);
-            double now = robot.box.getCurrentPosition();
-            roc = Math.abs(first - now);
-            if(roc != 0) {
-                doc = (first - now) / roc;
+        double value = goldPos == 1 ? 100 : (goldPos == -1 ? 42 : 67);
+        while(opModeIsActive() && robot.getUSDistance() + 5 <= value || robot.getUSDistance() - 5 >= value) {
+            double error = (robot.getUSDistance() - value) / 10;
+            robot.setDrivePower(-error, -error, -error, -error);
+            turn(-getAngle() - 45 - 90, 4);
+            if(goldPos != 1) {
+                flipBox(120);
+                robot.setInPower(1);
+                sleep(250);
+                robot.extend.setTargetPosition(-1500);
+                robot.extend.setPower(1);
+                while (opModeIsActive() && robot.extend.isBusy()) {}
+                robot.extend.setTargetPosition(-100);
+                while(opModeIsActive() && robot.extend.isBusy() && robot.extenderSensor.getVoltage() <= 2) {}
+                flipBox(60);
             }
-            if(noc != doc && noc != 0 && doc != 0) {
-                break;
-            }
+            turn(-getAngle() - 45, 4);
+
         }
-        robot.wheelBrake();
-        sleep(150);
-        robot.box.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        robot.box.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        while(opModeIsActive() && Math.abs(robot.box.getCurrentPosition()) <= value * 1440 / (3 * Math.PI)) {
-            robot.rrWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            robot.rfWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            robot.lrWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            robot.lfWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            robot.setDrivePower(0.5, -0.5, -0.5, 0.5);
-        }
-        robot.wheelBrake();
-        robot.flipBox(120);
-        robot.setInPower(1);
-        robot.extend.setTargetPosition((int)(0.5 * -2800));
-        robot.extend.setPower(0.75);
-        runToPoint(point[0], point[1] + 2);
-        while(robot.extend.isBusy() && opModeIsActive()) {}
-        encoderMovePreciseTimed(0, 0.5, 2);
-        robot.flipBox(neutral);
-        robot.extend.setTargetPosition(0);
-        while(robot.extenderSensor.getVoltage() <= 2) {}
-        robot.extend.setPower(0);
-        resetEncoders();
-        die();
     }
 
     private void runToPoint(double newX, double newY) {
@@ -1464,6 +1549,8 @@ public class GOFAutonomousCrater extends LinearOpMode {
             robotAngle = g1angles.firstAngle;
         } else {
             robotAngle = 0;
+            requestOpModeStop();
+            while(opModeIsActive()) {}
         }
         return robotAngle;
     }
@@ -1736,13 +1823,28 @@ public class GOFAutonomousCrater extends LinearOpMode {
                 double Kd = 0.02;
                 double i = 0;
                 double lastError = 0;
+                double maxSpeed = robot.maxDriveSpeed;
                 ElapsedTime limitTest = new ElapsedTime();
                 try {
                     robot.setDrivePower((pos / Math.abs(pos)) * speed, (pos / Math.abs(pos)) * speed, (pos / Math.abs(pos)) * speed, (pos / Math.abs(pos)) * speed);
                 } catch (Exception p_exception) {
                     robot.setDrivePower(speed, speed, speed, speed);
                 }
-                while(Math.abs(((robot.rrWheel.getCurrentPosition() + robot.rfWheel.getCurrentPosition() + robot.lrWheel.getCurrentPosition() + robot.lfWheel.getCurrentPosition()) / 4)) <= Math.abs(pos) && opModeIsActive() && limitTest.time() < timeLimit && elapsedTime.time() <= 29.5) {
+                while(Math.abs(((robot.rrWheel.getCurrentPosition() + robot.rfWheel.getCurrentPosition() + robot.lrWheel.getCurrentPosition() + robot.lfWheel.getCurrentPosition()) / 4)) <= Math.abs(pos) && opModeIsActive() && elapsedTime.time() <= 29.5) {
+                    double error = Math.abs(robot.rrWheel.getCurrentPosition() - robot.rrWheel.getTargetPosition()) / 500.0;
+                    if(error <= 0.25) {
+                        error = 0.25;
+                    }
+                    if(!(speed >= maxSpeed) && !(error <= speed)) {
+                        speed += 0.05;
+                    }
+                    else {
+                        speed = Math.min(error, Math.abs(maxSpeed));
+                    }
+                    if(depot && robot.getUSDistance() <= 57 && robot.getUSDistance() >= 40) {
+                        robot.setDrivePower(0, 0, 0, 0);
+                        break;
+                    }
                     if(Math.abs(getAngle() - startAngle) >= 7) {
                         robot.rrWheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                         robot.rfWheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -1750,24 +1852,13 @@ public class GOFAutonomousCrater extends LinearOpMode {
                         robot.lrWheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                         double angleError = getAngle() - startAngle;
                         try {
-                            if (Math.abs(angleError) > 180 && (Math.abs(getAngle()) / getAngle()) != (Math.abs(startAngle) / startAngle)) {
+                            if(Math.abs(angleError) > 180 && (Math.abs(getAngle()) / getAngle()) != (Math.abs(startAngle) / startAngle)) {
                                 angleError += angleError > 0 ? -360 : 360;
                             }
                         }
                         catch (Exception p_exception) {} // If an error happens, that means that either our current angle or initial angle was zero, so the error calculation should be accurate anyway
                         double right = getPower(robot.rrWheel);
                         double left = getPower(robot.lfWheel);
-                        double error = Math.abs(robot.rrWheel.getCurrentPosition() - robot.rrWheel.getTargetPosition()) / 500.0;
-                        if(error <= 0.25) {
-                            error = 0.25;
-                        }
-                        double maxSpeed = robot.maxDriveSpeed;
-                        if(!(speed >= maxSpeed) && !(error <= speed)) {
-                            speed += 0.05;
-                        }
-                        else {
-                            speed = Math.min(error, Math.abs(maxSpeed));
-                        }
                         try {
                             robot.setDrivePower((pos / Math.abs(pos)) * speed, (pos / Math.abs(pos)) * speed, (pos / Math.abs(pos)) * speed, (pos / Math.abs(pos)) * speed);
                         }
@@ -1785,9 +1876,16 @@ public class GOFAutonomousCrater extends LinearOpMode {
                         robot.setDrivePower(left, left, right, right);
                         lastError = angleError;
                         delta.reset();
-                        if(depot && robot.getUSDistance() <= 57 && robot.getUSDistance() >= 40) {
-                            robot.setDrivePower(0, 0, 0, 0);
-                            break;
+                    }
+                    else {
+                        robot.rrWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                        robot.rfWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                        robot.lfWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                        robot.lrWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                        try {
+                            robot.setDrivePower((pos / Math.abs(pos)) * speed, (pos / Math.abs(pos)) * speed, (pos / Math.abs(pos)) * speed, (pos / Math.abs(pos)) * speed);
+                        } catch (Exception p_exception) {
+                            robot.setDrivePower(speed, speed, speed, speed);
                         }
                     }
                 }
@@ -1802,13 +1900,13 @@ public class GOFAutonomousCrater extends LinearOpMode {
             }
         }
         else {
-            stop();
+            throw new IllegalStateException();
         }
     }
 
     private double getPower(DcMotor motor) {
         try {
-            double power = (Math.abs(motor.getPower()) / motor.getPower()) * (Math.abs(motor.getTargetPosition()) - Math.abs(motor.getCurrentPosition())) / 100;
+            double power = (Math.abs(motor.getPower()) / motor.getPower()) * (Math.abs(motor.getTargetPosition()) - Math.abs(motor.getCurrentPosition())) / 500.0;
             if(Math.abs(power) >= 0.1) {
                 return(Range.clip(power, -1, 1));
             }

@@ -10,7 +10,6 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
-import org.firstinspires.ftc.robotcore.internal.opmode.OpModeManagerImpl;
 
 // @SuppressWarnings({"WeakerAccess", "SpellCheckingInspection", "EmptyCatchBlock", "StatementWithEmptyBody", "SameParameterValue"})
 @TeleOp(name="GOFTeleOp", group="GOF")
@@ -35,17 +34,20 @@ public class GOFTeleOp extends OpMode {
     private             double              lastError           = 0;
     private             double              maxDriveSpeed;
     private             double              dump                = 30;
-    private             double              intake              = 120;
+    private             double              intake              = 140;
     private             double              neutral             = 65;
     private             double              offset              = 2.5;
-    private             double              Kp                  = 0.02;
-    private             double              Ki                  = 0;
-    private             double              Kd                  = 0;
+    private             double              Kp                  = 0.038;
+    private             double              Ki                  = 0.0125;
+    private             double              Kd                  = 0.03;
+    private volatile    double              x                   = -2;
+    private volatile    double              y                   = 2;
 
     private             ElapsedTime         hangTime            = new ElapsedTime();
     private             ElapsedTime         trigTime            = new ElapsedTime();
     private volatile    ElapsedTime         threadTime          = new ElapsedTime();
     private volatile    ElapsedTime         elapsedTime         = new ElapsedTime();
+    private             ElapsedTime         lightsTime          = new ElapsedTime();
 
     public              GOFHardware         robot               = GOFHardware.getInstance(); // Use the GOFHardware class
 
@@ -59,9 +61,13 @@ public class GOFTeleOp extends OpMode {
         msStuckDetectInit = 10000; // Allow gyros to calibrate
         robot.init(hardwareMap);
         // robot.setKickPower(kickReadyPos);
-        robot.teamFlag.setPosition(0.05);
+        if(robot.teamFlag != null) {
+            robot.teamFlag.setPosition(0.05);
+        }
         maxDriveSpeed = robot.maxDriveSpeed;
-        boxPos = 180 * (robot.boxPotentiometer.getVoltage() / 3.3);
+        if(robot.boxPotentiometer != null) {
+            boxPos = 180 * (robot.boxPotentiometer.getVoltage() / 3.3);
+        }
         telemetry.addData("Status", "Initialized"); // Update phone
     }
 
@@ -85,9 +91,12 @@ public class GOFTeleOp extends OpMode {
                         Thread.currentThread().interrupt();
                     }
                 }
-                while(doTelemetry && elapsedTime.time() < 5) {
+                while(!Thread.currentThread().isInterrupted() && doTelemetry && elapsedTime.time() < 5) {
                     try {
                         String tmy = "";
+                      //  tmy += "Current Point" + "\n";
+                      //  tmy += "    x: " + x;
+                      //  tmy += "    y: " + y;
                         tmy += "Motors" + "\n";
                         tmy += "    rr: " + robot.rrWheel.getCurrentPosition() + "\n";
                         tmy += "    rf: " + robot.rfWheel.getCurrentPosition() + "\n";
@@ -103,8 +112,9 @@ public class GOFTeleOp extends OpMode {
                         tmy += "    fm, intended: " + boxPos + "\n";
                         tmy += "    tm: " + robot.teamFlag.getPosition() + "\n";
                         tmy += "Sensors" + "\n";
-                        tmy += "     MR Range Sensor: " + robot.getUSDistance() + "\n";
-                        tmy += "     REV 2m Distance Sensor: " + robot.getREVDistance() + "\n";
+                        tmy += "     es: " + robot.extenderSensor.getVoltage() + "\n";
+                       // tmy += "     MR Range Sensor: " + robot.getUSDistance() + "\n";
+                       // tmy += "     REV 2m Distance Sensor: " + robot.getREVDistance() + "\n";
                         telemetry.addData("", tmy);
                         telemetry.update();
                         sleep(0);
@@ -115,9 +125,67 @@ public class GOFTeleOp extends OpMode {
                     }
                     telemetry.update();
                 }
+                try {
+                    while(!Thread.currentThread().isInterrupted() && doTelemetry && elapsedTime.time() < 5) {
+                        telemetry.addData("Elapsed Time", lightsTime.time());
+                        telemetry.update();
+                    }
+                }
+                catch(Exception ignore) {}
             }
         };
         update.start();
+        /*
+        Thread trackPoint = new Thread() {
+            public synchronized void run() {
+                double lastAngle = getAngle();
+                while(robot.box != null && robot.intake != null && elapsedTime.time() < 5 && !Thread.currentThread().isInterrupted()) {
+                    double currentAngle = getAngle();
+                    double deltaTheta = currentAngle - lastAngle;
+                    double xDist = (robot.box.getCurrentPosition() - (5 * deltaTheta));
+                    double yDist = (robot.intake.getCurrentPosition());
+                    double angle = getAngle() - 90.0 - (deltaTheta / 2.0);
+                    x += yDist * Math.sin(Math.toRadians(angle)) + xDist * Math.sin(Math.toRadians(90 - angle));
+                    y += yDist * Math.cos(Math.toRadians(angle)) + xDist * Math.cos(Math.toRadians(90 - angle));
+                    lastAngle = currentAngle;
+                }
+            }
+            private double getAngle() {
+                double robotAngle;
+                Orientation g0angles = null;
+                Orientation g1angles = null;
+                if (robot.gyro0 != null) {
+                    g0angles = robot.gyro0.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES); // Get z axis angle from first gyro (in radians so that a conversion is unnecessary for proper employment of Java's Math class)
+                }
+                if (robot.gyro1 != null) {
+                    g1angles = robot.gyro1.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES); // Get z axis angle from second gyro (in radians so that a conversion is unnecessary for proper employment of Java's Math class)
+                }
+                if (g0angles != null && g1angles != null) {
+                    robotAngle = ((g0angles.firstAngle + g1angles.firstAngle) / 2); // Average angle measures to determine actual robot angle
+                } else if (g0angles != null) {
+                    robotAngle = g0angles.firstAngle;
+                } else if (g1angles != null) {
+                    robotAngle = g1angles.firstAngle;
+                } else {
+                    robotAngle = 0;
+                }
+                return robotAngle;
+            }
+        };
+        trackPoint.start();
+        */
+        Thread lights = new Thread() {
+            @Override
+            public synchronized void run() {
+                while(elapsedTime.time() < 5 && !Thread.currentThread().isInterrupted()) {
+                    if(robot.lights != null) {
+                        robot.lights.update();
+                    }
+                }
+            }
+        };
+        lights.start();
+        lightsTime.reset();
     }
 
     @Override
@@ -248,7 +316,7 @@ public class GOFTeleOp extends OpMode {
             }
         }
 
-        if(gamepad2.x && !robot.bottomSensor.isPressed()) {
+        if(gamepad2.x && robot.bottomSensor != null && !robot.bottomSensor.isPressed()) {
             hangDown = true;
         }
 
@@ -260,12 +328,12 @@ public class GOFTeleOp extends OpMode {
             hangDown = false;
         }
 
-        if(robot.bottomSensor.isPressed() && hangDown) {
+        if(robot.bottomSensor != null && robot.bottomSensor.isPressed() && hangDown) {
             robot.setHangPower(0);
             hangDown = false;
         }
 
-        if(robot.hangOne.getPower() > 0.05) {
+        if(robot.hangOne != null && robot.hangOne.getPower() > 0.05) {
             flipBox(neutral);
         }
 
@@ -274,7 +342,8 @@ public class GOFTeleOp extends OpMode {
         }
 
         if(!servoMove) {
-            robot.setExtendPower((Math.abs(gamepad2.right_stick_x) < 0.05 ? gamepad2.dpad_right ? 0.25 : gamepad2.dpad_left ? -0.25 : gamepad1.x ? -1 : gamepad1.b ? 1 : 0 : gamepad2.right_stick_x));
+            double extendDrive = (Math.abs(gamepad2.right_stick_x) < 0.05 ? gamepad2.dpad_right ? 0.25 : gamepad2.dpad_left ? -0.25 : gamepad1.x ? -1 : gamepad1.b ? 1 : 0 : gamepad2.right_stick_x);
+            robot.setExtendPower(extendDrive);
         }
 
         if(((Math.abs(gamepad2.right_stick_x) < 0.05 ? gamepad2.dpad_right ? 0.25 : gamepad2.dpad_left ? -0.25 : gamepad1.x ? -1 : gamepad1.b ? 1 : 0 : gamepad2.right_stick_x)) != 0) {
@@ -324,24 +393,28 @@ public class GOFTeleOp extends OpMode {
             aPressed = false;
         }
 
-        if(servoMove && !(robot.extenderSensor.getVoltage() > 2)) {
+        if(servoMove && robot.extend != null && !(robot.extenderSensor.getVoltage() > 2)) {
             robot.setExtendPower(1);
         }
 
-        if(servoMove && !(robot.bottomSensor.isPressed())) {
+        if(servoMove && robot.bottomSensor != null && !(robot.bottomSensor.isPressed())) {
             robot.setHangPower(-1);
         }
 
-        if(robot.extenderSensor.getVoltage() > 2 && servoMove) {
+        if(robot.extenderSensor != null && robot.extenderSensor.getVoltage() > 2 && servoMove) {
             robot.setExtendPower(0);
-            if(robot.bottomSensor.isPressed()) {
+            if(robot.bottomSensor != null && robot.bottomSensor.isPressed()) {
                 robot.setHangPower(0);
                 servoMove = false;
                 flipBox(dump);
             }
         }
 
-        if(robot.bottomSensor.isPressed() && servoMove) {
+        if(!servoMove && robot.extend.getPower() == 0) {
+            robot.extend.setPower(0.1);
+        }
+
+        if(robot.bottomSensor != null && robot.bottomSensor.isPressed() && servoMove) {
             robot.setHangPower(0);
             if(robot.extenderSensor.getVoltage() > 2) {
                 servoMove = false;
@@ -350,7 +423,7 @@ public class GOFTeleOp extends OpMode {
             }
         }
 
-        if(servoMove && robot.bottomSensor.isPressed() && robot.extenderSensor.getVoltage() > 2) {
+        if(servoMove && robot.bottomSensor != null && robot.bottomSensor.isPressed() && robot.extenderSensor != null && robot.extenderSensor.getVoltage() > 2) {
             robot.setHangPower(0);
             robot.setExtendPower(0);
             servoMove = false;
@@ -360,7 +433,36 @@ public class GOFTeleOp extends OpMode {
         if(hangTime.time() >= 0.75) {
             hanging = true;
         }
-
+        if(robot.bottomSensor.isPressed() && boxPos != dump && robot.intake.getPower() == 0) {
+            robot.setInPower(0.25);
+        }
+        if(robot.lights != null) {
+            if (lightsTime.time() >= 100 && lightsTime.time() <= 110) {
+                if (robot.lights != null && (iterations / 90) % 2 == 0) {
+                    robot.lights.pixels[0].setRGB(60, 0, 60);
+                    robot.lights.pixels[2].setRGB(60, 0, 60);
+                } else if (robot.lights != null) {
+                    robot.lights.pixels[0].setRGB(0, 0, 0);
+                    robot.lights.pixels[2].setRGB(0, 0, 0);
+                }
+            } else if (lightsTime.time() >= 110 && lightsTime.time() <= 115) {
+                if (robot.lights != null && (iterations / 90) % 2 == 0) {
+                    robot.lights.pixels[0].setRGB(60, 0, 0);
+                    robot.lights.pixels[2].setRGB(60, 0, 0);
+                } else if (robot.lights != null) {
+                    robot.lights.pixels[0].setRGB(0, 0, 0);
+                    robot.lights.pixels[2].setRGB(0, 0, 0);
+                }
+            } else if (lightsTime.time() >= 115) {
+                if ((iterations / 45) % 2 == 0) {
+                    robot.lights.pixels[0].setRGB(255, 0, 0);
+                    robot.lights.pixels[2].setRGB(255, 0, 0);
+                } else if (robot.lights != null) {
+                    robot.lights.pixels[0].setRGB(0, 0, 0);
+                    robot.lights.pixels[2].setRGB(0, 0, 0);
+                }
+            }
+        }
         iterations++;
         checkBox();
     }
@@ -435,53 +537,52 @@ public class GOFTeleOp extends OpMode {
     }
 
     private void checkBox() {
-        if(boxPos >= 115) {
-            robot.box.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        }
-        else {
-            robot.box.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        }
-        robot.box.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        double currentAngle = 180 * (robot.boxPotentiometer.getVoltage() / 3.3);
-        double error = -(boxPos - currentAngle);
-        double derivative = 0;
-        if(Math.abs(error) >= offset && !gotThere) {
-            if(iterations > 1) {
-                integral += threadTime.time() * (lastError - error);
-                derivative = (error - lastError) / threadTime.time();
-                if(Math.abs(derivative) >= 50) {
-                    derivative = 0;
-                }
-                if(Math.abs(integral) >= 50) {
-                    integral = 0;
-                }
-                if(error != 0) {
-                    derivative = Math.abs(derivative) * (error / Math.abs(error));
-                    integral = Math.abs(integral) * (error / Math.abs(error));
-                }
+        if(robot.box != null) {
+            if (boxPos >= 115) {
+                robot.box.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+            } else {
+                robot.box.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
             }
-            lastError = error;
-            double PIDPower;
+            robot.box.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            double currentAngle = 180 * (robot.boxPotentiometer.getVoltage() / 3.3);
+            double error = -(boxPos - currentAngle);
+            double derivative = 0;
+            if (Math.abs(error) >= offset && !gotThere) {
+                if (iterations > 1) {
+                    integral += threadTime.time() * error;
+                    derivative = (error - lastError) / threadTime.time();
+                    if (Math.abs(derivative) >= 50) {
+                        derivative = 0;
+                    }
+                    if (Math.abs(integral) >= 50) {
+                        integral = 0;
+                    }
+                    if (error != 0) {
+                        derivative = Math.abs(derivative) * (error / Math.abs(error));
+                        integral = Math.abs(integral) * (error / Math.abs(error));
+                    }
+                }
+                lastError = error;
+                double PIDPower;
                 try {
                     PIDPower = (Kp * error) - (Ki * integral) + (Kd * (derivative));
                 } catch (Exception p_exception) {
                     PIDPower = (Kp * error);
                 }
-                if(Math.abs(PIDPower) >= 0.15) {
-                    if((currentAngle <= 175 || PIDPower <= 0) && (currentAngle >= 20 || PIDPower >= 0)) {
-                        robot.box.setPower(Range.clip(PIDPower, -robot.maxBoxSpeed * (7.0/12.0), robot.maxBoxSpeed));
+                if (Math.abs(PIDPower) >= 0.15) {
+                    if ((currentAngle <= 175 || PIDPower <= 0) && (currentAngle >= 20 || PIDPower >= 0)) {
+                        robot.box.setPower(Range.clip(PIDPower, -robot.maxBoxSpeed * (7.0 / 12.0), robot.maxBoxSpeed));
                         threadTime.reset();
-                    }
-                    else {
-                        robot.box.setPower(Range.clip(PIDPower, -robot.maxBoxSpeed * (7.0/12.0), robot.maxBoxSpeed));
+                    } else {
+                        robot.box.setPower(Range.clip(PIDPower, -robot.maxBoxSpeed * (7.0 / 12.0), robot.maxBoxSpeed));
                     }
                 } else {
                     robot.box.setPower(0);
                 }
-        }
-        else {
-            robot.box.setPower(0);
-            gotThere = true;
+            } else {
+                robot.box.setPower(0);
+                gotThere = true;
+            }
         }
     }
 

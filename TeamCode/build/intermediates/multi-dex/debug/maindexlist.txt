@@ -166,6 +166,7 @@ javax/lang/model/util/TypeKindVisitor6.class
 javax/lang/model/util/TypeKindVisitor7.class
 javax/lang/model/util/TypeKindVisitor8.class
 jdk/Exported.class
+org/firstinspires/ftc/robotcontroller/external/samples/DotStarBridgedLED.class
 org/firstinspires/ftc/robotcore/external/ClassFactory.class
 org/firstinspires/ftc/robotcore/external/Const.class
 org/firstinspires/ftc/robotcore/external/NonConst.class

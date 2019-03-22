@@ -6,19 +6,10 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.robotcore.external.ClassFactory;
-import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
-import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
-import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
-import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
-import org.firstinspires.ftc.robotcore.internal.opmode.OpModeManagerImpl;
-
-import java.util.Iterator;
-import java.util.List;
 
 @Autonomous
 @Disabled
@@ -34,18 +25,18 @@ public class CurvedAutoTest extends LinearOpMode {
         double maxX = -4.85;
         turn(-90, 5);
         while (opModeIsActive() && Math.abs(x) < Math.abs(maxX)) {
-            double currentY = Math.tan((2.0 / 3.0) * (x + 2)) + 2;
+            double currentY = Math.tan((7.0 / 12.0) * (x + 2)) + 2;
             telemetry.addData("Point", "(" + x + ", " + currentY + ")");
             telemetry.update();
             double nextX = x - 0.1;
-            double nextY = Math.tan((1.0 / 2.0) * (nextX + 2)) + 2;
-            double angle = Math.toRadians(-getAngle() - 135) + (Math.atan2(nextY - currentY, nextX - x) + Math.PI);
+            double nextY = Math.tan((7.0 / 12.0) * (nextX + 2)) + 2;
+            double angle = (Math.atan2(nextY - currentY, nextX - x) - Math.toRadians(getAngle() + 135));
             double side = Math.sin(angle);
             double forward = Math.cos(angle);
             double lfOffset = robot.lfWheel.getCurrentPosition();
             double lrOffset = robot.lrWheel.getCurrentPosition();
             double ticksPerInch = 560 / (4 * Math.PI);
-            while (Math.abs(((robot.lfWheel.getCurrentPosition() - lfOffset) + (robot.lrWheel.getCurrentPosition() - lrOffset)) / 2) <= (ticksPerInch * 12) * 0.1) {
+            while(Math.abs(((robot.lfWheel.getCurrentPosition() - lfOffset) - (robot.lrWheel.getCurrentPosition() - lrOffset)) / 2) <= (ticksPerInch * 12) * 0.1) {
                 double ratio = -Math.max(Math.abs(forward + side), Math.abs(forward - side));
                 robot.setDrivePower((forward + side) / ratio, (forward - side) / ratio, (forward - side) / ratio, (forward + side) / ratio);
             }
