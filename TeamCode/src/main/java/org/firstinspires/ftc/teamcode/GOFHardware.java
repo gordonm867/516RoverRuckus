@@ -79,7 +79,7 @@ public class GOFHardware {
 
     public volatile DotStarBridgedLED            lights;
 
-    public          double                       maxDriveSpeed            = 1;
+    public          double                       maxDriveSpeed            = 0.4;
     public          double                       maxBoxSpeed              = 0.95;
     public          double                       boxPos                   = 0;
 
@@ -117,56 +117,32 @@ public class GOFHardware {
          ---------------------------------------
     */
 
-        Thread initGyro0;
         try { // Gyro 0
-            initGyro0 = new Thread() {
-                public synchronized void run() {
-                    try {
-                        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
-                        parameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
-                        parameters.accelUnit           = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
-                        parameters.loggingEnabled      = true;
-                        parameters.loggingTag          = "IMU";
-                        parameters.accelerationIntegrationAlgorithm = new JustLoggingAccelerationIntegrator();
-                        gyro0 = hwMap.get(BNO055IMU.class, "g0");
-                        gyro0.initialize(parameters);
-                    }
-                    catch (Exception p_exception) {
-                        gyro0 = null;
-                    }
-                }
-            };
-            initGyro0.start();
+            BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
+            parameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
+            parameters.accelUnit           = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
+            parameters.loggingEnabled      = true;
+            parameters.loggingTag          = "IMU";
+            parameters.accelerationIntegrationAlgorithm = new JustLoggingAccelerationIntegrator();
+            gyro0 = hwMap.get(BNO055IMU.class, "g0");
+            gyro0.initialize(parameters);
         }
         catch (Exception p_exception) {
             gyro0 = null;
-            initGyro0 = null;
         }
 
-        Thread initGyro1;
         try { // Gyro 1
-            initGyro1 = new Thread() {
-                public synchronized void run() {
-                    try {
-                        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
-                        parameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
-                        parameters.accelUnit           = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
-                        parameters.loggingEnabled      = true;
-                        parameters.loggingTag          = "IMU";
-                        parameters.accelerationIntegrationAlgorithm = new JustLoggingAccelerationIntegrator();
-                        gyro1 = hwMap.get(BNO055IMU.class, "g1");
-                        gyro1.initialize(parameters);
-                    }
-                    catch (Exception p_exception) {
-                        gyro1 = null;
-                    }
-                }
-            };
-            initGyro1.start();
+            BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
+            parameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
+            parameters.accelUnit           = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
+            parameters.loggingEnabled      = true;
+            parameters.loggingTag          = "IMU";
+            parameters.accelerationIntegrationAlgorithm = new JustLoggingAccelerationIntegrator();
+            gyro1 = hwMap.get(BNO055IMU.class, "g1");
+            gyro1.initialize(parameters);
         }
         catch (Exception p_exception) {
             gyro1 = null;
-            initGyro1 = null;
         }
 
         try { // Left rear wheel
@@ -389,7 +365,6 @@ public class GOFHardware {
 
         ElapsedTime timeout = new ElapsedTime();
         timeout.reset();
-        while(initGyro0 != null && initGyro0.isAlive() && initGyro1 != null && initGyro1.isAlive() && timeout.time() <= 4) {}
     }
 
     /*
@@ -444,7 +419,7 @@ public class GOFHardware {
     public void setInPower(double inPower) { // Set intake power
         if (intake != null) {
             intake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            inPower = Range.clip(inPower, -1, 1);
+            inPower = Range.clip(inPower, -1, 0.75);
             intake.setPower(inPower);
         }
     }
@@ -463,7 +438,7 @@ public class GOFHardware {
                 extend.setPower(0);
             }
             else {
-                extend.setPower(Range.clip(extendPower, -1, 0.8));
+                extend.setPower(Range.clip(extendPower, -1, 1));
             }
         }
     }

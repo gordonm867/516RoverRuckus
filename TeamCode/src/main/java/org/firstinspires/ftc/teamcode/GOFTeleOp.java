@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
@@ -12,7 +13,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
 // @SuppressWarnings({"WeakerAccess", "SpellCheckingInspection", "EmptyCatchBlock", "StatementWithEmptyBody", "SameParameterValue"})
-@TeleOp(name="GOFTeleOp", group="GOF")
+@TeleOp(name="GOFDebugging", group="GOF")
 public class GOFTeleOp extends OpMode {
 
     private             boolean             aPressed            = false;
@@ -34,12 +35,12 @@ public class GOFTeleOp extends OpMode {
     private             double              lastError           = 0;
     private             double              maxDriveSpeed;
     private             double              dump                = 30;
-    private             double              intake              = 140;
+    private             double              intake              = 128.76;
     private             double              neutral             = 65;
     private             double              offset              = 2.5;
-    private             double              Kp                  = 0.038;
-    private             double              Ki                  = 0.0125;
-    private             double              Kd                  = 0.03;
+    private             double              Kp                  = 0.03;
+    private             double              Ki                  = 0.0075;
+    private             double              Kd                  = 0.015;
     private volatile    double              x                   = -2;
     private volatile    double              y                   = 2;
 
@@ -98,21 +99,15 @@ public class GOFTeleOp extends OpMode {
                       //  tmy += "    x: " + x;
                       //  tmy += "    y: " + y;
                         tmy += "Motors" + "\n";
-                        tmy += "    rr: " + robot.rrWheel.getCurrentPosition() + "\n";
-                        tmy += "    rf: " + robot.rfWheel.getCurrentPosition() + "\n";
-                        tmy += "    lr: " + robot.lrWheel.getCurrentPosition() + "\n";
-                        tmy += "    lf: " + robot.lfWheel.getCurrentPosition() + "\n";
-                        tmy += "    h1: " + robot.hangOne.getCurrentPosition() + "\n";
-                        tmy += "    em: " + robot.extend.getCurrentPosition() + "\n";
-                        tmy += "    so: " + robot.box.getCurrentPosition() + "\n";
-                        tmy += "    intake: " + (gamepad1.right_trigger) + ", " + robot.intake.getCurrentPosition() + "\n";
-                        tmy += "    outtake: " + (gamepad1.left_trigger) + "\n";
+                        tmy += "     em: " + robot.extend.getCurrentPosition();
+                        tmy += "     lf: " + robot.lfWheel.getCurrentPosition();
+                        tmy += "     lr: " + robot.lrWheel.getCurrentPosition();
+                        tmy += "     rf: " + robot.rfWheel.getCurrentPosition();
+                        tmy += "     rr: " + robot.rrWheel.getCurrentPosition();
                         tmy += "Servos" + "\n";
                         tmy += "    fm, actual: " + (180 * (robot.boxPotentiometer.getVoltage() / 3.3)) + "\n";
                         tmy += "    fm, intended: " + boxPos + "\n";
-                        tmy += "    tm: " + robot.teamFlag.getPosition() + "\n";
-                        tmy += "Sensors" + "\n";
-                        tmy += "     es: " + robot.extenderSensor.getVoltage() + "\n";
+                        tmy += "Robot angle: " + getAngle() + "\n";
                        // tmy += "     MR Range Sensor: " + robot.getUSDistance() + "\n";
                        // tmy += "     REV 2m Distance Sensor: " + robot.getREVDistance() + "\n";
                         telemetry.addData("", tmy);
@@ -133,6 +128,32 @@ public class GOFTeleOp extends OpMode {
                 }
                 catch(Exception ignore) {}
             }
+
+            private double getAngle() {
+                double robotAngle;
+                Orientation g0angles = null;
+                Orientation g1angles = null;
+                if (robot.gyro0 != null) {
+                    g0angles = robot.gyro0.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES); // Get z axis angle from first gyro (in radians so that a conversion is unnecessary for proper employment of Java's Math class)
+                }
+                if (robot.gyro1 != null) {
+                    g1angles = robot.gyro1.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES); // Get z axis angle from second gyro (in radians so that a conversion is unnecessary for proper employment of Java's Math class)
+                }
+                if (g0angles != null && g1angles != null) {
+                    robotAngle = ((g0angles.firstAngle + g1angles.firstAngle) / 2); // Average angle measures to determine actual robot angle
+                }
+                else if(g0angles != null) {
+                    robotAngle = g0angles.firstAngle;
+                }
+                else if(g1angles != null) {
+                    robotAngle = g1angles.firstAngle;
+                }
+                else {
+                    robotAngle = 0;
+                }
+                return robotAngle;
+            }
+
         };
         update.start();
         /*
@@ -193,7 +214,7 @@ public class GOFTeleOp extends OpMode {
         elapsedTime.reset();
         double drive = gamepad1.left_stick_y;
         double hangDrive = -gamepad2.left_stick_y;
-        double turn = -gamepad1.right_stick_x;
+        double turn = -gamepad1.right_stick_x * 0.6;
         double angle = -gamepad1.left_stick_x;
 
         /* Precision vertical drive */
@@ -334,7 +355,7 @@ public class GOFTeleOp extends OpMode {
         }
 
         if(robot.hangOne != null && robot.hangOne.getPower() > 0.05) {
-            flipBox(neutral);
+            flipBox(intake);
         }
 
         if(!servoMove && !hangDown) {
@@ -432,9 +453,6 @@ public class GOFTeleOp extends OpMode {
 
         if(hangTime.time() >= 0.75) {
             hanging = true;
-        }
-        if(robot.bottomSensor.isPressed() && boxPos != dump && robot.intake.getPower() == 0) {
-            robot.setInPower(0.25);
         }
         if(robot.lights != null) {
             if (lightsTime.time() >= 100 && lightsTime.time() <= 110) {
@@ -551,15 +569,8 @@ public class GOFTeleOp extends OpMode {
                 if (iterations > 1) {
                     integral += threadTime.time() * error;
                     derivative = (error - lastError) / threadTime.time();
-                    if (Math.abs(derivative) >= 50) {
-                        derivative = 0;
-                    }
                     if (Math.abs(integral) >= 50) {
-                        integral = 0;
-                    }
-                    if (error != 0) {
-                        derivative = Math.abs(derivative) * (error / Math.abs(error));
-                        integral = Math.abs(integral) * (error / Math.abs(error));
+                        integral = Math.copySign(50, integral);
                     }
                 }
                 lastError = error;

@@ -25,7 +25,7 @@ import java.util.Iterator;
 import java.util.List;
 
 @TeleOp(name="GOFAutoCreatorTest",group="GOFTests")
-// @Disabled
+@Disabled
 public class AutoCreatorTest extends LinearOpMode {
     private                 GOFTeleOp           driveControl            = GOFTeleOp.getInstance();
 
