@@ -44,6 +44,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.internal.opmode.OpModeManagerImpl;
 import org.firstinspires.ftc.robotcore.internal.opmode.OpModeServices;
 
+import java.io.IOException;
+
 // @SuppressWarnings({"WeakerAccess", "SpellCheckingInspection", "EmptyCatchBlock", "StatementWithEmptyBody", "SameParameterValue"})
 public class GOFHardware {
 
@@ -79,7 +81,7 @@ public class GOFHardware {
 
     public volatile DotStarBridgedLED            lights;
 
-    public          double                       maxDriveSpeed            = 0.4;
+    public          double                       maxDriveSpeed            = 1;
     public          double                       maxBoxSpeed              = 0.95;
     public          double                       boxPos                   = 0;
 
@@ -118,6 +120,8 @@ public class GOFHardware {
     */
 
         try { // Gyro 0
+            throw new IOException("Dead");
+            /*
             BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
             parameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
             parameters.accelUnit           = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
@@ -126,6 +130,7 @@ public class GOFHardware {
             parameters.accelerationIntegrationAlgorithm = new JustLoggingAccelerationIntegrator();
             gyro0 = hwMap.get(BNO055IMU.class, "g0");
             gyro0.initialize(parameters);
+            */
         }
         catch (Exception p_exception) {
             gyro0 = null;
@@ -438,7 +443,7 @@ public class GOFHardware {
                 extend.setPower(0);
             }
             else {
-                extend.setPower(Range.clip(extendPower, -1, 1));
+                extend.setPower(Range.clip(-extendPower, -1, 1));
             }
         }
     }

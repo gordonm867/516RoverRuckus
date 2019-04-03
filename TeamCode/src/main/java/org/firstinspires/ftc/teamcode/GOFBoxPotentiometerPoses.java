@@ -81,10 +81,10 @@ public class GOFBoxPotentiometerPoses extends OpMode {
     @Override
     public void loop() {
         elapsedTime.reset();
-        double drive = gamepad1.left_stick_y;
+        double drive = -gamepad1.left_stick_y;
         double hangDrive = -gamepad2.left_stick_y;
-        double turn = -gamepad1.right_stick_x * 0.6;
-        double angle = -gamepad1.left_stick_x;
+        double turn = gamepad1.right_stick_x * 0.6;
+        double angle = gamepad1.left_stick_x;
 
         /* Precision vertical drive */
         if (gamepad1.dpad_down || gamepad1.dpad_up) {
@@ -92,9 +92,9 @@ public class GOFBoxPotentiometerPoses extends OpMode {
                 drive = drive * 0.2; // Slow down joystick driving
             } else {
                 if (gamepad1.dpad_down) {
-                    drive = 0.2; // Slow drive backwards
+                    drive = -0.2; // Slow drive backwards
                 } else {
-                    drive = -0.2; // Slow drive forwards
+                    drive = 0.2; // Slow drive forwards
                 }
             }
         }
@@ -105,19 +105,19 @@ public class GOFBoxPotentiometerPoses extends OpMode {
                 angle = angle * 0.3; // Slow down joystick side movement
             } else {
                 if (gamepad1.dpad_left) {
-                    angle = 0.3; // Slow leftwards
+                    angle = -0.3; // Slow leftwards
                 } else {
-                    angle = -0.3; // Slow rightwards
+                    angle = 0.3; // Slow rightwards
                 }
             }
         }
 
         /* Precision turn */
         if (gamepad1.left_bumper) {
-            turn = 0.2; // Slow left turn
+            turn = -0.2; // Slow left turn
         }
         if (gamepad1.right_bumper) {
-            turn = -0.2; // Slow right turn
+            turn = 0.2; // Slow right turn
         }
 
         if(driverMode == 1) {
@@ -246,6 +246,9 @@ public class GOFBoxPotentiometerPoses extends OpMode {
             hanging = false;
         }
 
+        iterations++;
+        checkBox();
+
         if(gamepad2.y) {
             Ki = 0.005;
             Kd = 0.025;
@@ -289,7 +292,7 @@ public class GOFBoxPotentiometerPoses extends OpMode {
         }
 
         if(!servoMove && robot.extend.getPower() == 0) {
-            robot.extend.setPower(0.1);
+            robot.extend.setPower(-0.1);
         }
 
         if(robot.bottomSensor != null && robot.bottomSensor.isPressed() && servoMove) {

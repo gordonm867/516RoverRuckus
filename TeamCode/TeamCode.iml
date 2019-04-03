@@ -113,8 +113,7 @@
     <orderEntry type="library" name="Gradle: :tfod-release:@aar" level="project" />
     <orderEntry type="library" name="Gradle: :WirelessP2p-release:@aar" level="project" />
     <orderEntry type="library" name="Gradle: :FtcCommon-release:@aar" level="project" />
-    <orderEntry type="module" module-name="FtcRobotController" />
-    <orderEntry type="module" module-name="FtcRobotController" />
+    <orderEntry type="library" name="Gradle: org.openftc:rev-extensions-2:1.1@aar" level="project" />
     <orderEntry type="module" module-name="FtcRobotController" />
   </component>
 </module>

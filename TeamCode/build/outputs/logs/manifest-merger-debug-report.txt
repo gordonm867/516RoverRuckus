@@ -4,6 +4,7 @@ ADDED from /Users/mgordon/516-Gears-Of-Fire/516-Gears-Of-Fire/TeamCode/src/main/
 INJECTED from /Users/mgordon/516-Gears-Of-Fire/516-Gears-Of-Fire/TeamCode/src/main/AndroidManifest.xml:8:1-13:12
 INJECTED from /Users/mgordon/516-Gears-Of-Fire/516-Gears-Of-Fire/TeamCode/src/main/AndroidManifest.xml:8:1-13:12
 INJECTED from /Users/mgordon/516-Gears-Of-Fire/516-Gears-Of-Fire/TeamCode/src/main/AndroidManifest.xml:8:1-13:12
+MERGED from [org.openftc:rev-extensions-2:1.1] /Users/mgordon/.gradle/caches/transforms-1/files-1.1/rev-extensions-2-1.1.aar/17c9c9eadef93ad9ac40d60ed99c0076/AndroidManifest.xml:2:1-12:12
 MERGED from [com.android.support:multidex:1.0.2] /Users/mgordon/.gradle/caches/transforms-1/files-1.1/multidex-1.0.2.aar/b85c3fcba003d9b2ec897a4996bae77f/AndroidManifest.xml:17:1-22:12
 MERGED from [:FtcRobotController] /Users/mgordon/516-Gears-Of-Fire/516-Gears-Of-Fire/FtcRobotController/build/intermediates/manifests/full/debug/AndroidManifest.xml:2:1-52:12
 MERGED from [:RobotCore-release:] /Users/mgordon/.gradle/caches/transforms-1/files-1.1/RobotCore-release.aar/c7256322e8afd9d51bf13f699e030b66/AndroidManifest.xml:2:1-99:12
@@ -75,6 +76,8 @@ uses-sdk
 INJECTED from /Users/mgordon/516-Gears-Of-Fire/516-Gears-Of-Fire/TeamCode/src/main/AndroidManifest.xml reason: use-sdk injection requested
 INJECTED from /Users/mgordon/516-Gears-Of-Fire/516-Gears-Of-Fire/TeamCode/src/main/AndroidManifest.xml
 INJECTED from /Users/mgordon/516-Gears-Of-Fire/516-Gears-Of-Fire/TeamCode/src/main/AndroidManifest.xml
+MERGED from [org.openftc:rev-extensions-2:1.1] /Users/mgordon/.gradle/caches/transforms-1/files-1.1/rev-extensions-2-1.1.aar/17c9c9eadef93ad9ac40d60ed99c0076/AndroidManifest.xml:8:5-10:41
+MERGED from [org.openftc:rev-extensions-2:1.1] /Users/mgordon/.gradle/caches/transforms-1/files-1.1/rev-extensions-2-1.1.aar/17c9c9eadef93ad9ac40d60ed99c0076/AndroidManifest.xml:8:5-10:41
 MERGED from [com.android.support:multidex:1.0.2] /Users/mgordon/.gradle/caches/transforms-1/files-1.1/multidex-1.0.2.aar/b85c3fcba003d9b2ec897a4996bae77f/AndroidManifest.xml:20:5-43
 MERGED from [com.android.support:multidex:1.0.2] /Users/mgordon/.gradle/caches/transforms-1/files-1.1/multidex-1.0.2.aar/b85c3fcba003d9b2ec897a4996bae77f/AndroidManifest.xml:20:5-43
 MERGED from [:FtcRobotController] /Users/mgordon/516-Gears-Of-Fire/516-Gears-Of-Fire/FtcRobotController/build/intermediates/manifests/full/debug/AndroidManifest.xml:8:5-10:41

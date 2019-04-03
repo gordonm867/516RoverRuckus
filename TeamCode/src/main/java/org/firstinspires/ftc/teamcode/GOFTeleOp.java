@@ -11,54 +11,61 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
+import org.openftc.revextensions2.ExpansionHubEx;
+import org.openftc.revextensions2.ExpansionHubMotor;
+import org.openftc.revextensions2.RevExtensions2;
 
 // @SuppressWarnings({"WeakerAccess", "SpellCheckingInspection", "EmptyCatchBlock", "StatementWithEmptyBody", "SameParameterValue"})
 @TeleOp(name="GOFDebugging", group="GOF")
 public class GOFTeleOp extends OpMode {
 
-    private             boolean             aPressed            = false;
-    private volatile    boolean             doTelemetry         = true;
-    private             boolean             ypressed            = false;
-    private             boolean             useNeg              = false;
-    private             boolean             waitingForClick     = true;
-    private             boolean             bumperPressed       = false;
-    private             boolean             gotThere            = false;
-    private             boolean             servoMove           = false;
-    private             boolean             hanging             = true;
-    private             boolean             hangDown            = false;
+    private             boolean             aPressed                        = false;
+    private volatile    boolean             doTelemetry                     = true;
+    private             boolean             ypressed                        = false;
+    private             boolean             useNeg                          = false;
+    private             boolean             waitingForClick                 = true;
+    private             boolean             bumperPressed                   = false;
+    private             boolean             gotThere                        = false;
+    private             boolean             servoMove                       = false;
+    private             boolean             hanging                         = true;
+    private             boolean             hangDown                        = false;
 
-    private volatile    double              boxPos              = 120;
+    private volatile    double              boxPos                          = 120;
     private             double              firstAngleOffset;
-    private             double              triggerPressed      = 0;
-    private             double              lastIntake          = 0;
-    private             double              integral            = 0;
-    private             double              lastError           = 0;
+    private             double              triggerPressed                  = 0;
+    private             double              lastIntake                      = 0;
+    private             double              integral                        = 0;
+    private             double              lastError                       = 0;
     private             double              maxDriveSpeed;
-    private             double              dump                = 30;
-    private             double              intake              = 128.76;
-    private             double              neutral             = 65;
-    private             double              offset              = 2.5;
-    private             double              Kp                  = 0.03;
-    private             double              Ki                  = 0.0075;
-    private             double              Kd                  = 0.015;
-    private volatile    double              x                   = -2;
-    private volatile    double              y                   = 2;
+    private             double              dump                            = 30;
+    private             double              intake                          = 128.76;
+    private             double              neutral                         = 65;
+    private             double              offset                          = 2.5;
+    private             double              Kp                              = 0.03;
+    private             double              Ki                              = 0.0075;
+    private             double              Kd                              = 0.015;
+    private volatile    double              x                               = -2;
+    private volatile    double              y                               = 2;
 
-    private             ElapsedTime         hangTime            = new ElapsedTime();
-    private             ElapsedTime         trigTime            = new ElapsedTime();
-    private volatile    ElapsedTime         threadTime          = new ElapsedTime();
-    private volatile    ElapsedTime         elapsedTime         = new ElapsedTime();
-    private             ElapsedTime         lightsTime          = new ElapsedTime();
+    private             ElapsedTime         hangTime                        = new ElapsedTime();
+    private             ElapsedTime         trigTime                        = new ElapsedTime();
+    private volatile    ElapsedTime         threadTime                      = new ElapsedTime();
+    private volatile    ElapsedTime         elapsedTime                     = new ElapsedTime();
+    private             ElapsedTime         lightsTime                      = new ElapsedTime();
 
-    public              GOFHardware         robot               = GOFHardware.getInstance(); // Use the GOFHardware class
+    private volatile    ExpansionHubMotor   rr, rf, lr, lf, em, fm, h1, in;
+    private volatile    ExpansionHubEx      expansionHub2, expansionHub3;
 
-    private static      GOFTeleOp           teleOp              = GOFTeleOp.getInstance();
+    public              GOFHardware         robot                           = GOFHardware.getInstance(); // Use the GOFHardware class
 
-    private             int                 driverMode          = 1;
-    private             int                 iterations          = 0;
+    private static      GOFTeleOp           teleOp                          = GOFTeleOp.getInstance();
+
+    private             int                 driverMode                      = 1;
+    private             int                 iterations                      = 0;
 
     @Override
     public void init() {
+        RevExtensions2.init();
         msStuckDetectInit = 10000; // Allow gyros to calibrate
         robot.init(hardwareMap);
         // robot.setKickPower(kickReadyPos);
@@ -69,6 +76,18 @@ public class GOFTeleOp extends OpMode {
         if(robot.boxPotentiometer != null) {
             boxPos = 180 * (robot.boxPotentiometer.getVoltage() / 3.3);
         }
+        expansionHub2 = hardwareMap.get(ExpansionHubEx.class, "Expansion Hub 2");
+        expansionHub3 = hardwareMap.get(ExpansionHubEx.class, "Expansion Hub 3");
+        rr = (ExpansionHubMotor) hardwareMap.dcMotor.get("rr");
+        rf = (ExpansionHubMotor) hardwareMap.dcMotor.get("rf");
+        lr = (ExpansionHubMotor) hardwareMap.dcMotor.get("lr");
+        lf = (ExpansionHubMotor) hardwareMap.dcMotor.get("lf");
+        em = (ExpansionHubMotor) hardwareMap.dcMotor.get("em");
+        fm = (ExpansionHubMotor) hardwareMap.dcMotor.get("fm");
+        h1 = (ExpansionHubMotor) hardwareMap.dcMotor.get("h1");
+        in = (ExpansionHubMotor) hardwareMap.dcMotor.get("in");
+        expansionHub2.setLedColor((int)(Math.random() * 255), (int)(Math.random() * 255), (int)(Math.random() * 255));
+        expansionHub3.setLedColor((int)(Math.random() * 255), (int)(Math.random() * 255), (int)(Math.random() * 255));
         telemetry.addData("Status", "Initialized"); // Update phone
     }
 
@@ -98,6 +117,22 @@ public class GOFTeleOp extends OpMode {
                       //  tmy += "Current Point" + "\n";
                       //  tmy += "    x: " + x;
                       //  tmy += "    y: " + y;
+                        tmy += "Voltages" + "\n";
+                        tmy += "     Total: " + (expansionHub2.getTotalModuleCurrentDraw() + expansionHub3.getTotalModuleCurrentDraw()) + "\n";
+                        tmy += "     Hub 2: " + expansionHub2.getTotalModuleCurrentDraw() + "\n";
+                        tmy += "     Hub 3: " + expansionHub3.getTotalModuleCurrentDraw() + "\n";
+                        tmy += "     Hub 2 I2C: " + expansionHub2.getI2cBusCurrentDraw();
+                        tmy += "     Hub 3 I2C: " + expansionHub3.getI2cBusCurrentDraw();
+                        tmy += "     em: " + em.getCurrentDraw() + "\n";
+                        tmy += "     lf: " + lf.getCurrentDraw() + "\n";
+                        tmy += "     lf: " + lf.getCurrentDraw() + "\n";
+                        tmy += "     rf: " + rf.getCurrentDraw() + "\n";
+                        tmy += "     rr: " + rr.getCurrentDraw() + "\n";
+                        tmy += "     fm: " + fm.getCurrentDraw() + "\n";
+                        tmy += "     in: " + in.getCurrentDraw() + "\n";
+                        tmy += "     h1: " + h1.getCurrentDraw() + "\n";
+                        tmy += "     Hub 2 GPIO: " + expansionHub2.getGpioBusCurrentDraw() + "\n";
+                        tmy += "     Hub 3 GPIO: " + expansionHub3.getGpioBusCurrentDraw() + "\n";
                         tmy += "Motors" + "\n";
                         tmy += "     em: " + robot.extend.getCurrentPosition();
                         tmy += "     lf: " + robot.lfWheel.getCurrentPosition();
@@ -223,9 +258,9 @@ public class GOFTeleOp extends OpMode {
                 drive = drive * 0.2; // Slow down joystick driving
             } else {
                 if (gamepad1.dpad_down) {
-                    drive = 0.2; // Slow drive backwards
+                    drive = -0.2; // Slow drive backwards
                 } else {
-                    drive = -0.2; // Slow drive forwards
+                    drive = 0.2; // Slow drive forwards
                 }
             }
         }
@@ -236,19 +271,19 @@ public class GOFTeleOp extends OpMode {
                 angle = angle * 0.3; // Slow down joystick side movement
             } else {
                 if (gamepad1.dpad_left) {
-                    angle = 0.3; // Slow leftwards
+                    angle = -0.3; // Slow leftwards
                 } else {
-                    angle = -0.3; // Slow rightwards
+                    angle = 0.3; // Slow rightwards
                 }
             }
         }
 
         /* Precision turn */
         if (gamepad1.left_bumper) {
-            turn = 0.2; // Slow left turn
+            turn = -0.2; // Slow left turn
         }
         if (gamepad1.right_bumper) {
-            turn = -0.2; // Slow right turn
+            turn = 0.2; // Slow right turn
         }
 
         if(driverMode == 1) {
