@@ -18,6 +18,7 @@ public class GOFExtenderTest extends LinearOpMode {
         boolean bPressed = false;
         boolean xPressed = false;
         boolean yPressed = false;
+        boolean bumper = false;
         while(opModeIsActive()) {
             if (gamepad1.a && !gamepad1.start) {
                 aPressed = true;
@@ -31,6 +32,9 @@ public class GOFExtenderTest extends LinearOpMode {
             if (gamepad1.y) {
                 yPressed = true;
             }
+            if (gamepad1.left_bumper || gamepad1.right_bumper) {
+                bumper = true;
+            }
             if (aPressed && !(gamepad1.a && !gamepad1.start)) {
                 robot.extend.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                 robot.extend.setPower(-0.3);
@@ -41,7 +45,7 @@ public class GOFExtenderTest extends LinearOpMode {
             if (bPressed && !gamepad1.b) {
                 robot.extend.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 robot.extend.setPower(0.6);
-                robot.extend.setTargetPosition(500);
+                robot.extend.setTargetPosition(750);
                 while(robot.extend.isBusy() && opModeIsActive()) {}
                 robot.extend.setTargetPosition(robot.extend.getCurrentPosition());
                 robot.extend.setPower(0.3);
@@ -49,7 +53,7 @@ public class GOFExtenderTest extends LinearOpMode {
             if (xPressed && !gamepad1.x) {
                 robot.extend.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 robot.extend.setPower(0.6);
-                robot.extend.setTargetPosition(1000);
+                robot.extend.setTargetPosition(3000);
                 while(robot.extend.isBusy() && opModeIsActive()) {}
                 robot.extend.setTargetPosition(robot.extend.getCurrentPosition());
                 robot.extend.setPower(0.3);
@@ -58,9 +62,13 @@ public class GOFExtenderTest extends LinearOpMode {
                 robot.extend.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 robot.extend.setPower(0.6);
                 robot.extend.setTargetPosition(0);
-                while(robot.extend.isBusy() && opModeIsActive()) {}
+                while((robot.extend.isBusy() || robot.extenderSensor.getVoltage() >= 2) && opModeIsActive()) {}
                 robot.extend.setTargetPosition(robot.extend.getCurrentPosition());
                 robot.extend.setPower(0.3);
+            }
+            if (bumper && !(gamepad1.left_bumper || gamepad1.right_bumper)) {
+                robot.extend.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                robot.extend.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             }
         }
     }
