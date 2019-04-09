@@ -1,10 +1,10 @@
 package org.firstinspires.ftc.teamcode;
 
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -18,7 +18,8 @@ public class TestleOp extends LinearOpMode {
     GOFHardware robot = GOFHardware.getInstance();
     double[] point = new double[2];
     double angleOffset = 3;
-    double turns = 0;
+    double turnSpeed = 0.0075;
+    double intended = 0;
 
     public void runOpMode() {
         point[0] = -2;
@@ -29,11 +30,24 @@ public class TestleOp extends LinearOpMode {
         boolean yPressed = false;
         boolean rbPressed = false;
         boolean lbPressed = false;
+        boolean ltPressed = false;
+        boolean rtPressed = false;
+        boolean upDpad = false;
+        boolean downDpad = false;
         robot.init(hardwareMap);
+        robot.rrWheel.setDirection(DcMotorSimple.Direction.REVERSE);
+        robot.rfWheel.setDirection(DcMotorSimple.Direction.REVERSE);
+        robot.lrWheel.setDirection(DcMotorSimple.Direction.FORWARD);
+        robot.lfWheel.setDirection(DcMotorSimple.Direction.FORWARD);
+        robot.extend.setDirection(DcMotorSimple.Direction.FORWARD);
         telemetry.addData("Status", "Initialized");
         telemetry.update();
         waitForStart();
         while(opModeIsActive()) {
+            telemetry.addData("Turn speed", turnSpeed);
+            telemetry.addData("Robot angle", getAngle());
+            telemetry.addData("Intended robot angle", intended);
+            telemetry.update();
             if(gamepad1.a && !gamepad1.start) {
                 aPressed = true;
             }
@@ -52,38 +66,72 @@ public class TestleOp extends LinearOpMode {
             if(gamepad1.left_bumper) {
                 lbPressed = true;
             }
+            if(gamepad1.left_trigger >= 0.05) {
+                ltPressed = true;
+            }
+            if(gamepad1.right_trigger >= 0.05) {
+                rtPressed = true;
+            }
+            if(gamepad1.dpad_up) {
+                upDpad = false;
+            }
+            if(gamepad1.dpad_down) {
+                downDpad = false;
+            }
             if(aPressed && !(gamepad1.a && !gamepad1.start)) {
                 aPressed = false;
                 turn(90, 5);
+                intended += 90;
             }
             if(bPressed && !gamepad1.b) {
                 bPressed = false;
                 turn(-90, 5);
+                intended -= 90;
             }
             if(xPressed && !gamepad1.x) {
                 xPressed = false;
-                runToPoint(-4, 2);
+                turn(10, 5);
+                intended += 10;
             }
             if(yPressed && !gamepad1.y) {
                 yPressed = false;
-                encoderMovePreciseTimed(0, 1, 1);
+                turn(-10, 5);
+                intended -= 10;
             }
             if(rbPressed && !gamepad1.right_bumper) {
                 rbPressed = false;
-                encoderMovePreciseTimed(-(int)(12 * 560 / (4 * Math.PI)), 1, 1);
+                turn(45, 5);
+                intended += 45;
             }
             if(lbPressed && !gamepad1.left_bumper) {
                 lbPressed = false;
-                encoderMovePreciseTimed((int)(12 * 560 / (4 * Math.PI)), 1, 1);
+                turn(-45, 5);
+                intended -= 45;
+            }
+            if(rtPressed && !(gamepad1.right_trigger >= 0.05)) {
+                rtPressed = false;
+                turnSpeed += 0.0005;
+            }
+            if(ltPressed && !(gamepad1.left_trigger >- 0.05)) {
+                ltPressed = false;
+                turnSpeed += 0.0005;
+            }
+            if(gamepad1.dpad_up && upDpad) {
+                upDpad = false;
+                turnSpeed += 0.001;
+            }
+            if(gamepad1.dpad_down && downDpad) {
+                downDpad = false;
+                turnSpeed -= 0.001;
             }
         }
     }
 
-    private double atan(double num) { // Returns atan in degrees
+    /* private double atan(double num) { // Returns atan in degrees
         return(Math.atan(num) * (180 / Math.PI));
-    }
+    } */
 
-    private void runToPoint(double x, double y) {
+    /* private void runToPoint(double x, double y) {
         double yDiff = point[1] - y;
         double xDiff = point[0] - x;
         double straightAngle = atan(yDiff / xDiff);
@@ -140,9 +188,9 @@ public class TestleOp extends LinearOpMode {
         while(opModeIsActive() && !gamepad1.a) {}
         point[0] = x;
         point[1] = y;
-    }
+    } */
 
-    private void encoderMovePreciseTimed(int pos, double speed, double timeLimit) { // Move encoders towards target position until the position is reached, or the time limit expires
+    /* private void encoderMovePreciseTimed(int pos, double speed, double timeLimit) { // Move encoders towards target position until the position is reached, or the time limit expires
         if (opModeIsActive() && robot.rrWheel != null && robot.rfWheel != null && robot.lrWheel != null && robot.lfWheel != null && robot.hangOne != null) {
             robot.rrWheel.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             robot.rfWheel.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -172,12 +220,13 @@ public class TestleOp extends LinearOpMode {
             resetEncoders();
             sleep(100);
         }
-    }
+    } */
 
     private void turn(double angle, double time) {
-        turns += 1;
+        if(Math.abs(angle) < 0.1 || Math.abs(angle) + 0.1 % 360 < 0.2) { // Detects if turn is too insignificant
+            return;
+        }
         angle += (angleOffset * Math.abs(angle) / angle);
-        double paramAngle = angle;
         double oldAngle;
         double angleIntended;
         double robotAngle;
@@ -191,7 +240,7 @@ public class TestleOp extends LinearOpMode {
         robotAngle = getAngle();
         oldAngle = robotAngle;
         angleIntended = robotAngle + angle;
-        if (angleIntended > robotAngle) { // Left turn
+        if (angleIntended < robotAngle) { // Left turn
             if(angleIntended > 180) {
                 angleIntended -= 360;
             }
@@ -213,12 +262,12 @@ public class TestleOp extends LinearOpMode {
                         error = lastError;
                     }
                 }
-                robot.setDrivePower(Math.min(-0.01 * error, -0.05), Math.min(-0.01 * error, -0.05), Math.max(0.01 * error, 0.05), Math.max(0.01 * error, 0.05));
+                robot.setDrivePower(Math.min(-turnSpeed * error, -0.1), Math.min(-turnSpeed * error, -0.1), Math.max(turnSpeed * error, 0.1), Math.max(turnSpeed * error, 0.1));
                 robotAngle = getAngle();
             }
             robot.setDrivePower(0, 0, 0, 0);
         }
-        else if(opModeIsActive() && angleIntended < robotAngle) { // Right turn
+        else if(opModeIsActive() && angleIntended > robotAngle) { // Right turn
             if(angleIntended > 180) {
                 angleIntended -= 360;
             }
@@ -243,20 +292,27 @@ public class TestleOp extends LinearOpMode {
                         error = lastError;
                     }
                 }
-                robot.setDrivePower(Math.max(0.01 * error, 0.05), Math.max(0.01 * error, 0.05), Math.min(-0.01 * error, -0.05), Math.min(-0.01 * error, -0.05));
+                robot.setDrivePower(Math.max(turnSpeed * error, 0.1), Math.max(turnSpeed * error, 0.1), Math.min(-turnSpeed * error, -0.1), Math.min(-turnSpeed * error, -0.1));
                 robotAngle = getAngle();
             }
             robot.setDrivePower(0, 0, 0, 0);
         }
         resetEncoders();
-        angleIntended = oldAngle + paramAngle;
-        error = angleIntended - getAngle();
+        /*
+        error = -getAngle() + angleIntended;
+        if(error > 180) {
+            error -= 180;
+        }
+        else if(error < -180) {
+            error += 180;
+        }
         if(Math.abs(error) > 0.1 && time - turnTime.time() > 0.75 && turns <= 1) {
-            turn(-error, time - turnTime.time());
+            turn(error, time - turnTime.time());
         }
         else {
             turns = 0;
         }
+        */
     }
 
     private double getAngle() {

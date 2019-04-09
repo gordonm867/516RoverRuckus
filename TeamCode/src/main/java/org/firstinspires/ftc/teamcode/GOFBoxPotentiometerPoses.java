@@ -492,7 +492,6 @@ public class GOFBoxPotentiometerPoses extends OpMode {
         }
         telemetry.update();
     }
-
     private double getAngle() {
                 double robotAngle;
                 Orientation g0angles = null;

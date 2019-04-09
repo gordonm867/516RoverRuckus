@@ -443,7 +443,7 @@ public class GOFHardware {
                 extend.setPower(0);
             }
             else {
-                extend.setPower(Range.clip(-extendPower, -1, 1));
+                extend.setPower(Range.clip(-extendPower, -1, 0.85));
             }
         }
     }
@@ -577,6 +577,15 @@ public class GOFHardware {
             }
         }
         return result;
+    }
+
+    public double getBoxVoltage() {
+        if(boxPotentiometer != null) {
+            return boxPotentiometer.getVoltage();
+        }
+        else {
+            return Double.POSITIVE_INFINITY;
+        }
     }
 
 } //End of class
