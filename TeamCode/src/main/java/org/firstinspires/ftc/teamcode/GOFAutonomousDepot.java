@@ -227,10 +227,10 @@ public class GOFAutonomousDepot extends LinearOpMode {
                         }
                         else {
                             try {
-                                PIDPower = (0.02 * error) + (0.005 * integral) + (0.025 * (derivative));
+                                PIDPower = (0.03 * error) + (0.0075 * integral) + (0.015 * (derivative));
                             }
                             catch (Exception p_exception) {
-                                PIDPower = (0.075 * error);
+                                PIDPower = (0.03 * error);
                             }
                             if(Math.abs(PIDPower) >= 0.09) {
                                 robot.box.setPower(Range.clip(PIDPower, -robot.maxBoxSpeed * (7.0 / 12.0), robot.maxBoxSpeed));
@@ -397,23 +397,27 @@ public class GOFAutonomousDepot extends LinearOpMode {
         robot.setDrivePower(0, 0, 0, 0);
         robot.extend.setTargetPosition(-1300);
         robot.extend.setPower(0.8);
-        flipBox(120);
         turnBackToPoint(-4, -5);
         encoderMovePreciseTimed(-560, 0.5, 3, true);
+        while(opModeIsActive() && !robot.extend.isBusy()) {}
+        flipBox(120);
         robot.setInPower(1);
-        while(opModeIsActive()) {}
+        while(opModeIsActive()) {
+            robot.extend.setTargetPosition(-800);
+            while(opModeIsActive() && robot.extend.isBusy()) {}
+            robot.extend.setTargetPosition(-1300);
+            while(opModeIsActive() && robot.extend.isBusy()) {}
+        }
     }
 
     private void rightDepotAuto() {
-        turnToPoint(-3.803, -2.39);
+        turnToPoint(-3.6, -2.4);
         flipBox(120);
         sleep(500);
-        robot.setInPower(1);
+        robot.setInPower(0.75);
         robot.extend.setPower(0.8);
-        robot.extend.setTargetPosition((int)(((1300 / 3000.0) * 0.25 * -2308)));
-        while(opModeIsActive() && goldPos == 0 && robot.extend.isBusy()) {}
         robot.setInPower(0.5);
-        robot.extend.setTargetPosition((int)((1300 / 3000.0) * 0.5 * -3000));
+        robot.extend.setTargetPosition((int)((1300 / 3000.0) * 0.5 * -4500));
         while (opModeIsActive() && robot.extend.isBusy()) {}
         flipBox(60);
         robot.extend.setTargetPosition((int)((1300 / 3000.0) * 0.5 * -75));
@@ -446,28 +450,33 @@ public class GOFAutonomousDepot extends LinearOpMode {
         robot.setDrivePower(0, 0, 0, 0);
         robot.extend.setTargetPosition(-1300);
         robot.extend.setPower(0.8);
-        flipBox(120);
         turnBackToPoint(-4, -5);
         encoderMovePreciseTimed(-560, 0.5, 3, true);
+        while(opModeIsActive() && !robot.extend.isBusy()) {}
+        flipBox(120);
         robot.setInPower(1);
-        while(opModeIsActive()) {}
+        while(opModeIsActive()) {
+            robot.extend.setTargetPosition(-800);
+            while(opModeIsActive() && robot.extend.isBusy()) {}
+            robot.extend.setTargetPosition(-1300);
+            while(opModeIsActive() && robot.extend.isBusy()) {}
+        }
     }
 
     private void leftDepotAuto() {
-        turnToPoint(-2.21, -3.76);
+        turnToPoint(-2.127, -3.905);
         flipBox(120);
         sleep(500);
-        robot.setInPower(1);
+        robot.setInPower(0.75);
         robot.extend.setPower(0.75);
-        robot.extend.setTargetPosition((int)(((1300 / 3000.0) * 0.25 * -2308)));
-        while(opModeIsActive() && goldPos == 0 && robot.extend.isBusy()) {}
-        robot.extend.setTargetPosition((int)((1300 / 3000.0) * 0.5 * -3000));
+        robot.extend.setTargetPosition((int)((1300 / 3000.0) * 0.5 * -4500));
         while (opModeIsActive() && robot.extend.isBusy()) {}
-        robot.setInPower(0.25);
         flipBox(60);
         robot.extend.setTargetPosition((int)((1300 / 3000.0) * 0.5 * -75));
-        robot.extend.setPower(0.3);
+        robot.extend.setPower(1);
         while(opModeIsActive() && robot.extend.isBusy()) {}
+        robot.extend.setPower(0.3);
+        robot.setInPower(0);
         flipBox(30);
         turn(-getAngle(), 4);
         robot.setInPower(0);
@@ -495,11 +504,17 @@ public class GOFAutonomousDepot extends LinearOpMode {
         robot.setDrivePower(0, 0, 0, 0);
         robot.extend.setTargetPosition(-1300);
         robot.extend.setPower(0.8);
-        flipBox(120);
         turnBackToPoint(-4, -5);
         encoderMovePreciseTimed(-560, 0.5, 3, true);
+        while(opModeIsActive() && !robot.extend.isBusy()) {}
+        flipBox(120);
         robot.setInPower(1);
-        while(opModeIsActive()) {}
+        while(opModeIsActive()) {
+            robot.extend.setTargetPosition(-800);
+            while(opModeIsActive() && robot.extend.isBusy()) {}
+            robot.extend.setTargetPosition(-1300);
+            while(opModeIsActive() && robot.extend.isBusy()) {}
+        }
     }
 
     private void die() {
@@ -1005,7 +1020,7 @@ public class GOFAutonomousDepot extends LinearOpMode {
             turnDistance += 360;
         }
         if(turnDistance != 0) {
-            turn(turnDistance, Math.abs(turnDistance) / 60.0);
+            turn(turnDistance, Math.abs(turnDistance) / 60.0, 0.0075);
         }
         if(goldPos == 0 && Math.abs(newY) >= 5 && Math.abs(newX) == 0) {
             robot.setInPower(0);

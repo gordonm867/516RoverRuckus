@@ -35,6 +35,7 @@
       <change afterPath="$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/AutoCreatorTest.java" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/AutoCreatorTestRunnable.java" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/CurvedAutoTest.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/GOFAutoCraterNoPark.java" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/GOFAutoTransitioner.java" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/GOFAutonomousCrater.java" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/GOFAutonomousDepot.java" afterDir="false" />
@@ -87,25 +88,25 @@
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
           <entry key="gradle" value="26" />
-          <entry key="java" value="13689" />
+          <entry key="java" value="15270" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
           <entry key="Groovy" value="26" />
-          <entry key="JAVA" value="13689" />
+          <entry key="JAVA" value="15270" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.open">
         <counts>
           <entry key="gradle" value="3" />
-          <entry key="java" value="58" />
+          <entry key="java" value="59" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.open">
         <counts>
           <entry key="Groovy" value="3" />
-          <entry key="JAVA" value="58" />
+          <entry key="JAVA" value="59" />
         </counts>
       </usages-collector>
     </session>
@@ -118,8 +119,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/GOFAutonomousCrater.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="285">
-              <caret line="894" column="30" selection-start-line="894" selection-start-column="30" selection-end-line="894" selection-end-column="30" />
+            <state relative-caret-position="105">
+              <caret line="26" lean-forward="true" selection-start-line="26" selection-end-line="2092" selection-end-column="5" />
               <folding>
                 <element signature="e#4043#18008#0" expanded="true" />
                 <element signature="class#5451:9468" />
@@ -127,7 +128,14 @@
                 <element signature="method#run#0;class#9488:13822" expanded="true" />
                 <element signature="class#13852:14114" />
                 <element signature="method#run#0;class#13852:14114" expanded="true" />
-                <element signature="e#55068#55953#0" expanded="true" />
+                <element signature="e#18014#18956#0" expanded="true" />
+                <element signature="e#18962#21596#0" expanded="true" />
+                <element signature="e#21602#24009#0" expanded="true" />
+                <element signature="e#24015#25850#0" expanded="true" />
+                <element signature="e#48328#50448#0" expanded="true" />
+                <element signature="e#54485#55370#0" expanded="true" />
+                <element signature="e#62799#64103#0" expanded="true" />
+                <element signature="e#64109#65948#0" expanded="true" />
                 <element signature="e#95816#102252#0" expanded="true" />
               </folding>
             </state>
@@ -135,39 +143,46 @@
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/TeamCode/build.gradle">
+        <entry file="file://$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/GOFAutoCraterNoPark.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="122">
-              <caret line="9" selection-start-line="9" selection-end-line="9" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/GOFTeleOp.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="255">
-              <caret line="209" column="74" selection-start-line="209" selection-start-column="74" selection-end-line="209" selection-end-column="74" />
+            <state relative-caret-position="82">
+              <caret line="813" column="24" selection-start-line="813" selection-start-column="24" selection-end-line="813" selection-end-column="24" />
               <folding>
-                <element signature="e#4306#8868#0" expanded="true" />
-                <element signature="class#16661:16987" />
-                <element signature="method#run#0;class#16661:16987" expanded="true" />
+                <element signature="e#4292#18286#0" expanded="true" />
+                <element signature="class#9737:14072" />
+                <element signature="method#run#0;class#9737:14072" expanded="true" />
+                <element signature="class#14102:14364" />
+                <element signature="method#run#0;class#14102:14364" expanded="true" />
+                <element signature="e#18292#19213#0" expanded="true" />
+                <element signature="e#19219#21852#0" expanded="true" />
+                <element signature="e#21858#24264#0" expanded="true" />
+                <element signature="e#24270#26105#0" expanded="true" />
+                <element signature="e#62805#64109#0" expanded="true" />
+                <element signature="e#64115#65954#0" expanded="true" />
+                <element signature="e#95282#102550#0" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/GOFAutonomousDepot.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-587">
-              <caret line="300" column="27" selection-start-line="300" selection-start-column="27" selection-end-line="300" selection-end-column="27" />
+            <state relative-caret-position="7815">
+              <caret line="1492" column="63" selection-start-line="1492" selection-start-column="63" selection-end-line="1492" selection-end-column="63" />
               <folding>
                 <element signature="imports" expanded="true" />
+                <element signature="e#3822#17523#0" expanded="true" />
                 <element signature="class#5203:9220" />
                 <element signature="class#9240:13574" />
                 <element signature="class#13612:13874" />
                 <element signature="method#run#0;class#13612:13874" expanded="true" />
+                <element signature="e#17529#18822#0" expanded="true" />
+                <element signature="e#18828#20762#0" expanded="true" />
+                <element signature="e#21593#23644#0" expanded="true" />
+                <element signature="e#25417#25418#0" expanded="true" />
+                <element signature="e#25502#25503#0" expanded="true" />
+                <element signature="e#51926#53105#0" expanded="true" />
                 <element signature="method#run#0;class#87235:91817" expanded="true" />
               </folding>
             </state>
@@ -177,33 +192,11 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/GOFHardware.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1740">
-              <caret line="548" column="30" selection-start-line="548" selection-start-column="30" selection-end-line="548" selection-end-column="30" />
+            <state relative-caret-position="262">
+              <caret line="544" column="34" selection-start-line="544" selection-start-column="34" selection-end-line="544" selection-end-column="34" />
               <folding>
                 <element signature="e#4553#13566#0" expanded="true" />
                 <element signature="e#13681#14610#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/GOFBoxPotentiometerPoses.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="450">
-              <caret line="258" column="19" lean-forward="true" selection-start-line="258" selection-start-column="19" selection-end-line="258" selection-end-column="19" />
-              <folding>
-                <element signature="imports" expanded="true" />
-                <element signature="method#init#0;class#GOFBoxPotentiometerPoses#0" expanded="true" />
-                <element signature="method#init_loop#0;class#GOFBoxPotentiometerPoses#0" expanded="true" />
-                <element signature="e#3757#3758#0" expanded="true" />
-                <element signature="e#3792#3793#0" expanded="true" />
-                <element signature="method#stop#0;class#GOFBoxPotentiometerPoses#0" expanded="true" />
-                <element signature="method#driveByField#0;class#GOFBoxPotentiometerPoses#0" expanded="true" />
-                <element signature="method#adjust#0;class#GOFBoxPotentiometerPoses#0" expanded="true" />
-                <element signature="method#flipBox#0;class#GOFBoxPotentiometerPoses#0" expanded="true" />
-                <element signature="method#checkBox#0;class#GOFBoxPotentiometerPoses#0" expanded="true" />
-                <element signature="method#getInstance#0;class#GOFBoxPotentiometerPoses#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -220,27 +213,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>triggerPressed</find>
-      <find>void flipBox</find>
-      <find>elapsedTime</find>
-      <find>threadReset</find>
-      <find>robot.boxPote</find>
-      <find>robot.boxPotentiometer.getVoltage()</find>
-      <find>boxPotent</find>
-      <find>boxPo</find>
-      <find>boxPoten</find>
-      <find>boxPotentiometer</find>
-      <find>box</find>
-      <find>boxPotentiometer.g</find>
-      <find>checkBox() {</find>
-      <find>synchroni</find>
-      <find>flipBox(60)</find>
-      <find>game</find>
-      <find>30</find>
-      <find>Ki = 0</find>
-      <find>gamepad2.x</find>
-      <find>gamepad2.left</find>
-      <find>gamepad2.y</find>
       <find>lights.update</find>
       <find>waiting = true;</find>
       <find>die() {</find>
@@ -248,8 +220,29 @@
       <find>update.start()</find>
       <find>lights</find>
       <find>parking = true;</find>
-      <find>parking</find>
+      <find>setInPower(1</find>
+      <find>-560</find>
       <find>float</find>
+      <find>rightDepot</find>
+      <find>* error</find>
+      <find>PIDPower</find>
+      <find>rightDepotAuto() {</find>
+      <find>rightCrater</find>
+      <find>void turn</find>
+      <find>checkBox() {</find>
+      <find>depot</find>
+      <find>parking</find>
+      <find>robot.getUSDistance()</find>
+      <find>getUSDistance()</find>
+      <find>&amp;&amp; goldPos == 0</find>
+      <find>robot.getUSDistance</find>
+      <find>1.7</find>
+      <find>turn(-getangle</find>
+      <find>adj</find>
+      <find>park() {</find>
+      <find>-5, 10</find>
+      <find>gamepad2.b</find>
+      <find>uhoh = true</find>
     </findStrings>
   </component>
   <component name="GradleLocalSettings">
@@ -3238,7 +3231,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/FtcRobotController/src/main/res/values/strings.xml" />
         <option value="$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/CloseVuforia.java" />
         <option value="$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/CloseableVuforiaLocalizer.java" />
         <option value="$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/GOFVuforiaLocalizer.java" />
@@ -3282,20 +3274,21 @@
         <option value="$PROJECT_DIR$/build.common.gradle" />
         <option value="$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/GOFExtenderTest.java" />
         <option value="$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/TestleOp.java" />
-        <option value="$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/GOFHardware.java" />
         <option value="$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/GOFTeleOpTest.java" />
-        <option value="$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/GOFAutonomousDepot.java" />
         <option value="$PROJECT_DIR$/TeamCode/build.gradle" />
         <option value="$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/GOFTeleOp.java" />
-        <option value="$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/GOFAutonomousCrater.java" />
+        <option value="$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/GOFAutonomousDepot.java" />
         <option value="$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/GOFBoxPotentiometerPoses.java" />
+        <option value="$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/GOFHardware.java" />
+        <option value="$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/GOFAutonomousCrater.java" />
+        <option value="$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/GOFAutoCraterNoPark.java" />
       </list>
     </option>
   </component>
-  <component name="ProjectFrameBounds" extendedState="1">
+  <component name="ProjectFrameBounds">
     <option name="y" value="23" />
     <option name="width" value="1366" />
-    <option name="height" value="680" />
+    <option name="height" value="678" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectView">
@@ -3477,7 +3470,7 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="0" y="23" width="1366" height="680" extended-state="1" />
+    <frame x="0" y="23" width="1366" height="678" extended-state="0" />
     <editor active="true" />
     <layout>
       <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.49850747" visible="true" weight="0.2794562" />
@@ -3524,7 +3517,6 @@
     <option name="PERFORM_ADD_REMOVE_IN_BACKGROUND" value="false" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/TeamCode/src/main/java/StateMac.java" />
     <entry file="jar://$PROJECT_DIR$/libs/Hardware-release-sources.jar!/com/qualcomm/hardware/rev/RevTouchSensor.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="207">
@@ -3697,6 +3689,10 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="98">
           <caret line="172" column="7" lean-forward="true" selection-start-line="172" selection-start-column="7" selection-end-line="172" selection-end-column="7" />
+          <folding>
+            <element signature="docComment;field#STOP_AND_RESET_ENCODER#0;class#RunMode#0;class#DcMotor#0" expanded="true" />
+            <element signature="docComment;field#RESET_ENCODERS#0;class#RunMode#0;class#DcMotor#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -3766,6 +3762,10 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="114">
           <caret line="8" column="9" selection-start-line="8" selection-start-column="9" selection-end-line="8" selection-end-column="9" />
+          <folding>
+            <element signature="imports" expanded="true" />
+            <element signature="method#runOpMode#0;class#GOFExtenderTest#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -3823,53 +3823,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/GOFHardware.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1740">
-          <caret line="548" column="30" selection-start-line="548" selection-start-column="30" selection-end-line="548" selection-end-column="30" />
-          <folding>
-            <element signature="e#4553#13566#0" expanded="true" />
-            <element signature="e#13681#14610#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/GOFAutonomousDepot.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-587">
-          <caret line="300" column="27" selection-start-line="300" selection-start-column="27" selection-end-line="300" selection-end-column="27" />
-          <folding>
-            <element signature="imports" expanded="true" />
-            <element signature="class#5203:9220" />
-            <element signature="class#9240:13574" />
-            <element signature="class#13612:13874" />
-            <element signature="method#run#0;class#13612:13874" expanded="true" />
-            <element signature="method#run#0;class#87235:91817" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/TeamCode/build.gradle">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="122">
           <caret line="9" selection-start-line="9" selection-end-line="9" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/GOFAutonomousCrater.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="285">
-          <caret line="894" column="30" selection-start-line="894" selection-start-column="30" selection-end-line="894" selection-end-column="30" />
-          <folding>
-            <element signature="e#4043#18008#0" expanded="true" />
-            <element signature="class#5451:9468" />
-            <element signature="class#9488:13822" />
-            <element signature="method#run#0;class#9488:13822" expanded="true" />
-            <element signature="class#13852:14114" />
-            <element signature="method#run#0;class#13852:14114" expanded="true" />
-            <element signature="e#55068#55953#0" expanded="true" />
-            <element signature="e#95816#102252#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -3885,22 +3842,101 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/GOFHardware.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="262">
+          <caret line="544" column="34" selection-start-line="544" selection-start-column="34" selection-end-line="544" selection-end-column="34" />
+          <folding>
+            <element signature="e#4553#13566#0" expanded="true" />
+            <element signature="e#13681#14610#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/GOFAutonomousCrater.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="105">
+          <caret line="26" lean-forward="true" selection-start-line="26" selection-end-line="2092" selection-end-column="5" />
+          <folding>
+            <element signature="e#4043#18008#0" expanded="true" />
+            <element signature="class#5451:9468" />
+            <element signature="class#9488:13822" />
+            <element signature="method#run#0;class#9488:13822" expanded="true" />
+            <element signature="class#13852:14114" />
+            <element signature="method#run#0;class#13852:14114" expanded="true" />
+            <element signature="e#18014#18956#0" expanded="true" />
+            <element signature="e#18962#21596#0" expanded="true" />
+            <element signature="e#21602#24009#0" expanded="true" />
+            <element signature="e#24015#25850#0" expanded="true" />
+            <element signature="e#48328#50448#0" expanded="true" />
+            <element signature="e#54485#55370#0" expanded="true" />
+            <element signature="e#62799#64103#0" expanded="true" />
+            <element signature="e#64109#65948#0" expanded="true" />
+            <element signature="e#95816#102252#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/GOFAutoCraterNoPark.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="82">
+          <caret line="813" column="24" selection-start-line="813" selection-start-column="24" selection-end-line="813" selection-end-column="24" />
+          <folding>
+            <element signature="e#4292#18286#0" expanded="true" />
+            <element signature="class#9737:14072" />
+            <element signature="method#run#0;class#9737:14072" expanded="true" />
+            <element signature="class#14102:14364" />
+            <element signature="method#run#0;class#14102:14364" expanded="true" />
+            <element signature="e#18292#19213#0" expanded="true" />
+            <element signature="e#19219#21852#0" expanded="true" />
+            <element signature="e#21858#24264#0" expanded="true" />
+            <element signature="e#24270#26105#0" expanded="true" />
+            <element signature="e#62805#64109#0" expanded="true" />
+            <element signature="e#64115#65954#0" expanded="true" />
+            <element signature="e#95282#102550#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/GOFBoxPotentiometerPoses.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="450">
-          <caret line="258" column="19" lean-forward="true" selection-start-line="258" selection-start-column="19" selection-end-line="258" selection-end-column="19" />
+        <state relative-caret-position="585">
+          <caret line="39" column="67" selection-start-line="39" selection-start-column="67" selection-end-line="39" selection-end-column="67" />
           <folding>
             <element signature="imports" expanded="true" />
             <element signature="method#init#0;class#GOFBoxPotentiometerPoses#0" expanded="true" />
             <element signature="method#init_loop#0;class#GOFBoxPotentiometerPoses#0" expanded="true" />
             <element signature="e#3757#3758#0" expanded="true" />
             <element signature="e#3792#3793#0" expanded="true" />
+            <element signature="method#loop#0;class#GOFBoxPotentiometerPoses#0" expanded="true" />
             <element signature="method#stop#0;class#GOFBoxPotentiometerPoses#0" expanded="true" />
             <element signature="method#driveByField#0;class#GOFBoxPotentiometerPoses#0" expanded="true" />
             <element signature="method#adjust#0;class#GOFBoxPotentiometerPoses#0" expanded="true" />
             <element signature="method#flipBox#0;class#GOFBoxPotentiometerPoses#0" expanded="true" />
             <element signature="method#checkBox#0;class#GOFBoxPotentiometerPoses#0" expanded="true" />
             <element signature="method#getInstance#0;class#GOFBoxPotentiometerPoses#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/GOFAutonomousDepot.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="7815">
+          <caret line="1492" column="63" selection-start-line="1492" selection-start-column="63" selection-end-line="1492" selection-end-column="63" />
+          <folding>
+            <element signature="imports" expanded="true" />
+            <element signature="e#3822#17523#0" expanded="true" />
+            <element signature="class#5203:9220" />
+            <element signature="class#9240:13574" />
+            <element signature="class#13612:13874" />
+            <element signature="method#run#0;class#13612:13874" expanded="true" />
+            <element signature="e#17529#18822#0" expanded="true" />
+            <element signature="e#18828#20762#0" expanded="true" />
+            <element signature="e#21593#23644#0" expanded="true" />
+            <element signature="e#25417#25418#0" expanded="true" />
+            <element signature="e#25502#25503#0" expanded="true" />
+            <element signature="e#51926#53105#0" expanded="true" />
+            <element signature="method#run#0;class#87235:91817" expanded="true" />
           </folding>
         </state>
       </provider>

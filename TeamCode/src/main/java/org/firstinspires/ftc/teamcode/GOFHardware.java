@@ -543,6 +543,30 @@ public class GOFHardware {
     }
 
     public double getUSDistance() {
+        double[] distances = new double[5];
+        double sum = 0;
+        double actualSum;
+        for(int x = 0; x < 5; x++) {
+            double add = internalGetUSDistance();
+            if(add != Double.POSITIVE_INFINITY && add != 0) {
+                distances[x] = add;
+                sum += distances[x];
+            }
+        }
+        actualSum = sum;
+        sum /= 5.0;
+        double removed = 0;
+        for(double value : distances) {
+            if(Math.abs(value - sum) >= 20) {
+                actualSum -= value;
+                removed++;
+            }
+        }
+        actualSum /= (5.0 - removed);
+        return actualSum;
+    }
+
+    public double internalGetUSDistance() {
         if(rfSensor != null ) {
             double distance = rfSensor.cmUltrasonic(); // Get ultrasonic distance
             int iterations = 1;

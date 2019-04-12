@@ -35,9 +35,9 @@ public class GOFBoxPotentiometerPoses extends OpMode {
     private             double              intake              = 128.76;
     private             double              neutral             = 65;
     private             double              offset              = 2.5;
-    private             double              Kp                  = 0.03;
-    private             double              Ki                  = 0.0075;
-    private             double              Kd                  = 0.015;
+    private             double              Kp                  = 0.05;
+    private             double              Ki                  = 0;
+    private             double              Kd                  = 0;
 
     private             ElapsedTime         hangTime            = new ElapsedTime();
     private volatile    ElapsedTime         threadTime          = new ElapsedTime();
@@ -437,7 +437,7 @@ public class GOFBoxPotentiometerPoses extends OpMode {
                 lastError = error;
                 double PIDPower;
                 try {
-                    PIDPower = (Kp * error) - (Ki * integral) + (Kd * (derivative));
+                    PIDPower = (Kp * error) + (Ki * integral) + (Kd * (derivative));
                 } catch (Exception p_exception) {
                     PIDPower = (Kp * error);
                 }
