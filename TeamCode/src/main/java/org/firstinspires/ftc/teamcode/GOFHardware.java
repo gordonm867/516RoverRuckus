@@ -546,12 +546,17 @@ public class GOFHardware {
         double[] distances = new double[5];
         double sum = 0;
         double actualSum;
+        double removals = 5;
         for(int x = 0; x < 5; x++) {
             double add = internalGetUSDistance();
             if(add != Double.POSITIVE_INFINITY && add != 0) {
                 distances[x] = add;
                 sum += distances[x];
+                removals --;
             }
+        }
+        if(sum == 0 && removals == 5) {
+            return Double.POSITIVE_INFINITY;
         }
         actualSum = sum;
         sum /= 5.0;

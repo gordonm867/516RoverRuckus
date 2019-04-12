@@ -88,13 +88,13 @@
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
           <entry key="gradle" value="26" />
-          <entry key="java" value="15270" />
+          <entry key="java" value="15364" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
           <entry key="Groovy" value="26" />
-          <entry key="JAVA" value="15270" />
+          <entry key="JAVA" value="15364" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.open">
@@ -165,13 +165,12 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/GOFAutonomousDepot.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="7815">
-              <caret line="1492" column="63" selection-start-line="1492" selection-start-column="63" selection-end-line="1492" selection-end-column="63" />
+            <state relative-caret-position="165">
+              <caret line="11" column="58" lean-forward="true" selection-start-line="11" selection-start-column="58" selection-end-line="11" selection-end-column="58" />
               <folding>
-                <element signature="imports" expanded="true" />
                 <element signature="e#3822#17523#0" expanded="true" />
                 <element signature="class#5203:9220" />
                 <element signature="class#9240:13574" />
@@ -189,7 +188,7 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/GOFHardware.java">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="262">
@@ -228,7 +227,6 @@
       <find>PIDPower</find>
       <find>rightDepotAuto() {</find>
       <find>rightCrater</find>
-      <find>void turn</find>
       <find>checkBox() {</find>
       <find>depot</find>
       <find>parking</find>
@@ -243,6 +241,7 @@
       <find>-5, 10</find>
       <find>gamepad2.b</find>
       <find>uhoh = true</find>
+      <find>void turn</find>
     </findStrings>
   </component>
   <component name="GradleLocalSettings">
@@ -3279,9 +3278,9 @@
         <option value="$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/GOFTeleOp.java" />
         <option value="$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/GOFAutonomousDepot.java" />
         <option value="$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/GOFBoxPotentiometerPoses.java" />
-        <option value="$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/GOFHardware.java" />
         <option value="$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/GOFAutonomousCrater.java" />
         <option value="$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/GOFAutoCraterNoPark.java" />
+        <option value="$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/GOFHardware.java" />
       </list>
     </option>
   </component>
@@ -3842,17 +3841,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/GOFHardware.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="262">
-          <caret line="544" column="34" selection-start-line="544" selection-start-column="34" selection-end-line="544" selection-end-column="34" />
-          <folding>
-            <element signature="e#4553#13566#0" expanded="true" />
-            <element signature="e#13681#14610#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/GOFAutonomousCrater.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="105">
@@ -3921,10 +3909,9 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/GOFAutonomousDepot.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="7815">
-          <caret line="1492" column="63" selection-start-line="1492" selection-start-column="63" selection-end-line="1492" selection-end-column="63" />
+        <state relative-caret-position="165">
+          <caret line="11" column="58" lean-forward="true" selection-start-line="11" selection-start-column="58" selection-end-line="11" selection-end-column="58" />
           <folding>
-            <element signature="imports" expanded="true" />
             <element signature="e#3822#17523#0" expanded="true" />
             <element signature="class#5203:9220" />
             <element signature="class#9240:13574" />
@@ -3937,6 +3924,17 @@
             <element signature="e#25502#25503#0" expanded="true" />
             <element signature="e#51926#53105#0" expanded="true" />
             <element signature="method#run#0;class#87235:91817" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/GOFHardware.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="262">
+          <caret line="544" column="34" selection-start-line="544" selection-start-column="34" selection-end-line="544" selection-end-column="34" />
+          <folding>
+            <element signature="e#4553#13566#0" expanded="true" />
+            <element signature="e#13681#14610#0" expanded="true" />
           </folding>
         </state>
       </provider>
