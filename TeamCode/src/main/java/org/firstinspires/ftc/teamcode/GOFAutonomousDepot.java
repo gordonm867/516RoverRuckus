@@ -314,19 +314,25 @@ public class GOFAutonomousDepot extends LinearOpMode {
         robot.extend.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         robot.extend.setPower(1);
         sleep(500);
-        robot.extend.setPower(0.8);
+        robot.extend.setPower(0.5);
         robot.extend.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         robot.extend.setTargetPosition(-1300);
-        while(opModeIsActive() && robot.extend.isBusy()) {}
+        while(opModeIsActive() && robot.extend.isBusy()) {
+            flipBox(30);
+            sleep(500);
+            flipBox(50);
+            sleep(500);
+        }
         flipBox(120);
         sleep(250);
         robot.setInPower(-0.6);
         sleep(750);
         flipBox(60);
+        sleep(500);
         if(goldPos == 0) {
             robot.setInPower(0.5);
-            robot.extend.setTargetPosition((int)(((1300 / 3000.0) * 0.25 * -2308)) + 200);
-            while(opModeIsActive() && goldPos == 0 && robot.extend.isBusy()) {}
+            robot.extend.setTargetPosition(0);
+            while(opModeIsActive() && goldPos == 0 && (robot.extend.isBusy() && robot.extenderSensor.getVoltage() <= 2)) {}
             flipBox(120);
             robot.extend.setTargetPosition((int)((1300 / 3000.0) * 0.5 * -3000));
             while (opModeIsActive() && robot.extend.isBusy()) {}
@@ -373,7 +379,7 @@ public class GOFAutonomousDepot extends LinearOpMode {
         sleep(1000);
         robot.setInPower(0);
         flipBox(neutral);
-        encoderMovePreciseTimed(200, 0.3, 1, true);
+        encoderMovePreciseTimed(275, 0.3, 1, true);
         while(opModeIsActive() && robot.topSensor.getState()) {
             robot.hangOne.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             robot.setHangPower(1);
@@ -427,7 +433,7 @@ public class GOFAutonomousDepot extends LinearOpMode {
         turn(-getAngle(), 4);
         robot.setInPower(0);
         flipBox(neutral);
-        encoderMovePreciseTimed(200, 0.5, 1, true);
+        encoderMovePreciseTimed(275, 0.5, 1, true);
         while(opModeIsActive() && robot.topSensor.getState()) {
             robot.hangOne.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             robot.setHangPower(1);
@@ -481,7 +487,7 @@ public class GOFAutonomousDepot extends LinearOpMode {
         turn(-getAngle(), 4);
         robot.setInPower(0);
         flipBox(neutral);
-        encoderMovePreciseTimed(200, 0.5, 1, true);
+        encoderMovePreciseTimed(275, 0.5, 1, true);
         while(opModeIsActive() && robot.topSensor.getState()) {
             robot.hangOne.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             robot.setHangPower(1);

@@ -97,6 +97,7 @@ public class GOFAutonomousCrater extends LinearOpMode {
         vuforiaInit(); // Initialize Vuforia
         detectInit(); // Initialize TensorFlwo
 
+        /*
         Thread update = new Thread() {
             @Override
             public synchronized void run() {
@@ -161,6 +162,7 @@ public class GOFAutonomousCrater extends LinearOpMode {
                 return robotAngle;
             }
         };
+        */
         box = new Thread() {
             private ElapsedTime threadTime = new ElapsedTime();
             private double iterations = 0;
@@ -253,6 +255,7 @@ public class GOFAutonomousCrater extends LinearOpMode {
                 }
             }
         };
+        /*
         Thread lights = new Thread() {
             public synchronized void run() {
                 while(!Thread.currentThread().isInterrupted() && elapsedTime.time() <= 32) {
@@ -261,6 +264,7 @@ public class GOFAutonomousCrater extends LinearOpMode {
                 }
             }
         };
+        */
 
         GOFAutoTransitioner.transitionOnStop(this, "GOFTeleOp"); // Start TeleOp after autonomous ends
 
@@ -298,7 +302,7 @@ public class GOFAutonomousCrater extends LinearOpMode {
         telemetry.addData("Status: ", "Entering loop");
         telemetry.update();
 
-        lights.start();
+        // lights.start();
 
         if(!isStopRequested()) {
             goldPos = detectGold();
@@ -324,7 +328,7 @@ public class GOFAutonomousCrater extends LinearOpMode {
         }
 
         /* Descend */
-        lights.interrupt();
+        // lights.interrupt();
         flipBox(neutral);
         descend();
         turn(-6, 4, 0.04);
@@ -389,6 +393,7 @@ public class GOFAutonomousCrater extends LinearOpMode {
             scored++;
         }
         flipBox(90);
+        sleep(500);
         runBackToPoint(-5.2, -1, (float)0.5);
         robot.setInPower(0);
         frontTurn(-getAngle() - 45, 5);
@@ -465,6 +470,7 @@ public class GOFAutonomousCrater extends LinearOpMode {
         while(opModeIsActive() && robot.extend.isBusy()) {}
         flipBox(90);
         robot.extend.setPower(0.4);
+        sleep(500);
         runBackToPoint(-5.2, -0.65, (float)0.5);
         robot.setInPower(0);
         frontTurn(-getAngle() - 45, 5);
@@ -537,6 +543,7 @@ public class GOFAutonomousCrater extends LinearOpMode {
         robot.extend.setTargetPosition((int)((1300 / 3000.0) * 0.5 * -50));
         while(opModeIsActive() && robot.extend.isBusy()) {}
         flipBox(90);
+        sleep(500);
         runBackToPoint(-5.2, -1, (float)0.5);
         robot.setInPower(0);
         frontTurn(-getAngle() - 45, 5);
@@ -898,7 +905,7 @@ public class GOFAutonomousCrater extends LinearOpMode {
                 }
                 robot.extend.setPower(0.4); // Limit power used to hold position
                 adj = true;
-                runToPoint(-2, 1.7);
+                runToPoint(-2.197, 1.38);
                 adj = false;
                 turn(-getAngle(), 4, 0.0075);
             }
@@ -1989,7 +1996,7 @@ public class GOFAutonomousCrater extends LinearOpMode {
                         depot = false;
                     }
                     lastReading = robot.getUSDistance();
-                    if(parking && robot.getUSDistance() >= 105) {
+                    if(parking && robot.getUSDistance() >= 95) {
                         robot.setDrivePower(0, 0, 0, 0);
                         parking = false;
                         if(robot.getUSDistance() == Double.POSITIVE_INFINITY) {
