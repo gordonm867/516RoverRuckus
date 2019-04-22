@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
@@ -10,57 +11,59 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
-import org.firstinspires.ftc.robotcore.internal.opmode.OpModeManagerImpl;
 
 // @SuppressWarnings({"WeakerAccess", "SpellCheckingInspection", "EmptyCatchBlock", "StatementWithEmptyBody", "SameParameterValue"})
-@TeleOp(name="GOFBoxTuner", group="GOF")
+@TeleOp(name="GOFTeleOp", group="GOF")
 public class GOFBoxPotentiometerPoses extends OpMode {
 
     private             boolean             aPressed            = false;
-    private             boolean             oaPressed           = false;
-    private             boolean             xPressed            = false;
-    private             boolean             bPressed            = false;
-    private             boolean             yPressed            = false;
-    private             boolean             daPressed           = false;
-    private             boolean             dxPressed           = false;
-    private             boolean             dyPressed           = false;
-    private             boolean             dbPressed           = false;
-    private             boolean             gotThere            = false;
-    private             boolean             useNeg              = false;
-    private             boolean             waitingForClick     = true;
+    private             boolean             ypressed            = false;
     private             boolean             bumperPressed       = false;
+    private             boolean             gotThere            = false;
     private             boolean             servoMove           = false;
-    private             boolean             autoScored          = false;
+    private             boolean             hanging             = true;
+    private             boolean             hangDown            = false;
 
-    private volatile    double              boxPos              = 90;
+    private volatile    double              boxPos              = 120;
+    private             double              firstAngleOffset;
     private             double              triggerPressed      = 0;
     private             double              lastIntake          = 0;
     private             double              integral            = 0;
     private             double              lastError           = 0;
-    private             double              dump                = 45;
-    private             double              intake              = 170;
-    private             double              neutral             = 60;
-    private             double              offset              = 5;
+    private             double              maxDriveSpeed;
+    private             double              dump                = 30;
+    private             double              intake              = 128.76;
+    private             double              neutral             = 65;
+    private             double              offset              = 2.5;
     private             double              Kp                  = 0.05;
-    private             double              Ki                  = 0.005;
-    private             double              Kd                  = 0.025;
+    private             double              Ki                  = 0;
+    private             double              Kd                  = 0;
 
-    private             ElapsedTime         elapsedTime         = new ElapsedTime();
     private             ElapsedTime         hangTime            = new ElapsedTime();
-    private             ElapsedTime         trigTime            = new ElapsedTime();
     private volatile    ElapsedTime         threadTime          = new ElapsedTime();
-    private             ElapsedTime         flipTime            = new ElapsedTime();
+    private volatile    ElapsedTime         elapsedTime         = new ElapsedTime();
+    private             ElapsedTime         lightsTime          = new ElapsedTime();
 
     public              GOFHardware         robot               = GOFHardware.getInstance(); // Use the GOFHardware class
 
+    private static      GOFTeleOp           teleOp              = GOFTeleOp.getInstance();
+
+    private             int                 driverMode          = 1;
     private             int                 iterations          = 0;
 
     @Override
     public void init() {
         msStuckDetectInit = 10000; // Allow gyros to calibrate
         robot.init(hardwareMap);
+        robot.extend.setDirection(DcMotorSimple.Direction.REVERSE);
         // robot.setKickPower(kickReadyPos);
-        robot.teamFlag.setPosition(0.5);
+        if(robot.teamFlag != null) {
+            robot.teamFlag.setPosition(0.05);
+        }
+        maxDriveSpeed = robot.maxDriveSpeed;
+        if(robot.boxPotentiometer != null) {
+            boxPos = 180 * (robot.boxPotentiometer.getVoltage() / 3.3);
+        }
         telemetry.addData("Status", "Initialized"); // Update phone
     }
 
@@ -71,103 +74,82 @@ public class GOFBoxPotentiometerPoses extends OpMode {
     }
 
     @Override
+    public void start() {
+        elapsedTime.reset();
+    }
+
+    @Override
     public void loop() {
-        telemetry.addData("Run time", elapsedTime.toString());
-        telemetry.addData("Kp", ((int)(1000 * Kp) / 1000.0));
-        telemetry.addData("Ki", ((int)(1000 * Ki) / 1000.0));
-        telemetry.addData("Kd", ((int)(1000 * Kd) / 1000.0));
-        telemetry.addData("Box power", robot.box.getPower());
+        elapsedTime.reset();
+        double drive = -gamepad1.left_stick_y;
+        double hangDrive = -gamepad2.left_stick_y;
+        double turn = gamepad1.right_stick_x * 0.6;
+        double angle = gamepad1.left_stick_x;
 
-        if(gamepad1.a && !oaPressed) {
-            oaPressed = true;
-            Kp += 0.005;
+        /* Precision vertical drive */
+        if (gamepad1.dpad_down || gamepad1.dpad_up) {
+            if (gamepad1.left_stick_y != 0) {
+                drive = drive * 0.2; // Slow down joystick driving
+            } else {
+                if (gamepad1.dpad_down) {
+                    drive = -0.2; // Slow drive backwards
+                } else {
+                    drive = 0.2; // Slow drive forwards
+                }
+            }
         }
 
-        if(oaPressed && !gamepad1.a) {
-            oaPressed = false;
+        /* Precision sideways drive */
+        if (gamepad1.dpad_right || gamepad1.dpad_left) {
+            if (gamepad1.right_stick_x != 0) {
+                angle = angle * 0.3; // Slow down joystick side movement
+            } else {
+                if (gamepad1.dpad_left) {
+                    angle = -0.3; // Slow leftwards
+                } else {
+                    angle = 0.3; // Slow rightwards
+                }
+            }
         }
 
-        if(gamepad1.x && !xPressed) {
-            xPressed = true;
-            Ki += 0.005;
+        /* Precision turn */
+        if (gamepad1.left_bumper) {
+            turn = -0.2; // Slow left turn
+        }
+        if (gamepad1.right_bumper) {
+            turn = 0.2; // Slow right turn
         }
 
-        if(xPressed && !gamepad1.x) {
-            xPressed = false;
+        if(driverMode == 1) {
+            drive = adjust(drive);
+            turn = adjust(turn);
+            angle = adjust(angle);
+            double scaleFactor;
+            if (Math.max(Math.abs((drive + turn + angle)), Math.abs((drive - turn - angle))) > 1) {
+                scaleFactor = maxDriveSpeed / (Math.max(Math.abs(drive + turn + angle), Math.abs(drive - turn - angle)));
+            } else {
+                scaleFactor = 1;
+            }
+            scaleFactor *= Math.max(Math.abs(1 - gamepad1.right_trigger), 0.2);
+            robot.setDrivePower(scaleFactor * (drive + turn - angle), scaleFactor * (drive + turn + angle), scaleFactor * (drive - turn + angle), scaleFactor * (drive - turn - angle)); // Set motors to values based on gamepad
         }
-
-        if(gamepad1.b && !bPressed) {
-            bPressed = true;
-            Kd += 0.005;
+        else if(driverMode == -1) {
+            driveByField(drive, turn, angle);
         }
-
-        if(bPressed && !gamepad1.b) {
-            bPressed = false;
-        }
-
-        if(gamepad1.y && !yPressed) {
-            yPressed = true;
-            offset += 1;
-        }
-
-        if(gamepad1.dpad_up && !daPressed) {
-            daPressed = true;
-            Kp -= 0.005;
-        }
-
-        if(!gamepad1.dpad_up && daPressed) {
-            daPressed = false;
-        }
-
-        if(gamepad1.dpad_down && !dbPressed) {
-            dbPressed = true;
-            Ki = 0;
-        }
-
-        if(!gamepad1.dpad_down && dbPressed) {
-            dbPressed = false;
-        }
-
-        if(gamepad1.dpad_left && !dxPressed) {
-            dxPressed = true;
-            Kd = 0;
-        }
-
-        if(!gamepad1.dpad_left && dxPressed) {
-            dxPressed = false;
-        }
-
-        if(gamepad1.dpad_right && !dyPressed) {
-            dyPressed = true;
-            offset -= 1;
-        }
-
-        if(!gamepad1.dpad_right && dyPressed) {
-            dyPressed = false;
+        else {
+            driverMode = 1;
         }
 
         if(gamepad1.left_trigger != 0) {
-            triggerPressed = gamepad1.left_trigger * (useNeg ? -1 : 1);
-            trigTime.reset();
-        }
-        if(gamepad1.left_trigger == 0 && triggerPressed != 0) {
-            triggerPressed = 0;
-            if(!useNeg) {
-                waitingForClick = true;
-            }
-            else {
-                useNeg = false;
-            }
-        }
-        if(waitingForClick && trigTime.time() > 0.1) {
-            waitingForClick = false;
-        }
-        if(waitingForClick && gamepad1.left_trigger > 0.05) {
-            useNeg = true;
+            triggerPressed = gamepad1.left_trigger;
         }
 
-        if((triggerPressed != 0 || gamepad2.dpad_up || gamepad2.dpad_down)) {
-            robot.setInPower((gamepad2.dpad_up ? 1 : 0) + triggerPressed - (gamepad2.dpad_down ? 1 : 0) + ((servoMove || autoScored || (Math.abs(gamepad2.right_stick_x) < 0.05 ? gamepad2.dpad_right ? 0.25 : gamepad2.dpad_left ? -0.25 : 0 : gamepad2.right_stick_x) != robot.extend.getPower()) ? 0.25 : 0)); // Set intake power based on the gamepad trigger values
+        if(gamepad1.left_trigger == 0 && triggerPressed != 0) {
+            triggerPressed = 0;
+        }
+
+        if((triggerPressed != 0 || gamepad2.dpad_up || gamepad2.dpad_down || servoMove) || gamepad1.a) {
+            robot.setInPower((gamepad2.dpad_up ? 1 : 0) + triggerPressed - (gamepad2.dpad_down ? 1 : 0) + (servoMove ? 0.4 : 0) - (gamepad1.a ? 1 : 0)); // Set intake power based on the gamepad trigger values
             lastIntake = (robot.intake.getCurrentPosition() - lastIntake);
             lastIntake /= (lastIntake == 0 ? 1 : Math.abs(lastIntake));
         }
@@ -175,11 +157,74 @@ public class GOFBoxPotentiometerPoses extends OpMode {
             robot.setInPower(0);
         }
 
-        if(!servoMove) {
-            robot.setExtendPower((Math.abs(gamepad2.right_stick_x) < 0.05 ? gamepad2.dpad_right ? 0.25 : gamepad2.dpad_left ? -0.25 : 0 : gamepad2.right_stick_x));
+        if (gamepad1.y && !gamepad1.start) {
+            ypressed = true;
         }
 
-        if(((Math.abs(gamepad2.right_stick_x) < 0.05 ? gamepad2.dpad_right ? 0.25 : gamepad2.dpad_left ? -0.25 : 0 : gamepad2.right_stick_x)) != 0) {
+        if (ypressed && !gamepad1.y) {
+            ypressed = false;
+            driverMode *= -1;
+        }
+
+        /* Reset encoders */
+        if (gamepad1.y && gamepad1.start) {
+            robot.rrWheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            robot.rfWheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            robot.lrWheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            robot.lfWheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            robot.hangOne.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            robot.rrWheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            robot.rfWheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            robot.lrWheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            robot.lfWheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            robot.hangOne.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            firstAngleOffset = 0;
+            robot.gyroInit();
+        }
+
+        if (gamepad2.dpad_left || gamepad2.dpad_right) {
+            if (gamepad2.left_stick_y != 0) {
+                hangDrive = hangDrive * 0.25; // Slow down joystick hanging
+            } else {
+                if (gamepad2.dpad_right) {
+                    hangDrive = 0.25; // Slow drive hanging
+                } else {
+                    hangDrive = -0.25; // Slow drive hanging
+                }
+            }
+        }
+
+        if(gamepad2.x && robot.bottomSensor != null && !robot.bottomSensor.isPressed()) {
+            hangDown = true;
+        }
+
+        if(hangDown) {
+            robot.setHangPower(-1);
+        }
+
+        if(hangDrive >= 0.25) {
+            hangDown = false;
+        }
+
+        if(robot.bottomSensor != null && robot.bottomSensor.isPressed() && hangDown) {
+            robot.setHangPower(0);
+            hangDown = false;
+        }
+
+        if(robot.hangOne != null && robot.hangOne.getPower() > 0.05 && boxPos == dump) {
+            flipBox(100);
+        }
+
+        if(!servoMove && !hangDown) {
+            robot.setHangPower(hanging ? hangDrive : 0); // Move container based on gamepad positions
+        }
+
+        if(!servoMove) {
+            double extendDrive = (Math.abs(gamepad2.right_stick_x) < 0.05 ? gamepad2.dpad_right ? 0.25 : gamepad2.dpad_left ? -0.25 : gamepad1.x ? -1 : gamepad1.b ? 1 : 0 : gamepad2.right_stick_x);
+            robot.setExtendPower(extendDrive);
+        }
+
+        if(((Math.abs(gamepad2.right_stick_x) < 0.05 ? gamepad2.dpad_right ? 0.25 : gamepad2.dpad_left ? -0.25 : gamepad1.x ? -1 : gamepad1.b ? 1 : 0 : gamepad2.right_stick_x)) != 0) {
             servoMove = false;
         }
 
@@ -191,9 +236,27 @@ public class GOFBoxPotentiometerPoses extends OpMode {
             flipBox(intake); // Intake
         }
 
+        if(gamepad2.left_bumper) {
+            flipBox(100);
+        }
+
         if(gamepad2.right_bumper && !bumperPressed) {
             flipBox(dump); // Dump
             hangTime.reset();
+            hanging = false;
+        }
+
+        iterations++;
+        checkBox();
+
+        if(gamepad2.y) {
+            Ki = 0.005;
+            Kd = 0.025;
+        }
+
+        if(gamepad2.b) {
+            Ki = 0;
+            Kd = 0;
         }
 
         if(bumperPressed && !(gamepad2.right_bumper || gamepad2.left_bumper)) {
@@ -201,7 +264,7 @@ public class GOFBoxPotentiometerPoses extends OpMode {
         }
 
         if(gamepad2.a && !gamepad2.start && !aPressed) {
-            flipBox(neutral);
+            flipBox(65);
             aPressed = true;
             servoMove = true;
             robot.setInPower(0.25);
@@ -211,51 +274,75 @@ public class GOFBoxPotentiometerPoses extends OpMode {
             aPressed = false;
         }
 
-        if(servoMove && !(robot.extenderSensor.getVoltage() > 2)) {
+        if(servoMove && robot.extend != null && !(robot.extenderSensor.getVoltage() > 2)) {
             robot.setExtendPower(1);
         }
 
-        if(servoMove && !(robot.bottomSensor.isPressed())) {
+        if(servoMove && robot.bottomSensor != null && !(robot.bottomSensor.isPressed())) {
             robot.setHangPower(-1);
         }
 
-        if(robot.extenderSensor.getVoltage() > 2 && servoMove) {
+        if(robot.extenderSensor != null && robot.extenderSensor.getVoltage() > 2 && servoMove) {
             robot.setExtendPower(0);
-            if(robot.bottomSensor.isPressed()) {
+            if(robot.bottomSensor != null && robot.bottomSensor.isPressed()) {
                 robot.setHangPower(0);
                 servoMove = false;
                 flipBox(dump);
-                autoScored = true;
             }
         }
 
-        if(robot.bottomSensor.isPressed() && servoMove) {
+        if(!servoMove && robot.extend.getPower() == 0) {
+            robot.extend.setPower(-0.1);
+        }
+
+        if(robot.bottomSensor != null && robot.bottomSensor.isPressed() && servoMove) {
             robot.setHangPower(0);
             if(robot.extenderSensor.getVoltage() > 2) {
                 servoMove = false;
                 robot.extend.setPower(0);
                 flipBox(dump);
-                autoScored = true;
             }
         }
 
-        if(servoMove && robot.bottomSensor.isPressed() && robot.extenderSensor.getVoltage() > 2) {
+        if(servoMove && robot.bottomSensor != null && robot.bottomSensor.isPressed() && robot.extenderSensor != null && robot.extenderSensor.getVoltage() > 2) {
             robot.setHangPower(0);
             robot.setExtendPower(0);
             servoMove = false;
             flipBox(dump);
-            autoScored = true;
         }
 
-        if(autoScored && (Math.abs(robot.boxPotentiometer.getVoltage() - (3.3 * (boxPos / 180))) >= 0.1)) {
-            flipTime.reset();
+        if(hangTime.time() >= 0.75) {
+            hanging = true;
         }
 
-        if(flipTime.time() >= 0.5 && flipTime.time() <= 3 && autoScored && (Math.abs(robot.boxPotentiometer.getVoltage() - (3.3 * (boxPos / 180))) >= 0.1)) {
-            autoScored = false;
-            flipBox(neutral);
+        if(robot.lights != null) {
+            if (lightsTime.time() >= 100 && lightsTime.time() <= 110) {
+                if (robot.lights != null && (iterations / 90) % 2 == 0) {
+                    robot.lights.pixels[0].setRGB(60, 0, 60);
+                    robot.lights.pixels[2].setRGB(60, 0, 60);
+                } else if (robot.lights != null) {
+                    robot.lights.pixels[0].setRGB(0, 0, 0);
+                    robot.lights.pixels[2].setRGB(0, 0, 0);
+                }
+            } else if (lightsTime.time() >= 110 && lightsTime.time() <= 115) {
+                if (robot.lights != null && (iterations / 90) % 2 == 0) {
+                    robot.lights.pixels[0].setRGB(60, 0, 0);
+                    robot.lights.pixels[2].setRGB(60, 0, 0);
+                } else if (robot.lights != null) {
+                    robot.lights.pixels[0].setRGB(0, 0, 0);
+                    robot.lights.pixels[2].setRGB(0, 0, 0);
+                }
+            } else if (lightsTime.time() >= 115) {
+                if ((iterations / 45) % 2 == 0) {
+                    robot.lights.pixels[0].setRGB(255, 0, 0);
+                    robot.lights.pixels[2].setRGB(255, 0, 0);
+                } else if (robot.lights != null) {
+                    robot.lights.pixels[0].setRGB(0, 0, 0);
+                    robot.lights.pixels[2].setRGB(0, 0, 0);
+                }
+            }
+            robot.lights.update();
         }
-
         iterations++;
         checkBox();
     }
@@ -268,61 +355,114 @@ public class GOFBoxPotentiometerPoses extends OpMode {
         // robot.setKickPower(kickReadyPos); // Move kick servo to "intake ready" position
     }
 
+    private void driveByField(double drive, double turn, double angle) { // Experimental field-oriented drive
+        try {
+            if(Math.round(10 * drive) == 0 && Math.round(10 * angle) == 0) {
+                robot.setDrivePower(turn, turn, -turn, -turn);
+            }
+            else {
+                Orientation g0angles = null;
+                Orientation g1angles = null;
+                if (robot.gyro0 != null) {
+                    g0angles = robot.gyro0.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.RADIANS); // Get z axis angle from first gyro (in radians so that a conversion is unnecessary for proper employment of Java's Math class)
+                }
+                if (robot.gyro1 != null) {
+                    g1angles = robot.gyro1.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.RADIANS); // Get z axis angle from second gyro (in radians so that a conversion is unnecessary for proper employment of Java's Math class)
+                }
+                double robotAngle;
+                if (g0angles != null && g1angles != null) {
+                    robotAngle = ((g0angles.firstAngle + g1angles.firstAngle) / 2) + firstAngleOffset; // Average angle measures to determine actual robot angle
+                }
+                else if (g0angles != null) {
+                    robotAngle = g0angles.firstAngle + firstAngleOffset;
+                }
+                else if (g1angles != null) {
+                    robotAngle = g1angles.firstAngle + firstAngleOffset;
+                }
+                else {
+                    telemetry.addData("Note", "As the gyros are not working, field-centric driving has been disabled, and direct drive will be used regardless of driver-controlled settings");
+                    telemetry.update();
+                    robot.setDrivePower(drive + turn - angle, drive + turn + angle, drive - turn + angle, drive - turn - angle);
+                    return;
+                }
+                double x = Math.sqrt(Math.pow(drive, 2) + Math.pow(angle, 2)); // Hypotenuse for right triangle representing robot movement
+                double theta = -robotAngle + Math.atan2(drive, angle);
+                drive = x * Math.sin(theta); // Set forward speed dependent on the intended angle of movement, adjusting for the angle of the robot
+                angle = x * Math.cos(theta); // Set sideways speed dependent on the intended angle of movement, adjusting for the angle of the robot
+                double scaleFactor = maxDriveSpeed / Math.max(maxDriveSpeed, Math.max(Math.max(Math.abs(drive + turn + angle), Math.abs(drive + turn - angle)), Math.max(Math.abs(drive - turn - angle), Math.abs(drive - turn + angle))));
+                robot.setDrivePower(scaleFactor * (drive + turn - angle), scaleFactor * (drive + turn + angle), scaleFactor * (drive - turn + angle), scaleFactor * (drive - turn - angle)); // Send adjusted values to GOFHardware() class
+            }
+        }
+        catch(Exception p_exception) {
+            robot.setDrivePower(turn, turn, -turn, -turn);
+        }
+    }
+
+    private double adjust(double varToAdjust) { // Square-root driving
+        if(varToAdjust < 0) {
+            varToAdjust = -Math.sqrt(-varToAdjust);
+        }
+        else {
+            varToAdjust = Math.sqrt(varToAdjust);
+        }
+        return varToAdjust;
+    }
+
     private void flipBox(final double angle) {
         iterations = 0;
         integral = 0;
         boxPos = angle;
+        gotThere = false;
     }
 
     private void checkBox() {
-        robot.box.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        double currentAngle = 180 * (robot.boxPotentiometer.getVoltage() / 3.3);
-        double error = -(boxPos - currentAngle);
-        double derivative = 0;
-        if(Math.abs(error) >= offset && !gotThere) {
-            if(iterations > 1) {
-                integral += threadTime.time() * (lastError - error);
-                derivative = (error - lastError) / threadTime.time();
-                if(Math.abs(derivative) >= 50) {
-                    derivative = 0;
-                }
-                if(Math.abs(integral) >= 50) {
-                    integral = 0;
-                }
-                if(error != 0) {
-                    derivative = Math.abs(derivative) * (error / Math.abs(error));
-                    integral = Math.abs(integral) * (error / Math.abs(error));
-                }
+        if(robot.box != null) {
+            if(boxPos >= 115) {
+                robot.box.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+            } else {
+                robot.box.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
             }
-            lastError = error;
-            double PIDPower;
-            if(boxPos >= 170 && currentAngle >= 170) {
-                robot.box.setPower(0);
-            }
-            else {
+            robot.box.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            double currentAngle = 180 * (robot.boxPotentiometer.getVoltage() / 3.3);
+            double error = -(boxPos - currentAngle);
+            double derivative = 0;
+            if (Math.abs(error) >= offset && !gotThere) {
+                if (iterations > 1) {
+                    integral += threadTime.time() * error;
+                    derivative = (error - lastError) / threadTime.time();
+                    if (Math.abs(integral) >= 50) {
+                        integral = 50 * Math.signum(integral);
+                    }
+                }
+                lastError = error;
+                double PIDPower;
                 try {
                     PIDPower = (Kp * error) + (Ki * integral) + (Kd * (derivative));
                 } catch (Exception p_exception) {
-                    PIDPower = (Kp
-                            * error);
+                    PIDPower = (Kp * error);
                 }
-                if(Math.abs(PIDPower) >= 0.15) {
-                    if((currentAngle <= 175 || PIDPower <= 0) && (currentAngle >= 20 || PIDPower >= 0)) {
-                        robot.box.setPower(Range.clip(PIDPower, -robot.maxBoxSpeed, robot.maxBoxSpeed));
+                if (Math.abs(PIDPower) >= 0.15) {
+                    if ((currentAngle <= 175 || PIDPower <= 0) && (currentAngle >= 20 || PIDPower >= 0)) {
+                        robot.box.setPower(Range.clip(PIDPower, -robot.maxBoxSpeed * (7.0 / 12.0), robot.maxBoxSpeed));
                         threadTime.reset();
-                    }
-                    else {
-                        robot.box.setPower(0);
+                    } else {
+                        robot.box.setPower(Range.clip(PIDPower, -robot.maxBoxSpeed * (7.0 / 12.0), robot.maxBoxSpeed));
                     }
                 } else {
                     robot.box.setPower(0);
                 }
+            } else {
+                robot.box.setPower(0);
+                gotThere = true;
             }
         }
-        else {
-            robot.box.setPower(0);
-            gotThere = true;
+    }
+
+    public static GOFTeleOp getInstance() {
+        if(teleOp == null) {
+            teleOp = new GOFTeleOp();
         }
+        return teleOp;
     }
 
     /*
@@ -352,7 +492,6 @@ public class GOFBoxPotentiometerPoses extends OpMode {
         }
         telemetry.update();
     }
-
     private double getAngle() {
                 double robotAngle;
                 Orientation g0angles = null;
@@ -376,4 +515,4 @@ public class GOFBoxPotentiometerPoses extends OpMode {
             }
     */
 
-} // End of class
+}

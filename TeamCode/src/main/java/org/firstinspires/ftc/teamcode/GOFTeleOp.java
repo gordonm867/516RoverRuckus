@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
@@ -10,65 +11,153 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
-import org.firstinspires.ftc.robotcore.internal.opmode.OpModeManagerImpl;
+import org.openftc.revextensions2.ExpansionHubEx;
+import org.openftc.revextensions2.ExpansionHubMotor;
+import org.openftc.revextensions2.RevExtensions2;
 
 // @SuppressWarnings({"WeakerAccess", "SpellCheckingInspection", "EmptyCatchBlock", "StatementWithEmptyBody", "SameParameterValue"})
-@TeleOp(name="GOFTeleOp", group="GOF")
+@TeleOp(name="GOFDebugging", group="GOF")
 public class GOFTeleOp extends OpMode {
 
-    private             boolean             aPressed            = false;
-    private volatile    boolean             doTelemetry         = true;
-    private             boolean             ypressed            = false;
-    private             boolean             useNeg              = false;
-    private             boolean             waitingForClick     = true;
-    private             boolean             bumperPressed       = false;
-    private             boolean             gotThere            = false;
-    private             boolean             servoMove           = false;
-    private             boolean             hanging             = true;
-    private             boolean             hangDown            = false;
+    private             boolean             aPressed                        = false;
+    private volatile    boolean             doTelemetry                     = true;
+    private             boolean             ypressed                        = false;
+    private             boolean             useNeg                          = false;
+    private             boolean             waitingForClick                 = true;
+    private             boolean             bumperPressed                   = false;
+    private             boolean             gotThere                        = false;
+    private             boolean             servoMove                       = false;
+    private             boolean             hanging                         = true;
+    private volatile    boolean             threadReset                     = false;
+    private             boolean             hangDown                        = false;
 
-    private volatile    double              boxPos              = 120;
+    private volatile    double              boxPos                          = 120;
     private             double              firstAngleOffset;
-    private             double              triggerPressed      = 0;
-    private             double              lastIntake          = 0;
-    private             double              integral            = 0;
-    private             double              lastError           = 0;
+    private             double              triggerPressed                  = 0;
+    private             double              lastIntake                      = 0;
+    private             double              integral                        = 0;
+    private             double              lastError                       = 0;
     private             double              maxDriveSpeed;
-    private             double              dump                = 30;
-    private             double              intake              = 120;
-    private             double              neutral             = 65;
-    private             double              offset              = 2.5;
-    private             double              Kp                  = 0.02;
-    private             double              Ki                  = 0;
-    private             double              Kd                  = 0;
+    private             double              dump                            = 30;
+    private             double              intake                          = 128.76;
+    private             double              neutral                         = 65;
+    private             double              offset                          = 2.5;
+    private             double              Kp                              = 0.03;
+    private             double              Ki                              = 0.0075;
+    private             double              Kd                              = 0.015;
+    private volatile    double              x                               = -2;
+    private volatile    double              y                               = 2;
 
-    private             ElapsedTime         hangTime            = new ElapsedTime();
-    private             ElapsedTime         trigTime            = new ElapsedTime();
-    private volatile    ElapsedTime         threadTime          = new ElapsedTime();
-    private volatile    ElapsedTime         elapsedTime         = new ElapsedTime();
+    private             ElapsedTime         hangTime                        = new ElapsedTime();
+    private             ElapsedTime         trigTime                        = new ElapsedTime();
+    private volatile    ElapsedTime         threadTime                      = new ElapsedTime();
+    private volatile    ElapsedTime         elapsedTime                     = new ElapsedTime();
+    private             ElapsedTime         lightsTime                      = new ElapsedTime();
 
-    public              GOFHardware         robot               = GOFHardware.getInstance(); // Use the GOFHardware class
+    private volatile    ExpansionHubMotor   rr, rf, lr, lf, em, fm, h1, in;
+    private volatile    ExpansionHubEx      expansionHub2, expansionHub3;
 
-    private static      GOFTeleOp           teleOp              = GOFTeleOp.getInstance();
+    public              GOFHardware         robot                           = GOFHardware.getInstance(); // Use the GOFHardware class
 
-    private             int                 driverMode          = 1;
-    private             int                 iterations          = 0;
+    private static      GOFTeleOp           teleOp                          = GOFTeleOp.getInstance();
+
+    private             int                 driverMode                      = 1;
+    private             int                 iterations                      = 0;
+
+    private             Thread              box;
 
     @Override
     public void init() {
+        RevExtensions2.init();
         msStuckDetectInit = 10000; // Allow gyros to calibrate
         robot.init(hardwareMap);
         // robot.setKickPower(kickReadyPos);
-        robot.teamFlag.setPosition(0.05);
+        if(robot.teamFlag != null) {
+            robot.teamFlag.setPosition(0.05);
+        }
         maxDriveSpeed = robot.maxDriveSpeed;
-        boxPos = 180 * (robot.boxPotentiometer.getVoltage() / 3.3);
+        if(robot.boxPotentiometer != null) {
+            boxPos = 180 * (robot.getBoxVoltage() / 3.3);
+        }
+        box = new Thread() {
+            private ElapsedTime threadTime = new ElapsedTime();
+            private double iterations = 0;
+            private double integral = 0;
+            private double lastError = 0;
+            @Override
+            public synchronized void run() {
+                boxPos = (robot.boxPotentiometer.getVoltage() / 3.3) * 180;
+                threadTime.reset();
+                while (!Thread.currentThread().isInterrupted()) {
+                    iterations++;
+                    if(threadReset) {
+                        threadReset = false;
+                        integral = 0;
+                        gotThere = false;
+                    }
+                    if (robot.box != null) {
+                        if (boxPos >= 115) {
+                            robot.box.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+                        } else {
+                            robot.box.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+                        }
+                        robot.box.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                        double currentAngle = 180 * (robot.boxPotentiometer.getVoltage() / 3.3);
+                        double error = -(boxPos - currentAngle);
+                        double derivative = 0;
+                        if (Math.abs(error) >= offset && !gotThere) {
+                            if (iterations > 1) {
+                                integral += threadTime.time() * error;
+                                derivative = (error - lastError) / threadTime.time();
+                                if (Math.abs(integral) >= 50) {
+                                    integral = 50 * Math.signum(integral);
+                                }
+                            }
+                            lastError = error;
+                            double PIDPower;
+                            try {
+                                PIDPower = (Kp * error) + (Ki * integral) + (Kd * (derivative));
+                            } catch (Exception p_exception) {
+                                PIDPower = (Kp * error);
+                            }
+                            if (Math.abs(PIDPower) >= 0.15) {
+                                if ((currentAngle <= 175 || PIDPower <= 0) && (currentAngle >= 20 || PIDPower >= 0)) {
+                                    robot.box.setPower(Range.clip(PIDPower, -robot.maxBoxSpeed * (7.0 / 12.0), robot.maxBoxSpeed));
+                                    threadTime.reset();
+                                } else {
+                                    robot.box.setPower(Range.clip(PIDPower, -robot.maxBoxSpeed * (7.0 / 12.0), robot.maxBoxSpeed));
+                                }
+                            } else {
+                                robot.box.setPower(0);
+                            }
+                        } else {
+                            robot.box.setPower(0);
+                            gotThere = true;
+                        }
+                    }
+                    threadTime.reset();
+                }
+            }
+        };
+        expansionHub2 = hardwareMap.get(ExpansionHubEx.class, "Expansion Hub 2");
+        expansionHub3 = hardwareMap.get(ExpansionHubEx.class, "Expansion Hub 3");
+        rr = (ExpansionHubMotor) hardwareMap.dcMotor.get("rr");
+        rf = (ExpansionHubMotor) hardwareMap.dcMotor.get("rf");
+        lr = (ExpansionHubMotor) hardwareMap.dcMotor.get("lr");
+        lf = (ExpansionHubMotor) hardwareMap.dcMotor.get("lf");
+        em = (ExpansionHubMotor) hardwareMap.dcMotor.get("em");
+        fm = (ExpansionHubMotor) hardwareMap.dcMotor.get("fm");
+        h1 = (ExpansionHubMotor) hardwareMap.dcMotor.get("h1");
+        in = (ExpansionHubMotor) hardwareMap.dcMotor.get("in");
+        expansionHub2.setLedColor((int)(Math.random() * 255), (int)(Math.random() * 255), (int)(Math.random() * 255));
+        expansionHub3.setLedColor((int)(Math.random() * 255), (int)(Math.random() * 255), (int)(Math.random() * 255));
         telemetry.addData("Status", "Initialized"); // Update phone
     }
 
     @Override
     public void init_loop() {
-        checkBox();
-        iterations++;
+        // checkBox();
+        // iterations++;
     }
 
     @Override
@@ -85,26 +174,42 @@ public class GOFTeleOp extends OpMode {
                         Thread.currentThread().interrupt();
                     }
                 }
-                while(doTelemetry && elapsedTime.time() < 5) {
+                while(!Thread.currentThread().isInterrupted() && doTelemetry && elapsedTime.time() < 5) {
                     try {
                         String tmy = "";
+                      //  tmy += "Current Point" + "\n";
+                      //  tmy += "    x: " + x;
+                      //  tmy += "    y: " + y;
+                        tmy += "Voltages" + "\n";
+                        tmy += "     Total: " + (expansionHub2.getTotalModuleCurrentDraw() + expansionHub3.getTotalModuleCurrentDraw()) + "\n";
+                        tmy += "     Hub 2: " + expansionHub2.getTotalModuleCurrentDraw() + "\n";
+                        tmy += "     Hub 3: " + expansionHub3.getTotalModuleCurrentDraw() + "\n";
+                        tmy += "     Hub 2 I2C: " + expansionHub2.getI2cBusCurrentDraw();
+                        tmy += "     Hub 3 I2C: " + expansionHub3.getI2cBusCurrentDraw();
+                        tmy += "     em: " + em.getCurrentDraw() + "\n";
+                        tmy += "     lf: " + lf.getCurrentDraw() + "\n";
+                        tmy += "     lf: " + lf.getCurrentDraw() + "\n";
+                        tmy += "     rf: " + rf.getCurrentDraw() + "\n";
+                        tmy += "     rr: " + rr.getCurrentDraw() + "\n";
+                        tmy += "     fm: " + fm.getCurrentDraw() + "\n";
+                        tmy += "     in: " + in.getCurrentDraw() + "\n";
+                        tmy += "     h1: " + h1.getCurrentDraw() + "\n";
+                        tmy += "     Hub 2 GPIO: " + expansionHub2.getGpioBusCurrentDraw() + "\n";
+                        tmy += "     Hub 3 GPIO: " + expansionHub3.getGpioBusCurrentDraw() + "\n";
                         tmy += "Motors" + "\n";
-                        tmy += "    rr: " + robot.rrWheel.getCurrentPosition() + "\n";
-                        tmy += "    rf: " + robot.rfWheel.getCurrentPosition() + "\n";
-                        tmy += "    lr: " + robot.lrWheel.getCurrentPosition() + "\n";
-                        tmy += "    lf: " + robot.lfWheel.getCurrentPosition() + "\n";
-                        tmy += "    h1: " + robot.hangOne.getCurrentPosition() + "\n";
-                        tmy += "    em: " + robot.extend.getCurrentPosition() + "\n";
-                        tmy += "    so: " + robot.box.getCurrentPosition() + "\n";
-                        tmy += "    intake: " + (gamepad1.right_trigger) + ", " + robot.intake.getCurrentPosition() + "\n";
-                        tmy += "    outtake: " + (gamepad1.left_trigger) + "\n";
+                        tmy += "     em: " + robot.extend.getCurrentPosition();
+                        tmy += "     lf: " + robot.lfWheel.getCurrentPosition();
+                        tmy += "     lr: " + robot.lrWheel.getCurrentPosition();
+                        tmy += "     rf: " + robot.rfWheel.getCurrentPosition();
+                        tmy += "     rr: " + robot.rrWheel.getCurrentPosition();
                         tmy += "Servos" + "\n";
-                        tmy += "    fm, actual: " + (180 * (robot.boxPotentiometer.getVoltage() / 3.3)) + "\n";
+                        tmy += "    fm, actual: " + (180 * (robot.getBoxVoltage() / 3.3)) + "\n";
                         tmy += "    fm, intended: " + boxPos + "\n";
-                        tmy += "    tm: " + robot.teamFlag.getPosition() + "\n";
-                        tmy += "Sensors" + "\n";
-                        tmy += "     MR Range Sensor: " + robot.getUSDistance() + "\n";
-                        tmy += "     REV 2m Distance Sensor: " + robot.getREVDistance() + "\n";
+                        tmy += "Robot angle: " + getAngle() + "\n";
+                        tmy += "Sensors: " + "\n";
+                        tmy += "    uss: " + robot.getUSDistance() + "\n";
+                       // tmy += "     MR Range Sensor: " + robot.getUSDistance() + "\n";
+                       // tmy += "     REV 2m Distance Sensor: " + robot.getREVDistance() + "\n";
                         telemetry.addData("", tmy);
                         telemetry.update();
                         sleep(0);
@@ -115,18 +220,103 @@ public class GOFTeleOp extends OpMode {
                     }
                     telemetry.update();
                 }
+                try {
+                    while(!Thread.currentThread().isInterrupted() && doTelemetry && elapsedTime.time() < 5) {
+                        telemetry.addData("Elapsed Time", lightsTime.time());
+                        telemetry.update();
+                    }
+                }
+                catch(Exception ignore) {}
             }
+
+            private double getAngle() {
+                double robotAngle;
+                Orientation g0angles = null;
+                Orientation g1angles = null;
+                if (robot.gyro0 != null) {
+                    g0angles = robot.gyro0.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES); // Get z axis angle from first gyro (in radians so that a conversion is unnecessary for proper employment of Java's Math class)
+                }
+                if (robot.gyro1 != null) {
+                    g1angles = robot.gyro1.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES); // Get z axis angle from second gyro (in radians so that a conversion is unnecessary for proper employment of Java's Math class)
+                }
+                if (g0angles != null && g1angles != null) {
+                    robotAngle = ((g0angles.firstAngle + g1angles.firstAngle) / 2); // Average angle measures to determine actual robot angle
+                }
+                else if(g0angles != null) {
+                    robotAngle = g0angles.firstAngle;
+                }
+                else if(g1angles != null) {
+                    robotAngle = g1angles.firstAngle;
+                }
+                else {
+                    robotAngle = 0;
+                }
+                return robotAngle;
+            }
+
         };
         update.start();
+        box.start();
+        /*
+        Thread trackPoint = new Thread() {
+            public synchronized void run() {
+                double lastAngle = getAngle();
+                while(robot.box != null && robot.intake != null && elapsedTime.time() < 5 && !Thread.currentThread().isInterrupted()) {
+                    double currentAngle = getAngle();
+                    double deltaTheta = currentAngle - lastAngle;
+                    double xDist = (robot.box.getCurrentPosition() - (5 * deltaTheta));
+                    double yDist = (robot.intake.getCurrentPosition());
+                    double angle = getAngle() - 90.0 - (deltaTheta / 2.0);
+                    x += yDist * Math.sin(Math.toRadians(angle)) + xDist * Math.sin(Math.toRadians(90 - angle));
+                    y += yDist * Math.cos(Math.toRadians(angle)) + xDist * Math.cos(Math.toRadians(90 - angle));
+                    lastAngle = currentAngle;
+                }
+            }
+            private double getAngle() {
+                double robotAngle;
+                Orientation g0angles = null;
+                Orientation g1angles = null;
+                if (robot.gyro0 != null) {
+                    g0angles = robot.gyro0.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES); // Get z axis angle from first gyro (in radians so that a conversion is unnecessary for proper employment of Java's Math class)
+                }
+                if (robot.gyro1 != null) {
+                    g1angles = robot.gyro1.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES); // Get z axis angle from second gyro (in radians so that a conversion is unnecessary for proper employment of Java's Math class)
+                }
+                if (g0angles != null && g1angles != null) {
+                    robotAngle = ((g0angles.firstAngle + g1angles.firstAngle) / 2); // Average angle measures to determine actual robot angle
+                } else if (g0angles != null) {
+                    robotAngle = g0angles.firstAngle;
+                } else if (g1angles != null) {
+                    robotAngle = g1angles.firstAngle;
+                } else {
+                    robotAngle = 0;
+                }
+                return robotAngle;
+            }
+        };
+        trackPoint.start();
+        */
+        Thread lights = new Thread() {
+            @Override
+            public synchronized void run() {
+                while(elapsedTime.time() < 5 && !Thread.currentThread().isInterrupted()) {
+                    if(robot.lights != null) {
+                        robot.lights.update();
+                    }
+                }
+            }
+        };
+        lights.start();
+        lightsTime.reset();
     }
 
     @Override
     public void loop() {
         elapsedTime.reset();
-        double drive = gamepad1.left_stick_y;
+        double drive = -gamepad1.left_stick_y;
         double hangDrive = -gamepad2.left_stick_y;
-        double turn = -gamepad1.right_stick_x;
-        double angle = -gamepad1.left_stick_x;
+        double turn = gamepad1.right_stick_x * 0.6;
+        double angle = gamepad1.left_stick_x;
 
         /* Precision vertical drive */
         if (gamepad1.dpad_down || gamepad1.dpad_up) {
@@ -134,9 +324,9 @@ public class GOFTeleOp extends OpMode {
                 drive = drive * 0.2; // Slow down joystick driving
             } else {
                 if (gamepad1.dpad_down) {
-                    drive = 0.2; // Slow drive backwards
+                    drive = -0.2; // Slow drive backwards
                 } else {
-                    drive = -0.2; // Slow drive forwards
+                    drive = 0.2; // Slow drive forwards
                 }
             }
         }
@@ -147,19 +337,19 @@ public class GOFTeleOp extends OpMode {
                 angle = angle * 0.3; // Slow down joystick side movement
             } else {
                 if (gamepad1.dpad_left) {
-                    angle = 0.3; // Slow leftwards
+                    angle = -0.3; // Slow leftwards
                 } else {
-                    angle = -0.3; // Slow rightwards
+                    angle = 0.3; // Slow rightwards
                 }
             }
         }
 
         /* Precision turn */
         if (gamepad1.left_bumper) {
-            turn = 0.2; // Slow left turn
+            turn = -0.2; // Slow left turn
         }
         if (gamepad1.right_bumper) {
-            turn = -0.2; // Slow right turn
+            turn = 0.2; // Slow right turn
         }
 
         if(driverMode == 1) {
@@ -183,23 +373,11 @@ public class GOFTeleOp extends OpMode {
         }
 
         if(gamepad1.left_trigger != 0) {
-            triggerPressed = gamepad1.left_trigger * (useNeg ? -1 : 1);
-            trigTime.reset();
+            triggerPressed = gamepad1.left_trigger;
         }
+
         if(gamepad1.left_trigger == 0 && triggerPressed != 0) {
             triggerPressed = 0;
-            if(!useNeg) {
-                waitingForClick = true;
-            }
-            else {
-                useNeg = false;
-            }
-        }
-        if(waitingForClick && trigTime.time() > 0.1) {
-            waitingForClick = false;
-        }
-        if(waitingForClick && gamepad1.left_trigger > 0.05) {
-            useNeg = true;
         }
 
         if((triggerPressed != 0 || gamepad2.dpad_up || gamepad2.dpad_down || servoMove) || gamepad1.a) {
@@ -248,7 +426,7 @@ public class GOFTeleOp extends OpMode {
             }
         }
 
-        if(gamepad2.x && !robot.bottomSensor.isPressed()) {
+        if(gamepad2.x && robot.bottomSensor != null && !robot.bottomSensor.isPressed()) {
             hangDown = true;
         }
 
@@ -260,21 +438,22 @@ public class GOFTeleOp extends OpMode {
             hangDown = false;
         }
 
-        if(robot.bottomSensor.isPressed() && hangDown) {
+        if(robot.bottomSensor != null && robot.bottomSensor.isPressed() && hangDown) {
             robot.setHangPower(0);
             hangDown = false;
         }
 
-        if(robot.hangOne.getPower() > 0.05) {
-            flipBox(neutral);
+        if(robot.hangOne != null && robot.hangOne.getPower() > 0.05 && boxPos == dump) {
+            flipBox(100);
         }
 
         if(!servoMove && !hangDown) {
-            robot.setHangPower(hanging ? hangDrive : 0); // Move container based on gamepad positions
+            robot.setHangPower(hanging ? (hangDrive * 2) : 0); // Move container based on gamepad positions
         }
 
         if(!servoMove) {
-            robot.setExtendPower((Math.abs(gamepad2.right_stick_x) < 0.05 ? gamepad2.dpad_right ? 0.25 : gamepad2.dpad_left ? -0.25 : gamepad1.x ? -1 : gamepad1.b ? 1 : 0 : gamepad2.right_stick_x));
+            double extendDrive = (Math.abs(gamepad2.right_stick_x) < 0.05 ? gamepad2.dpad_right ? 0.25 : gamepad2.dpad_left ? -0.25 : gamepad1.x ? -1 : gamepad1.b ? 1 : 0 : gamepad2.right_stick_x);
+            robot.setExtendPower(extendDrive);
         }
 
         if(((Math.abs(gamepad2.right_stick_x) < 0.05 ? gamepad2.dpad_right ? 0.25 : gamepad2.dpad_left ? -0.25 : gamepad1.x ? -1 : gamepad1.b ? 1 : 0 : gamepad2.right_stick_x)) != 0) {
@@ -314,7 +493,7 @@ public class GOFTeleOp extends OpMode {
         }
 
         if(gamepad2.a && !gamepad2.start && !aPressed) {
-            flipBox(90);
+            flipBox(65);
             aPressed = true;
             servoMove = true;
             robot.setInPower(0.25);
@@ -324,24 +503,28 @@ public class GOFTeleOp extends OpMode {
             aPressed = false;
         }
 
-        if(servoMove && !(robot.extenderSensor.getVoltage() > 2)) {
+        if(servoMove && robot.extend != null && !(robot.extenderSensor.getVoltage() > 2)) {
             robot.setExtendPower(1);
         }
 
-        if(servoMove && !(robot.bottomSensor.isPressed())) {
+        if(servoMove && robot.bottomSensor != null && !(robot.bottomSensor.isPressed())) {
             robot.setHangPower(-1);
         }
 
-        if(robot.extenderSensor.getVoltage() > 2 && servoMove) {
+        if(robot.extenderSensor != null && robot.extenderSensor.getVoltage() > 2 && servoMove) {
             robot.setExtendPower(0);
-            if(robot.bottomSensor.isPressed()) {
+            if(robot.bottomSensor != null && robot.bottomSensor.isPressed()) {
                 robot.setHangPower(0);
                 servoMove = false;
                 flipBox(dump);
             }
         }
 
-        if(robot.bottomSensor.isPressed() && servoMove) {
+        if(!servoMove && robot.extend.getPower() == 0) {
+            robot.extend.setPower(-0.1);
+        }
+
+        if(robot.bottomSensor != null && robot.bottomSensor.isPressed() && servoMove) {
             robot.setHangPower(0);
             if(robot.extenderSensor.getVoltage() > 2) {
                 servoMove = false;
@@ -350,7 +533,7 @@ public class GOFTeleOp extends OpMode {
             }
         }
 
-        if(servoMove && robot.bottomSensor.isPressed() && robot.extenderSensor.getVoltage() > 2) {
+        if(servoMove && robot.bottomSensor != null && robot.bottomSensor.isPressed() && robot.extenderSensor != null && robot.extenderSensor.getVoltage() > 2) {
             robot.setHangPower(0);
             robot.setExtendPower(0);
             servoMove = false;
@@ -361,14 +544,40 @@ public class GOFTeleOp extends OpMode {
             hanging = true;
         }
 
-        iterations++;
-        checkBox();
+        if(robot.lights != null) {
+            if (lightsTime.time() >= 100 && lightsTime.time() <= 110) {
+                if (robot.lights != null && (iterations / 90) % 2 == 0) {
+                    robot.lights.pixels[0].setRGB(60, 0, 60);
+                    robot.lights.pixels[2].setRGB(60, 0, 60);
+                } else if (robot.lights != null) {
+                    robot.lights.pixels[0].setRGB(0, 0, 0);
+                    robot.lights.pixels[2].setRGB(0, 0, 0);
+                }
+            } else if (lightsTime.time() >= 110 && lightsTime.time() <= 115) {
+                if (robot.lights != null && (iterations / 90) % 2 == 0) {
+                    robot.lights.pixels[0].setRGB(60, 0, 0);
+                    robot.lights.pixels[2].setRGB(60, 0, 0);
+                } else if (robot.lights != null) {
+                    robot.lights.pixels[0].setRGB(0, 0, 0);
+                    robot.lights.pixels[2].setRGB(0, 0, 0);
+                }
+            } else if (lightsTime.time() >= 115) {
+                if ((iterations / 45) % 2 == 0) {
+                    robot.lights.pixels[0].setRGB(255, 0, 0);
+                    robot.lights.pixels[2].setRGB(255, 0, 0);
+                } else if (robot.lights != null) {
+                    robot.lights.pixels[0].setRGB(0, 0, 0);
+                    robot.lights.pixels[2].setRGB(0, 0, 0);
+                }
+            }
+            robot.lights.update();
+        }
     }
 
     @Override
     public void stop() { // Run when "STOP" pressed
-        doTelemetry = false;
         robot.enabled = false;
+        box.interrupt();
         robot.wheelBrake();
         robot.hangBrake();
         // robot.setKickPower(kickReadyPos); // Move kick servo to "intake ready" position
@@ -432,56 +641,49 @@ public class GOFTeleOp extends OpMode {
         integral = 0;
         boxPos = angle;
         gotThere = false;
+        threadReset = true;
     }
 
     private void checkBox() {
-        if(boxPos >= 115) {
-            robot.box.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        }
-        else {
-            robot.box.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        }
-        robot.box.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        double currentAngle = 180 * (robot.boxPotentiometer.getVoltage() / 3.3);
-        double error = -(boxPos - currentAngle);
-        double derivative = 0;
-        if(Math.abs(error) >= offset && !gotThere) {
-            if(iterations > 1) {
-                integral += threadTime.time() * (lastError - error);
-                derivative = (error - lastError) / threadTime.time();
-                if(Math.abs(derivative) >= 50) {
-                    derivative = 0;
-                }
-                if(Math.abs(integral) >= 50) {
-                    integral = 0;
-                }
-                if(error != 0) {
-                    derivative = Math.abs(derivative) * (error / Math.abs(error));
-                    integral = Math.abs(integral) * (error / Math.abs(error));
-                }
+        if(robot.box != null) {
+            if(boxPos >= 115) {
+                robot.box.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+            } else {
+                robot.box.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
             }
-            lastError = error;
-            double PIDPower;
+            robot.box.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            double currentAngle = 180 * (robot.boxPotentiometer.getVoltage() / 3.3);
+            double error = -(boxPos - currentAngle);
+            double derivative = 0;
+            if (Math.abs(error) >= offset && !gotThere) {
+                if (iterations > 1) {
+                    integral += threadTime.time() * error;
+                    derivative = (error - lastError) / threadTime.time();
+                    if (Math.abs(integral) >= 50) {
+                        integral = 50 * Math.signum(integral);
+                    }
+                }
+                lastError = error;
+                double PIDPower;
                 try {
                     PIDPower = (Kp * error) - (Ki * integral) + (Kd * (derivative));
                 } catch (Exception p_exception) {
                     PIDPower = (Kp * error);
                 }
-                if(Math.abs(PIDPower) >= 0.15) {
-                    if((currentAngle <= 175 || PIDPower <= 0) && (currentAngle >= 20 || PIDPower >= 0)) {
-                        robot.box.setPower(Range.clip(PIDPower, -robot.maxBoxSpeed * (7.0/12.0), robot.maxBoxSpeed));
+                if (Math.abs(PIDPower) >= 0.15) {
+                    if ((currentAngle <= 175 || PIDPower <= 0) && (currentAngle >= 20 || PIDPower >= 0)) {
+                        robot.box.setPower(Range.clip(PIDPower, -robot.maxBoxSpeed * (7.0 / 12.0), robot.maxBoxSpeed));
                         threadTime.reset();
-                    }
-                    else {
-                        robot.box.setPower(Range.clip(PIDPower, -robot.maxBoxSpeed * (7.0/12.0), robot.maxBoxSpeed));
+                    } else {
+                        robot.box.setPower(Range.clip(PIDPower, -robot.maxBoxSpeed * (7.0 / 12.0), robot.maxBoxSpeed));
                     }
                 } else {
                     robot.box.setPower(0);
                 }
-        }
-        else {
-            robot.box.setPower(0);
-            gotThere = true;
+            } else {
+                robot.box.setPower(0);
+                gotThere = true;
+            }
         }
     }
 
@@ -543,4 +745,4 @@ public class GOFTeleOp extends OpMode {
             }
     */
 
-} // End of class
+}

@@ -29,7 +29,7 @@ import java.util.Iterator;
 import java.util.List;
 
 @Autonomous(name="AutoCreatorRunner",group="GOFTests")
-// @Disabled
+@Disabled
 
 public class AutoCreatorTestRunnable extends LinearOpMode {
     private                 boolean             aPressed                = false;

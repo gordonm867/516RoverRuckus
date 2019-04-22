@@ -15,6 +15,9 @@ Digital Controller 1 Port 0 bottomSensor    (ls)
 
 I2C Controller 1 Port 0 gyro0               (g0)
 I2C Controller 2 Port 0 gyro1               (g1)
+
+AnalogInput hub 2 port 2
+DigitalDevices hub 2 port 1
 */
 
 import com.qualcomm.ftccommon.SoundPlayer;
@@ -32,12 +35,17 @@ import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
+import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
+import org.firstinspires.ftc.robotcontroller.external.samples.DotStarBridgedLED;
 import org.firstinspires.ftc.robotcontroller.external.samples.SensorMRRangeSensor;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.internal.opmode.OpModeManagerImpl;
 import org.firstinspires.ftc.robotcore.internal.opmode.OpModeServices;
+
+import java.io.IOException;
+import java.util.Scanner;
 
 // @SuppressWarnings({"WeakerAccess", "SpellCheckingInspection", "EmptyCatchBlock", "StatementWithEmptyBody", "SameParameterValue"})
 public class GOFHardware {
@@ -72,8 +80,10 @@ public class GOFHardware {
     public          DistanceSensor               frontDistanceSensor;
     public          DistanceSensor               backDistanceSensor;
 
+    public volatile DotStarBridgedLED            lights;
+
     public          double                       maxDriveSpeed            = 1;
-    public          double                       maxBoxSpeed              = 0.85;
+    public          double                       maxBoxSpeed              = 0.95;
     public          double                       boxPos                   = 0;
 
     private static  GOFHardware                  robot                    = null;
@@ -109,6 +119,37 @@ public class GOFHardware {
               MOTORS (Define and Initialize)
          ---------------------------------------
     */
+
+        try { // Gyro 0
+            throw new IOException("Dead");
+            /*
+            BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
+            parameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
+            parameters.accelUnit           = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
+            parameters.loggingEnabled      = true;
+            parameters.loggingTag          = "IMU";
+            parameters.accelerationIntegrationAlgorithm = new JustLoggingAccelerationIntegrator();
+            gyro0 = hwMap.get(BNO055IMU.class, "g0");
+            gyro0.initialize(parameters);
+            */
+        }
+        catch (Exception p_exception) {
+            gyro0 = null;
+        }
+
+        try { // Gyro 1
+            BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
+            parameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
+            parameters.accelUnit           = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
+            parameters.loggingEnabled      = true;
+            parameters.loggingTag          = "IMU";
+            parameters.accelerationIntegrationAlgorithm = new JustLoggingAccelerationIntegrator();
+            gyro1 = hwMap.get(BNO055IMU.class, "g1");
+            gyro1.initialize(parameters);
+        }
+        catch (Exception p_exception) {
+            gyro1 = null;
+        }
 
         try { // Left rear wheel
             lrWheel = hwMap.get(DcMotor.class, "lr");
@@ -297,40 +338,21 @@ public class GOFHardware {
             backDistanceSensor = null;
         }
 
-        try { // Gyro 0
-            BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
-            parameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
-            parameters.accelUnit           = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
-            parameters.loggingEnabled      = true;
-            parameters.loggingTag          = "IMU";
-            parameters.accelerationIntegrationAlgorithm = new JustLoggingAccelerationIntegrator();
-            gyro0 = hwMap.get(BNO055IMU.class, "g0");
-            gyro0.initialize(parameters);
-        }
-        catch (Exception p_exception) {
-            gyro0 = null;
-        }
-
-        try { // Gyro 1
-            BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
-            parameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
-            parameters.accelUnit           = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
-            parameters.loggingEnabled      = true;
-            parameters.loggingTag          = "IMU";
-            parameters.accelerationIntegrationAlgorithm = new JustLoggingAccelerationIntegrator();
-            gyro1 = hwMap.get(BNO055IMU.class, "g1");
-            gyro1.initialize(parameters);
-        }
-        catch (Exception p_exception) {
-            gyro1 = null;
-        }
-
         try { // Upper limit switch
             topSensor = hwMap.get(DigitalChannel.class, "tl");
             topSensor.setMode(DigitalChannel.Mode.INPUT);
         }
         catch (Exception p_exception) {
             topSensor = null;
+        }
+
+        try {
+            lights = hwMap.get(DotStarBridgedLED.class, "lds");
+            lights.setController(DotStarBridgedLED.Controller.RevExpansionHub);
+            lights.setLength(3);
+        }
+        catch (Exception p_exception) {
+            lights = null;
         }
 
         try { // Lower limit switch
@@ -347,6 +369,8 @@ public class GOFHardware {
             extenderSensor = null;
         }
 
+        ElapsedTime timeout = new ElapsedTime();
+        timeout.reset();
     }
 
     /*
@@ -401,7 +425,7 @@ public class GOFHardware {
     public void setInPower(double inPower) { // Set intake power
         if (intake != null) {
             intake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            inPower = Range.clip(inPower, -1, 1);
+            inPower = Range.clip(inPower, -1, 0.75);
             intake.setPower(inPower);
         }
     }
@@ -420,7 +444,7 @@ public class GOFHardware {
                 extend.setPower(0);
             }
             else {
-                extend.setPower(Range.clip(extendPower, -1, 1));
+                extend.setPower(Range.clip(-extendPower, -1, 0.85));
             }
         }
     }
@@ -438,7 +462,7 @@ public class GOFHardware {
         }
         catch(Exception p_exception) {} // If an exception is thrown, there can't be an active Thread anyway
         currentThread = new Thread() {
-            public void run() {
+            public synchronized void run() {
                 double voltage = boxPotentiometer.getVoltage();
                 if(voltage >= 3.3) {
                     voltage = 3.3;
@@ -520,6 +544,35 @@ public class GOFHardware {
     }
 
     public double getUSDistance() {
+        double[] distances = new double[5];
+        double sum = 0;
+        double actualSum;
+        double removals = 5;
+        for(int x = 0; x < 5; x++) {
+            double add = internalGetUSDistance();
+            if(add != Double.POSITIVE_INFINITY && add != 0) {
+                distances[x] = add;
+                sum += distances[x];
+                removals --;
+            }
+        }
+        if(sum == 0 && removals == 5) {
+            return Double.POSITIVE_INFINITY;
+        }
+        actualSum = sum;
+        sum /= 5.0;
+        double removed = 0;
+        for(double value : distances) {
+            if(Math.abs(value - sum) >= 20) {
+                actualSum -= value;
+                removed++;
+            }
+        }
+        actualSum /= (5.0 - removed);
+        return actualSum;
+    }
+
+    public double internalGetUSDistance() {
         if(rfSensor != null ) {
             double distance = rfSensor.cmUltrasonic(); // Get ultrasonic distance
             int iterations = 1;
@@ -554,6 +607,15 @@ public class GOFHardware {
             }
         }
         return result;
+    }
+
+    public double getBoxVoltage() {
+        if(boxPotentiometer != null) {
+            return boxPotentiometer.getVoltage();
+        }
+        else {
+            return Double.POSITIVE_INFINITY;
+        }
     }
 
 } //End of class
